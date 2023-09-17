@@ -5,14 +5,13 @@ int main () {
     cout << "MAIN" << endl;
     Bitboard board;
     BitBoardHelper whitepawn = board.GetWhitepawn();
+    BitBoardHelper blackpawn = board.GetBlackpawn();
     BitBoardHelper blackrook = board.GetBlackrook();
     BitBoardHelper whiteking = board.GetWhiteking();
     BitBoardHelper blackking = board.GetBlackking();
-    whitepawn.Print();
+    whitepawn.PrintBitBoard();
     cout << endl;
-    blackrook.Print();
+    blackpawn.PrintBitBoard();
     cout << endl;
-    whiteking.Print();
-    cout << endl;
-    blackking.Print();
+    blackrook.PrintBitBoard();
 }

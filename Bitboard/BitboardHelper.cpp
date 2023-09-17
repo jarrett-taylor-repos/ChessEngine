@@ -3,6 +3,7 @@
 #include <string>
 #include <ctype.h>
 #include <stdio.h>
+#include <bitset>
 using namespace std;
 using namespace Extensions;
 #pragma once
@@ -29,9 +30,8 @@ class BitBoardHelper {
             if(curr != '/') {
                 bool isInt = isdigit(curr);
                 short int convertValue = FenCharToValue(curr);
-                if(!isInt && item == convertValue) {
-                    SetBit(square);
-                }
+
+                if(!isInt && item == convertValue) { SetBit(square); }
 
                 if(isInt) {
                     int value = CharToInt(curr);
@@ -59,13 +59,27 @@ class BitBoardHelper {
         board = board & ~mask;
     };
 
-    void Print() {
+    void PrintBitBoard() {
+        char ch = PieceValueToChar(item);
+        string str(1, ch);
+        cout << str << endl;
+        bitset<64> x(board);
         for(int i = 0; i < 64; i++) {
-            if(i % 8 == 0) {
+            if(i % 8 == 0 && i != 0) {
                 cout << endl;
             }
-            cout << GetBit(i) << " ";
+            cout << x[i] << " ";
         }
+    };
+
+    void PrintBinaryValue() {
+        bitset<64> x(board);
+        cout << x << endl;
+    };
+
+    bitset<64> GetBinaryValue() {
+        bitset<64> x(board);
+        return x;
     };
 
     unsigned long long GetBoard() { return board; };
