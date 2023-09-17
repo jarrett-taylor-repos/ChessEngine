@@ -5,22 +5,22 @@
 class Bitboard {
     private:
     //represent color and piece
-    BitBoardHelper whitepawn;
-    BitBoardHelper whiteknight;
-    BitBoardHelper whitebishop;
-    BitBoardHelper whiterook;
-    BitBoardHelper whitequeen;
-    BitBoardHelper whiteking;
+    BitBoardHelper Whitepawn;
+    BitBoardHelper Whiteknight;
+    BitBoardHelper Whitebishop;
+    BitBoardHelper Whiterook;
+    BitBoardHelper Whitequeen;
+    BitBoardHelper Whiteking;
 
-    BitBoardHelper blackpawn;
-    BitBoardHelper blackknight;
-    BitBoardHelper blackbishop;
-    BitBoardHelper blackook;
-    BitBoardHelper blackqueen;
-    BitBoardHelper blackking;
+    BitBoardHelper Blackpawn;
+    BitBoardHelper Blackknight;
+    BitBoardHelper Blackbishop;
+    BitBoardHelper Blackook;
+    BitBoardHelper Blackqueen;
+    BitBoardHelper Blackking;
 
     public:
-
+    Bitboard::Bitboard(std::string);
 };
 
 #endif

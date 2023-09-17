@@ -1,7 +1,7 @@
 #include <iostream>
-#include "bitboard.h"
+#include "..\Bitboard\Bitboard.h"
 using namespace std;
 
 int main () {
-    Bitboard bitTest();
+    Bitboard board();
 }

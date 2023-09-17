@@ -1,5 +1,6 @@
 #ifndef BITBOARDHELPER_H
 #define BITBOARDHELPER_H
+#include <string>
 
 class BitBoardHelper {
     private:
@@ -7,12 +8,18 @@ class BitBoardHelper {
     short int item;
 
     public:
+    BitBoardHelper::BitBoardHelper();
+    void SetFenAndPiece(std::string, short int);
+    short int FenCharToValue(char);
+    void SetBit(int);
+    bool GetBit(int);
+    void ClearBit(int);
 };
 
 #endif
 
 /*
-first left biut is color
+first left bit is color
 next 3 bits to the right are piece 
 
 0 001 - black pawn
