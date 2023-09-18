@@ -11,7 +11,7 @@ using namespace Extensions;
 
 class BitBoardHelper {
     private:
-    unsigned long long board;
+    bitset<64> board;
     short int item;
 
     public:
@@ -45,44 +45,34 @@ class BitBoardHelper {
 
 
     void SetBit(int square) {
-        int mask = 1 << square;
-        board = board | mask;
+        board[square] = 1;
     };
 
     bool GetBit(int square) {
-        bool bit = board & (1 << square);
-        return bit;
+        return board[square];
     };
 
     void ClearBit(int square) {
-        int mask = 1 << square;
-        board = board & ~mask;
+        board[square] = 0;
     };
 
     void PrintBitBoard() {
         char ch = PieceValueToChar(item);
         string str(1, ch);
         cout << str << endl;
-        bitset<64> x(board);
         for(int i = 0; i < 64; i++) {
             if(i % 8 == 0 && i != 0) {
                 cout << endl;
             }
-            cout << x[i] << " ";
+            cout << board[i] << " ";
         }
     };
 
     void PrintBinaryValue() {
-        bitset<64> x(board);
-        cout << x << endl;
+        cout << board << endl;
     };
-
-    bitset<64> GetBinaryValue() {
-        bitset<64> x(board);
-        return x;
-    };
-
-    unsigned long long GetBoard() { return board; };
+    
+    bitset<64> GetBoard() { return board; };
     short int GetItem() { return item; };
 
     short int FenCharToValue(char ch) {
