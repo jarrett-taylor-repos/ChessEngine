@@ -20,7 +20,7 @@ class BitBoardHelper {
         board = 0000000000000000000000000000000000000000000000000000000000000000;
     };
 
-    void SetFenAndPiece(string fen, short int value) {
+    void LoadFen(string fen, short int value) {
         item = value;
         fen = Split(fen, ' ')[0];
         int square = 0;
@@ -31,7 +31,7 @@ class BitBoardHelper {
                 bool isInt = isdigit(curr);
                 short int convertValue = FenCharToValue(curr);
 
-                if(!isInt && item == convertValue) { SetBit(square); }
+                if(!isInt && item == convertValue) { board.set(square); }
 
                 if(isInt) {
                     int value = CharToInt(curr);
@@ -41,19 +41,6 @@ class BitBoardHelper {
                 }
             }
         }
-    };
-
-
-    void SetBit(int square) {
-        board[square] = 1;
-    };
-
-    bool GetBit(int square) {
-        return board[square];
-    };
-
-    void ClearBit(int square) {
-        board[square] = 0;
     };
 
     void PrintBitBoard() {
@@ -68,12 +55,12 @@ class BitBoardHelper {
         }
     };
 
-    void PrintBinaryValue() {
-        cout << board << endl;
-    };
-    
+    bool GetBit(int square) { return board.test(square); };
+    void ClearBit(int square) { board.reset(square); };
+    void PrintBinaryValue() { cout << board << endl; };
     bitset<64> GetBoard() { return board; };
     short int GetItem() { return item; };
+    long long BitsetToU64() {return board.to_ullong(); };
 
     short int FenCharToValue(char ch) {
         switch(ch) {

@@ -5,6 +5,12 @@
         "string": "cpp",
         "iostream": "cpp",
         "ostream": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "type_traits": "cpp",
+        "memory": "cpp",
+        "limits": "cpp",
+        "utility": "cpp",
+        "xutility": "cpp",
+        "xlocale": "cpp"
     }
 }

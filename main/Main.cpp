@@ -1,47 +1,21 @@
 #include "..\Bitboard\Bitboard.cpp"
 #include "..\Bitboard\BitboardHelper.cpp"
+#include "..\MoveEngine\MoveCoordinates.h"
+using namespace MoveCoordinates;
 
 int main () {
     Bitboard board;
-    BitBoardHelper whitepawn = board.GetWhitepawn();
-    BitBoardHelper blackpawn = board.GetBlackpawn();
-    whitepawn.PrintBitBoard();
-    cout << endl;
-    blackpawn.PrintBitBoard();
-    cout << endl;
+    //board.PrintAllBoards();
 
-    BitBoardHelper whiteknight = board.GetWhiteknight();
-    BitBoardHelper blackknight = board.GetBlackknight();
-    whiteknight.PrintBitBoard();
-    cout << endl;
-    blackknight.PrintBitBoard();
-    cout << endl;
 
-    BitBoardHelper whitebishop = board.GetWhitebishop();
-    BitBoardHelper blackbishop = board.GetBlackbishop();
-    whitebishop.PrintBitBoard();
-    cout << endl;
-    blackbishop.PrintBitBoard();
-    cout << endl;
+    bitset<8> test (string("00001111"));
+    bitset<8> test2 (string("11110000"));
 
-    BitBoardHelper whiterook = board.GetWhiterook();
-    BitBoardHelper blackrook = board.GetBlackrook();
-    whiterook.PrintBitBoard();
-    cout << endl;
-    blackrook.PrintBitBoard();
-    cout << endl;
+    cout << "test: " << test << endl;
+    cout << "test2: " << test2 << endl;
 
-    BitBoardHelper whitequeen = board.GetWhitequeen();
-    BitBoardHelper blackqueen = board.GetBlackqueen();
-    whitequeen.PrintBitBoard();
-    cout << endl;
-    blackqueen.PrintBitBoard();
-    cout << endl;
-
-    BitBoardHelper whiteking = board.GetWhiteking();
-    BitBoardHelper blackking = board.GetBlackking();
-    whiteking.PrintBitBoard();
-    cout << endl;
-    blackking.PrintBitBoard();
-    cout << endl;
+    bitset<8> resultOr = test | test2;
+    bitset<8> resultAnd = test & test2;
+    cout << "resultOr: " << resultOr << endl;
+    cout << "resultAnd: " << resultAnd << endl;
 }
