@@ -5,5 +5,4 @@ using namespace MoveCoordinates;
 
 int main () {
     Bitboard board;
-    //board.PrintAllBoards();
 }

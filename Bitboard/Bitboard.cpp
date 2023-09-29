@@ -76,10 +76,28 @@ class Bitboard {
     bitset<64> bBoard() {
         return bPawn.GetBoard() | bKnight.GetBoard() | bBishop.GetBoard() | bRook.GetBoard() | bQueen.GetBoard() | bKing.GetBoard();
     }
-    bitset<64> allBoard() {
+    bitset<64> AllBoard() {
         return wPawn.GetBoard() | wKnight.GetBoard() | wBishop.GetBoard() | wRook.GetBoard() | wQueen.GetBoard() | wKing.GetBoard() |
             bPawn.GetBoard() | bKnight.GetBoard() | bBishop.GetBoard() | bRook.GetBoard() | bQueen.GetBoard() | bKing.GetBoard();
     }
+
+    bitset<64> EmptyBoard() { return ~AllBoard(); }
+
+    bitset<64> northOne(bitset<64> input) { return input >> 8; }
+    bitset<64> southOne(bitset<64> input) { return input << 8; }
+    bitset<64> wSinglePushTargets(bitset<64> input) { return northOne(input) & EmptyBoard(); }
+    bitset<64> wDoublePushTargets(bitset<64> input) { 
+        bitset<64> singlePushes = wSinglePushTargets(input);
+        return northOne(singlePushes) & EmptyBoard() & rank4; 
+    }
+    bitset<64> bSinglePushTargets(bitset<64> input) { return southOne(input) & EmptyBoard(); }
+    bitset<64> bDoublePushTargets(bitset<64> input) {
+        bitset<64> singlePushes = bSinglePushTargets(input);
+        return southOne(singlePushes) & EmptyBoard() & rank5; 
+    }
+
+    bitset<64> wPawnPushes() { return wSinglePushTargets(wPawn.GetBoard()) | wDoublePushTargets(wPawn.GetBoard()); }
+    bitset<64> bPawnPushes() { return bSinglePushTargets(bPawn.GetBoard()) | bDoublePushTargets(bPawn.GetBoard()); }
 
     bitset<64> wPawnWestAtt() { return (wPawn.GetBoard() >> 9) & notAFile; }
     bitset<64> wPawnEastAtt() { return (wPawn.GetBoard() >> 7) & notHFile; }
