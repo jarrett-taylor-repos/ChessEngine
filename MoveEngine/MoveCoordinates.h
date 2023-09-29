@@ -4,6 +4,8 @@ using namespace std;
 
 int whitePawnOffsets[2] = {-8, -16};
 int blackPawnOffsets[2] = {8, 16};
+int whitePawnAttOffsets[2] = {-7, -9};
+int blackPawnAttOffsets[2] = {7, 9};
 int kingOffsets[8] = {-1, 1, -7, 7, -8, 8, -9, 9};
 int rookOffsets[8] = {-1, 1, -8, 8};
 int bishopOffsets[8] = {-7, 7, -9, 9};
@@ -22,18 +24,6 @@ namespace MoveCoordinates  {
 
                 int squareIndex = rank*8 + file;
                 moveData[squareIndex] = new int[8];
-
-                int tempMoves[8] = {
-                    numNorth,
-                    numSouth,
-                    numWest,
-                    numEast,
-                    min(numNorth, numWest),
-                    min(numSouth, numEast),
-                    min(numNorth, numEast),
-                    min(numSouth, numWest)
-                };
-
                 moveData[squareIndex][0] = numNorth;
                 moveData[squareIndex][1] = numSouth;
                 moveData[squareIndex][2] = numWest;

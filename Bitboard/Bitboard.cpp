@@ -1,4 +1,6 @@
 #include "bitboardhelper.cpp"
+#include "..\Extensions\BitboardConstants.h"
+using namespace BitboardConstants;
 
 class Bitboard {
     private:
@@ -78,6 +80,21 @@ class Bitboard {
         return wPawn.GetBoard() | wKnight.GetBoard() | wBishop.GetBoard() | wRook.GetBoard() | wQueen.GetBoard() | wKing.GetBoard() |
             bPawn.GetBoard() | bKnight.GetBoard() | bBishop.GetBoard() | bRook.GetBoard() | bQueen.GetBoard() | bKing.GetBoard();
     }
+
+    bitset<64> wPawnWestAtt() { return (wPawn.GetBoard() >> 9) & notAFile; }
+    bitset<64> wPawnEastAtt() { return (wPawn.GetBoard() >> 7) & notHFile; }
+    bitset<64> wPawnAllAtt() { return wPawnEastAtt() | wPawnWestAtt(); }
+    bitset<64> bPawnWestAtt() { return (bPawn.GetBoard() << 9) & notHFile; }
+    bitset<64> bPawnEastAtt() { return (bPawn.GetBoard() << 7) & notAFile; }
+    bitset<64> bPawnAllAtt() { return bPawnEastAtt() | bPawnWestAtt(); }
+
+    bitset<64> wPawnWestCaptures() { return wPawnWestAtt() & bBoard(); }
+    bitset<64> wPawnEastCaptures() { return wPawnEastAtt() & bBoard(); }
+    bitset<64> wPawnAllCaptures() { return wPawnEastCaptures() | wPawnWestCaptures(); }
+    bitset<64> bPawnWestCaptures() { return bPawnWestAtt() & wBoard(); }
+    bitset<64> bPawnEastCaptures() { return bPawnEastAtt() & wBoard(); }
+    bitset<64> bPawnAllCaptures() { return bPawnEastCaptures() | bPawnWestCaptures(); }
+
 
     void PrintAllBoards() {
         wPawn.PrintBitBoard();

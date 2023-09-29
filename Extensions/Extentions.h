@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <bitset>
 using namespace std;
 
 namespace Extensions {
@@ -19,5 +20,14 @@ namespace Extensions {
     short int CharToInt(char ch) {
         string str(1, ch);
         return stoi(str);
+    };
+
+    void PrintBitSet(bitset<64> board) {
+        for(int i = 0; i < 64; i++) {
+            if(i % 8 == 0 && i != 0) {
+                cout << endl;
+            }
+            cout << board[i] << " ";
+        }
     };
 }
