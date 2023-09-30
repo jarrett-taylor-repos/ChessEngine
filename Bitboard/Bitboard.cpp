@@ -115,6 +115,9 @@ class Bitboard {
     bitset<64> bPawnEastCaptures() { return bPawnEastAtt() & wBoard(); };
     bitset<64> bPawnAllCaptures() { return bPawnEastCaptures() | bPawnWestCaptures(); };
 
+    bitset<64> wPawnMoves() { return wPawnAllCaptures() | wPawnPushes(); }
+    bitset<64> bPawnMoves() { return bPawnAllCaptures() | bPawnPushes(); }
+
 
     //knight functions
     bitset<64> KnightMoveHelper(bitset<64> b) { return noNoEa(b) | noEaEa(b) | soEaEa(b) | soSoEa(b) | noNoWe(b) | noWeWe(b) | soWeWe(b) | soSoWe(b); }
