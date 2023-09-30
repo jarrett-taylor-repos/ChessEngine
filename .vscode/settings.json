@@ -11,6 +11,7 @@
         "limits": "cpp",
         "utility": "cpp",
         "xutility": "cpp",
-        "xlocale": "cpp"
+        "xlocale": "cpp",
+        "atomic": "cpp"
     }
 }

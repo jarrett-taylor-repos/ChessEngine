@@ -29,5 +29,6 @@ namespace Extensions {
             }
             cout << board[i] << " ";
         }
+        cout << endl << endl;
     };
 }
