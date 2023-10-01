@@ -10,12 +10,15 @@ chessfile = open('D:/DATA/lichess_db_standard_rated_2022-01.pgn/lichess_db_stand
 
 
 numFENs = 0
-
+allfens = []
 while numFENs < 100000:
   game = chess.pgn.read_game(chessfile)
   b = chess.Board()
   #TODO: check that this is a normal game and not chess 960?
   for move in game.mainline_moves():
     b.push(move)
-    numFENs+=1
-    print(b.fen(), file=movesfile)
+    fen = b.fen()
+    if fen not in allfens:
+      allfens.append(fen)
+      numFENs+=1
+      print(b.fen(), file=movesfile)
