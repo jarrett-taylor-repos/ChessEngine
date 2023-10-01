@@ -22,12 +22,19 @@ namespace Extensions {
         return stoi(str);
     };
 
-    void PrintBitSet(bitset<64> board) {
+    void PrintBitSet(bitset<64> board, string name = "") {
+        if(name.length() != 0) {
+            cout << name << endl;
+        }
         for(int i = 0; i < 64; i++) {
             if(i % 8 == 0 && i != 0) {
                 cout << endl;
             }
-            cout << board[i] << " ";
+            if(board[i] == 1) {
+                cout << board[i] << " ";
+            } else {
+                cout << "." << " ";
+            }
         }
         cout << endl << endl;
     };

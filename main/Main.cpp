@@ -11,12 +11,16 @@ int main () {
     bitset<64> wpawnmoves = board.wPawnMoves();
     bitset<64> bpawnmoves = board.bPawnMoves();
 
-    cout << "wpawnmoves" << endl;
-    PrintBitSet(wpawnmoves);
-    cout << "bpawnmoves" << endl;
-    PrintBitSet(bpawnmoves);
-    cout << "wKnightmoves" << endl;
-    PrintBitSet(wKnightmoves);
-    cout << "bKnightmoves" << endl;
-    PrintBitSet(bKnightmoves);
+    bitset<64> wkingmoves = board.wKingMoves();
+    bitset<64> bkingmoves = board.bKingMoves();
+
+    bitset<64> notbboard = board.NotbBoard();
+    bitset<64> notwboard = board.NotwBoard();
+
+    PrintBitSet(wpawnmoves, "wpawnmoves");
+    PrintBitSet(bpawnmoves, "bpawnmoves");
+    PrintBitSet(wKnightmoves, "wKnightmoves");
+    PrintBitSet(bKnightmoves, "bKnightmoves");
+    PrintBitSet(wkingmoves, "wkingmoves");
+    PrintBitSet(bkingmoves, "bkingmoves");
 }

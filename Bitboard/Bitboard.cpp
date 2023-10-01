@@ -102,9 +102,17 @@ class Bitboard {
     bitset<64> NotbBoard() { return ~bBoard(); };
     bitset<64> NotwBoard() { return ~wBoard(); };
 
-    //pawn functions
+    //generic movement 
     bitset<64> northOne(bitset<64> b) { return b >> 8; };
     bitset<64> southOne(bitset<64> b) { return b << 8; };
+    bitset<64> eastOne(bitset<64> b) { return b << 1; };
+    bitset<64> westOne(bitset<64> b) { return b >> 1; };
+    bitset<64> northEastOne(bitset<64> b) { return b >> 7; };
+    bitset<64> northWestOne(bitset<64> b) { return b >> 9; };
+    bitset<64> southEastOne(bitset<64> b) { return b << 9; };
+    bitset<64> southWestOne(bitset<64> b) { return b << 7; };
+
+    //pawn functions
     bitset<64> wSinglePushTargets(bitset<64> b) { return northOne(b) & EmptyBoard(); };
     bitset<64> wDoublePushTargets(bitset<64> b) { 
         bitset<64> singlePushes = wSinglePushTargets(b);
@@ -150,6 +158,15 @@ class Bitboard {
     bitset<64> bKnightMoves(){ return KnightMoveHelper(bKnight.GetBoard()) & NotbBoard(); }
 
     //king moves
+    bitset<64> bKingMoves() { 
+        bitset<64> b = bKing.GetBoard();
+        return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotbBoard();
+    };
+
+    bitset<64> wKingMoves() { 
+        bitset<64> b = wKing.GetBoard();
+        return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotwBoard();
+    };
 
     void PrintAllBoards() {
         wPawn.PrintBitBoard();
