@@ -123,12 +123,12 @@ class Bitboard {
     //generic movement 
     bitset<64> northOne(bitset<64> b) { return b >> 8; };
     bitset<64> southOne(bitset<64> b) { return b << 8; };
-    bitset<64> eastOne(bitset<64> b) { return b << 1; };
-    bitset<64> westOne(bitset<64> b) { return b >> 1; };
-    bitset<64> northEastOne(bitset<64> b) { return b >> 7; };
-    bitset<64> northWestOne(bitset<64> b) { return b >> 9; };
-    bitset<64> southEastOne(bitset<64> b) { return b << 9; };
-    bitset<64> southWestOne(bitset<64> b) { return b << 7; };
+    bitset<64> eastOne(bitset<64> b) { return b << 1 & notAFile; };
+    bitset<64> westOne(bitset<64> b) { return b >> 1 & notHFile; };
+    bitset<64> northEastOne(bitset<64> b) { return b >> 7 & notAFile; };
+    bitset<64> northWestOne(bitset<64> b) { return b >> 9 & notHFile; };
+    bitset<64> southEastOne(bitset<64> b) { return b << 9 & notAFile; };
+    bitset<64> southWestOne(bitset<64> b) { return b << 7 & notHFile; };
 
     //pawn functions
     bitset<64> wSinglePushTargets(bitset<64> b) { return northOne(b) & EmptyBoard(); };
