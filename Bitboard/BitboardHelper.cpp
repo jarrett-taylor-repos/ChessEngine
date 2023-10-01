@@ -51,8 +51,13 @@ class BitBoardHelper {
             if(i % 8 == 0 && i != 0) {
                 cout << endl;
             }
-            cout << board[i] << " ";
+            if(board[i] == 1) {
+                cout << "1" << " ";
+            } else {
+                cout << "." <<  " ";
+            }
         }
+        cout << endl << endl;
     };
 
     bool GetBit(int square) { return board.test(square); };
