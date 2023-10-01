@@ -52,6 +52,22 @@ class Bitboard {
         bKing.LoadFen(fen, 0110);
     };
 
+    void LoadFen(string fen) {
+        wPawn.LoadFen(fen, 1001);
+        wKnight.LoadFen(fen, 1010);
+        wBishop.LoadFen(fen, 1011);
+        wRook.LoadFen(fen, 1100);
+        wQueen.LoadFen(fen, 1101);
+        wKing.LoadFen(fen, 1110);
+
+        bPawn.LoadFen(fen, 0001);
+        bKnight.LoadFen(fen, 0010);
+        bBishop.LoadFen(fen, 0011);
+        bRook.LoadFen(fen, 0100);
+        bQueen.LoadFen(fen, 0101);
+        bKing.LoadFen(fen, 0110);
+    };
+
     BitBoardHelper GetwPawn() { return wPawn; };
     BitBoardHelper GetwKnight() { return wKnight; };
     BitBoardHelper GetwBishop() { return wBishop; };
@@ -133,30 +149,20 @@ class Bitboard {
     bitset<64> wKnightMoves(){ return KnightMoveHelper(wKnight.GetBoard()) & NotwBoard(); }
     bitset<64> bKnightMoves(){ return KnightMoveHelper(bKnight.GetBoard()) & NotbBoard(); }
 
+    //king moves
+
     void PrintAllBoards() {
         wPawn.PrintBitBoard();
-        cout << endl;
         bPawn.PrintBitBoard();
-        cout << endl;
         wKnight.PrintBitBoard();
-        cout << endl;
         bKnight.PrintBitBoard();
-        cout << endl;
         wBishop.PrintBitBoard();
-        cout << endl;
         bBishop.PrintBitBoard();
-        cout << endl;
         wRook.PrintBitBoard();
-        cout << endl;
         bRook.PrintBitBoard();
-        cout << endl;
         wQueen.PrintBitBoard();
-        cout << endl;
         bQueen.PrintBitBoard();
-        cout << endl;
         wKing.PrintBitBoard();
-        cout << endl;
         bKing.PrintBitBoard();
-        cout << endl;
     }
 };
