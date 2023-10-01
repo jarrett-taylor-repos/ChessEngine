@@ -53,6 +53,8 @@ class Bitboard {
     };
 
     void LoadFen(string fen) {
+        ClearBoard();
+
         wPawn.LoadFen(fen, 1001);
         wKnight.LoadFen(fen, 1010);
         wBishop.LoadFen(fen, 1011);
@@ -67,6 +69,22 @@ class Bitboard {
         bQueen.LoadFen(fen, 0101);
         bKing.LoadFen(fen, 0110);
     };
+
+    void ClearBoard() {
+        wPawn.ClearBoard();
+        wKnight.ClearBoard();
+        wBishop.ClearBoard();
+        wRook.ClearBoard();
+        wQueen.ClearBoard();
+        wKing.ClearBoard();
+
+        bPawn.ClearBoard();
+        bKnight.ClearBoard();
+        bBishop.ClearBoard();
+        bRook.ClearBoard();
+        bQueen.ClearBoard();
+        bKing.ClearBoard();
+    }
 
     BitBoardHelper GetwPawn() { return wPawn; };
     BitBoardHelper GetwKnight() { return wKnight; };

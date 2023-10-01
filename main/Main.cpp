@@ -22,5 +22,5 @@ int main () {
     PrintBitSet(wKnightmoves, "wKnightmoves");
     PrintBitSet(bKnightmoves, "bKnightmoves");
     PrintBitSet(wkingmoves, "wkingmoves");
-    PrintBitSet(bkingmoves, "bkingmoves");
+    PrintBitSet(bkingmoves, "bkingmoves");     
 }

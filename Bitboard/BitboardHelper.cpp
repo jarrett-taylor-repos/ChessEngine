@@ -61,6 +61,7 @@ class BitBoardHelper {
     };
 
     bool GetBit(int square) { return board.test(square); };
+    void ClearBoard() { board.reset(); };
     void ClearBit(int square) { board.reset(square); };
     void PrintBinaryValue() { cout << board << endl; };
     bitset<64> GetBoard() { return board; };
