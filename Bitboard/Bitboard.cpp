@@ -144,11 +144,11 @@ class Bitboard {
     bitset<64> wPawnPushes() { return wSinglePushTargets(wPawn.GetBoard()) | wDoublePushTargets(wPawn.GetBoard()); };
     bitset<64> bPawnPushes() { return bSinglePushTargets(bPawn.GetBoard()) | bDoublePushTargets(bPawn.GetBoard()); };
 
-    bitset<64> wPawnWestAtt() { return (wPawn.GetBoard() >> 9) & notAFile; };
-    bitset<64> wPawnEastAtt() { return (wPawn.GetBoard() >> 7) & notHFile; };
+    bitset<64> wPawnWestAtt() { return (wPawn.GetBoard() >> 9) & notHFile; };
+    bitset<64> wPawnEastAtt() { return (wPawn.GetBoard() >> 7) & notAFile; };
     bitset<64> wPawnAllAtt() { return wPawnEastAtt() | wPawnWestAtt(); };
-    bitset<64> bPawnWestAtt() { return (bPawn.GetBoard() << 9) & notHFile; };
-    bitset<64> bPawnEastAtt() { return (bPawn.GetBoard() << 7) & notAFile; };
+    bitset<64> bPawnWestAtt() { return (bPawn.GetBoard() << 9) & notAFile; };
+    bitset<64> bPawnEastAtt() { return (bPawn.GetBoard() << 7) & notHFile; };
     bitset<64> bPawnAllAtt() { return bPawnEastAtt() | bPawnWestAtt(); };
     bitset<64> wPawnWestCaptures() { return wPawnWestAtt() & bBoard(); };
     bitset<64> wPawnEastCaptures() { return wPawnEastAtt() & bBoard(); };
@@ -185,6 +185,8 @@ class Bitboard {
         bitset<64> b = wKing.GetBoard();
         return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotwBoard();
     };
+
+    //sliding moves
 
     void PrintAllBoards() {
         wPawn.PrintBitBoard();
