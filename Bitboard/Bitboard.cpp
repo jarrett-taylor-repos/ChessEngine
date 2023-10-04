@@ -147,8 +147,10 @@ class Bitboard {
 
     //sliding moves helper
     bool ValidTravel(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && !AllBoard().test(offset); };
-    bool ValidTravelCapture(bitset<64> canCap, bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && canCap.test(offset); };
+    bool ValidTravelAtt(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && AllBoard().test(offset); };
 
+    //may not be needed
+    bool ValidTravelCapture(bitset<64> canCap, bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && canCap.test(offset); };
     bitset<64> SlidingMoves(bitset<64> canCap, bitset<64> overlap, int sq, int direction) {
         bitset<64> moves;
         int offset = sq + direction;
@@ -162,6 +164,52 @@ class Bitboard {
         return moves;
     }
 
+    bitset<64> SlidingAttacks(bitset<64> overlap, int sq, int direction) {
+        bitset<64> moves;
+        int offset = sq + direction;
+        while(ValidTravel(overlap, offset)) {
+            moves.set(offset);
+            offset += direction;
+        }
+        if(ValidTravelAtt(overlap, offset)) {
+            moves.set(offset);
+        }
+        return moves;
+    }
+
+    bitset<64> BishopAttacks(bitset<64> bishopBoard) {
+        bitset<64> moves;
+        vector<int> indexes = BitSetTrueIndexes(bishopBoard);
+        for(int sq : indexes) {
+            //travel northEastOne
+            moves |= SlidingAttacks(notAFile, sq, -7);
+            //travel northWestOne
+            moves |= SlidingAttacks(notHFile, sq, -9);
+            //travel southEastOne
+            moves |= SlidingAttacks(notAFile, sq, 9);
+            //travle southWestOne
+            moves |= SlidingAttacks(notHFile, sq, 7);
+        }
+        return moves;
+    }
+
+    bitset<64> RookAttacks(bitset<64> rBoard) {
+        bitset<64> moves;
+        vector<int> indexes = BitSetTrueIndexes(rBoard);
+        for(int sq : indexes) {
+            //travel northOne
+            moves |= SlidingAttacks(~rank1, sq, -8);
+            //travel eastOne
+            moves |= SlidingAttacks(notAFile, sq, 1);
+            //travel westOne
+            moves |= SlidingAttacks(notHFile, sq, -1);
+            //travle southOne
+            moves |= SlidingAttacks(~rank8, sq, 8);
+        }
+        return moves;
+    }
+
+    //may be able to remove helpers
     bitset<64> BishopMovesHelper(bitset<64> opp, bitset<64> bishopBoard) {
         bitset<64> moves;
         vector<int> indexes = BitSetTrueIndexes(bishopBoard);
@@ -177,7 +225,6 @@ class Bitboard {
         }
         return moves;
     }
-
     bitset<64> RookMovesHelper(bitset<64> opp, bitset<64> rBoard) {
         bitset<64> moves;
         vector<int> indexes = BitSetTrueIndexes(rBoard);
@@ -195,14 +242,24 @@ class Bitboard {
     }
 
     //sliding moves
-    bitset<64> wBishopMoves() { return BishopMovesHelper(bBoard(), wBishop.GetBoard()); };
-    bitset<64> bBishopMoves() { return BishopMovesHelper(wBoard(), bBishop.GetBoard()); };
+    bitset<64> wBishopAttacks() { return BishopAttacks(wBishop.GetBoard()); };
+    bitset<64> bBishopAttacks() { return BishopAttacks(bBishop.GetBoard()); };
+    bitset<64> wBishopMoves() { bitset<64> wbatt = wBishopAttacks(); return wbatt & ~(wbatt & wBoard()); };
+    bitset<64> bBishopMoves() { bitset<64> bbatt = wBishopAttacks(); return bbatt & ~(bbatt & bBoard()); };
 
-    bitset<64> wRookMoves() { return RookMovesHelper(bBoard(), wRook.GetBoard()); };
-    bitset<64> bRookMoves() { return RookMovesHelper(wBoard(), bRook.GetBoard()); };
+    bitset<64> wRookAttacks() { return RookAttacks(wRook.GetBoard()); };
+    bitset<64> bRookAttacks() { return RookAttacks(bRook.GetBoard()); };
+    bitset<64> wRookMoves() { bitset<64> wratt = wRookAttacks(); return wratt & ~(wratt & wBoard()); };
+    bitset<64> bRookMoves() { bitset<64> bratt = bRookAttacks(); return bratt & ~(bratt & bBoard()); };
 
-    bitset<64> wQueenMoves() { return RookMovesHelper(bBoard(), wQueen.GetBoard()) | BishopMovesHelper(bBoard(), wQueen.GetBoard());; };
-    bitset<64> bQueenMoves() { return RookMovesHelper(wBoard(), bQueen.GetBoard()) | BishopMovesHelper(wBoard(), bQueen.GetBoard());; };
+    bitset<64> wQueenAttacks() { return RookAttacks(wQueen.GetBoard()) | BishopAttacks(wQueen.GetBoard()); };
+    bitset<64> bQueenAttacks() { return RookAttacks(bQueen.GetBoard()) | BishopAttacks(bQueen.GetBoard()); };
+    bitset<64> wQueenMoves() { bitset<64> wqatt = wQueenAttacks(); return wqatt & ~(wqatt & wBoard()); };
+    bitset<64> bQueenMoves() { bitset<64> bqatt = bQueenAttacks(); return bqatt & ~(bqatt & bBoard()); };
+
+    //attacks
+    bitset<64> wAttacks() { return wPawnAllAtt() | wKingMoves() | wKnightMoves() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
+    bitset<64> bAttacks() { return bPawnAllAtt() | bKingMoves() | bKnightMoves() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
 
 
     //misc
