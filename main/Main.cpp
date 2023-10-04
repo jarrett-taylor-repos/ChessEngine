@@ -4,13 +4,18 @@
 int main () {
     PrecomputeData();
     Bitboard board;
-    bitset<64> wBishopMoves = board.wBishopMoves();
-    PrintBitSet(wBishopMoves, "wBishopMoves");
-
     board.LoadFen("rnbqkbn1/pppppppp/5r2/8/3B4/8/PPP3PP/RN1QKBNR w KQq - 0 1");
 
-    wBishopMoves = board.wBishopMoves();
+    bitset<64> wBishopMoves = board.wBishopMoves();
     PrintBitSet(wBishopMoves, "wBishopMoves");
+    bitset<64> bBishopMoves = board.bBishopMoves();
+    PrintBitSet(bBishopMoves, "bBishopMoves");
+
+    board.LoadFen("1nbqkbn1/pppppppp/5r2/6R1/2r5/P7/1PPPPPPP/RNBQKBN1 w Q - 0 1");
+    bitset<64> wRookMoves = board.wRookMoves();
+    PrintBitSet(wRookMoves, "wRookMoves");
+    bitset<64> bRookMoves = board.bRookMoves();
+    PrintBitSet(bRookMoves, "bRookMoves");
 
     
     /*

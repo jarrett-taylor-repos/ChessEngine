@@ -176,24 +176,45 @@ class Bitboard {
         return bishopAttacks;
     }
 
-    bitset<64> BishopMoves(bitset<64> canCapture, bitset<64> bishopBoard) {
+    bitset<64> BishopMovesHelper(bitset<64> opp, bitset<64> bishopBoard) {
         bitset<64> moves;
         vector<int> indexes = BitSetTrueIndexes(bishopBoard);
         for(int sq : indexes) {
             //travel northEastOne
-            moves |= SlidingMoves(canCapture, notAFile, sq, -7);
+            moves |= SlidingMoves(opp, notAFile, sq, -7);
             //travel northWestOne
-            moves |= SlidingMoves(canCapture,notHFile, sq, -9);
+            moves |= SlidingMoves(opp, notHFile, sq, -9);
             //travel southEastOne
-            moves |= SlidingMoves(canCapture,notAFile, sq, 9);
+            moves |= SlidingMoves(opp, notAFile, sq, 9);
             //travle southWestOne
-            moves |= SlidingMoves(canCapture,notHFile, sq, 7);
+            moves |= SlidingMoves(opp, notHFile, sq, 7);
         }
         return moves;
     }
 
-    bitset<64> wBishopMoves() { return BishopMoves(bBoard(), wBishop.GetBoard()); };
-    bitset<64> bBishopMoves() { return BishopMoves(wBoard(), bBishop.GetBoard()); };
+    bitset<64> wBishopMoves() { return BishopMovesHelper(bBoard(), wBishop.GetBoard()); };
+    bitset<64> bBishopMoves() { return BishopMovesHelper(wBoard(), bBishop.GetBoard()); };
+
+
+    //rook moves
+    bitset<64> RookMovesHelper(bitset<64> opp, bitset<64> rBoard) {
+        bitset<64> moves;
+        vector<int> indexes = BitSetTrueIndexes(rBoard);
+        for(int sq : indexes) {
+            //travel northEastOne
+            moves |= SlidingMoves(opp, ~rank1, sq, -8);
+            //travel northWestOne
+            moves |= SlidingMoves(opp, notAFile, sq, 1);
+            //travel southEastOne
+            moves |= SlidingMoves(opp, notHFile, sq, -1);
+            //travle southWestOne
+            moves |= SlidingMoves(opp, ~rank8, sq, 8);
+        }
+        return moves;
+    }
+
+    bitset<64> wRookMoves() { return RookMovesHelper(bBoard(), wRook.GetBoard()); };
+    bitset<64> bRookMoves() { return RookMovesHelper(wBoard(), bRook.GetBoard()); };
 
 
     //misc
