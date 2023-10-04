@@ -145,7 +145,7 @@ class Bitboard {
         return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotwBoard();
     };
 
-    //sliding
+    //sliding moves helper
     bool ValidTravel(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && !AllBoard().test(offset); };
     bool ValidTravelCapture(bitset<64> canCap, bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && canCap.test(offset); };
 
@@ -160,20 +160,6 @@ class Bitboard {
             moves.set(offset);
         }
         return moves;
-    }
-
-    //bishop moves
-    bitset<64> wBishopAttacks() {
-        bitset<64> bishopAttacks;
-        vector<int> indexes = BitSetTrueIndexes(wBishop.GetBoard());
-        for(int sq : indexes) {
-            bitset<64> msk = maskBishop[sq];
-            bitset<64> bb = diagonals[sq];
-            bitset<64> att = bb;
-            bb &= EmptyBoard();
-            bishopAttacks |= att;
-        }
-        return bishopAttacks;
     }
 
     bitset<64> BishopMovesHelper(bitset<64> opp, bitset<64> bishopBoard) {
@@ -192,29 +178,31 @@ class Bitboard {
         return moves;
     }
 
-    bitset<64> wBishopMoves() { return BishopMovesHelper(bBoard(), wBishop.GetBoard()); };
-    bitset<64> bBishopMoves() { return BishopMovesHelper(wBoard(), bBishop.GetBoard()); };
-
-
-    //rook moves
     bitset<64> RookMovesHelper(bitset<64> opp, bitset<64> rBoard) {
         bitset<64> moves;
         vector<int> indexes = BitSetTrueIndexes(rBoard);
         for(int sq : indexes) {
-            //travel northEastOne
+            //travel northOne
             moves |= SlidingMoves(opp, ~rank1, sq, -8);
-            //travel northWestOne
+            //travel eastOne
             moves |= SlidingMoves(opp, notAFile, sq, 1);
-            //travel southEastOne
+            //travel westOne
             moves |= SlidingMoves(opp, notHFile, sq, -1);
-            //travle southWestOne
+            //travle southOne
             moves |= SlidingMoves(opp, ~rank8, sq, 8);
         }
         return moves;
     }
 
+    //sliding moves
+    bitset<64> wBishopMoves() { return BishopMovesHelper(bBoard(), wBishop.GetBoard()); };
+    bitset<64> bBishopMoves() { return BishopMovesHelper(wBoard(), bBishop.GetBoard()); };
+
     bitset<64> wRookMoves() { return RookMovesHelper(bBoard(), wRook.GetBoard()); };
     bitset<64> bRookMoves() { return RookMovesHelper(wBoard(), bRook.GetBoard()); };
+
+    bitset<64> wQueenMoves() { return RookMovesHelper(bBoard(), wQueen.GetBoard()) | BishopMovesHelper(bBoard(), wQueen.GetBoard());; };
+    bitset<64> bQueenMoves() { return RookMovesHelper(wBoard(), bQueen.GetBoard()) | BishopMovesHelper(wBoard(), bQueen.GetBoard());; };
 
 
     //misc
