@@ -1,17 +1,34 @@
 #include "..\Bitboard\Bitboard.cpp"
 #include "..\Bitboard\BitboardHelper.cpp"
-#include "..\MoveEngine\MoveCoordinates.h"
-using namespace MoveCoordinates;
 
 int main () {
+    PrecomputeData();
     Bitboard board;
-    board.LoadFen("8/1p1k4/p4p2/5P2/7p/2P1P3/PP1K4/8 w - - 0 29");
-    bitset<64> wpawnmoves = board.wPawnMoves();
-    bitset<64> bpawnmoves = board.bPawnMoves();
+    board.LoadFen("rnbqkbn1/pppppppp/5r2/8/3B4/8/PPP3PP/RN1QKBNR w KQq - 0 1");
 
-    PrintBitSet(wpawnmoves, "wpawnmoves");
-    PrintBitSet(bpawnmoves, "bpawnmoves");
+    bitset<64> black = board.bBoard();
+    bitset<64> white = board.wBoard();
+    bitset<64> emptyboard = board.EmptyBoard();
+    bitset<64> wbish = board.GetwBishop().GetBoard();
+    vector<int> indexes = BitSetTrueIndexes(wbish);
+    PrintBitSet(wbish, "wbish");
+    //PrintVectorInt(indexes, "w bishops indexes");
 
+    for(int sq : indexes) {
+        bitset<64> diag = diagonals[sq];
+        bitset<64> mask = maskBishop[sq];
+        //PrintBitSet(diag, "diag " + to_string(sq));
+        //PrintBitSet(mask, "mask " + to_string(sq));
+        bitset<64> bishopattcks = mask & ~white | (mask & black);
+        PrintBitSet((mask & black), "mask & black");
+        PrintBitSet(bishopattcks, "bishopattcks");
+
+    }
+    //PrintBitSet(black, "black");
+    //PrintBitSet(white, "white");
+    //PrintBitSet(emptyboard, "emptyboard");
+
+    
     /*
         bitset<64> bKnightmoves = board.bKnightMoves();
         bitset<64> wKnightmoves = board.wKnightMoves();
@@ -32,4 +49,5 @@ int main () {
         PrintBitSet(wkingmoves, "wkingmoves");
         PrintBitSet(bkingmoves, "bkingmoves");     
     */  
+
 }

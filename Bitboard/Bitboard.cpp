@@ -1,6 +1,6 @@
 #include "bitboardhelper.cpp"
-#include "..\Extensions\BitboardConstants.h"
-using namespace BitboardConstants;
+#include "..\MoveEngine\MoveCoordinates.h"
+using namespace MoveCoordinates;
 
 class Bitboard {
     private:
@@ -19,38 +19,9 @@ class Bitboard {
     BitBoardHelper bKing;
 
     public:
-    Bitboard() {
-        string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-        wPawn.LoadFen(fen, 1001);
-        wKnight.LoadFen(fen, 1010);
-        wBishop.LoadFen(fen, 1011);
-        wRook.LoadFen(fen, 1100);
-        wQueen.LoadFen(fen, 1101);
-        wKing.LoadFen(fen, 1110);
+    Bitboard() { LoadFen(startFen); };
 
-        bPawn.LoadFen(fen, 0001);
-        bKnight.LoadFen(fen, 0010);
-        bBishop.LoadFen(fen, 0011);
-        bRook.LoadFen(fen, 0100);
-        bQueen.LoadFen(fen, 0101);
-        bKing.LoadFen(fen, 0110);
-    };
-
-    Bitboard(string fen) {
-        wPawn.LoadFen(fen, 1001);
-        wKnight.LoadFen(fen, 1010);
-        wBishop.LoadFen(fen, 1011);
-        wRook.LoadFen(fen, 1100);
-        wQueen.LoadFen(fen, 1101);
-        wKing.LoadFen(fen, 1110);
-
-        bPawn.LoadFen(fen, 0001);
-        bKnight.LoadFen(fen, 0010);
-        bBishop.LoadFen(fen, 0011);
-        bRook.LoadFen(fen, 0100);
-        bQueen.LoadFen(fen, 0101);
-        bKing.LoadFen(fen, 0110);
-    };
+    Bitboard(string fen) { LoadFen(fen); };
 
     void LoadFen(string fen) {
         ClearBoard();
@@ -99,22 +70,10 @@ class Bitboard {
     BitBoardHelper GetbQueen() { return bQueen; };
     BitBoardHelper GetbKing() { return bKing; };
 
-    bool GetBit(int square) {
-        return wPawn.GetBit(square) || wKnight.GetBit(square) || wBishop.GetBit(square) || wRook.GetBit(square) || wQueen.GetBit(square) || wKing.GetBit(square) || 
-            bPawn.GetBit(square) || bKnight.GetBit(square) || bBishop.GetBit(square) || bRook.GetBit(square) || bQueen.GetBit(square) || bKing.GetBit(square);
-    };
-
     //board functions
-    bitset<64> wBoard() {
-        return wPawn.GetBoard() | wKnight.GetBoard() | wBishop.GetBoard() | wRook.GetBoard() | wQueen.GetBoard() | wKing.GetBoard();
-    };
-    bitset<64> bBoard() {
-        return bPawn.GetBoard() | bKnight.GetBoard() | bBishop.GetBoard() | bRook.GetBoard() | bQueen.GetBoard() | bKing.GetBoard();
-    };
-    bitset<64> AllBoard() {
-        return wPawn.GetBoard() | wKnight.GetBoard() | wBishop.GetBoard() | wRook.GetBoard() | wQueen.GetBoard() | wKing.GetBoard() |
-            bPawn.GetBoard() | bKnight.GetBoard() | bBishop.GetBoard() | bRook.GetBoard() | bQueen.GetBoard() | bKing.GetBoard();
-    };
+    bitset<64> wBoard() { return wPawn.GetBoard() | wKnight.GetBoard() | wBishop.GetBoard() | wRook.GetBoard() | wQueen.GetBoard() | wKing.GetBoard(); };
+    bitset<64> bBoard() { return bPawn.GetBoard() | bKnight.GetBoard() | bBishop.GetBoard() | bRook.GetBoard() | bQueen.GetBoard() | bKing.GetBoard(); };
+    bitset<64> AllBoard() { return wBoard() | bBoard(); };
 
     bitset<64> EmptyBoard() { return ~AllBoard(); };
     bitset<64> NotbBoard() { return ~bBoard(); };
@@ -186,7 +145,19 @@ class Bitboard {
         return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotwBoard();
     };
 
-    //sliding moves
+    //bishop moves
+    bitset<64> wBishopAttacks() {
+        bitset<64> bishopAttacks;
+        vector<int> indexes = BitSetTrueIndexes(wBishop.GetBoard());
+        for(int sq : indexes) {
+            bitset<64> msk = maskBishop[sq];
+            bitset<64> bb = diagonals[sq];
+            bitset<64> att = bb;
+            bb &= EmptyBoard();
+            bishopAttacks |= att;
+        }
+        return bishopAttacks;
+    }
 
     void PrintAllBoards() {
         wPawn.PrintBitBoard();

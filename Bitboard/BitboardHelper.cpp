@@ -1,9 +1,7 @@
 #include "..\Extensions\Extentions.h"
 #include <iostream>
-#include <string>
 #include <ctype.h>
 #include <stdio.h>
-#include <bitset>
 using namespace std;
 using namespace Extensions;
 #pragma once
