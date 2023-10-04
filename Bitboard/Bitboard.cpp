@@ -176,9 +176,9 @@ class Bitboard {
         return bishopAttacks;
     }
 
-    bitset<64> BishopMoves(bitset<64> canCapture) {
+    bitset<64> BishopMoves(bitset<64> canCapture, bitset<64> bishopBoard) {
         bitset<64> moves;
-        vector<int> indexes = BitSetTrueIndexes(wBishop.GetBoard());
+        vector<int> indexes = BitSetTrueIndexes(bishopBoard);
         for(int sq : indexes) {
             //travel northEastOne
             moves |= SlidingMoves(canCapture, notAFile, sq, -7);
@@ -192,8 +192,8 @@ class Bitboard {
         return moves;
     }
 
-    bitset<64> wBishopMoves() { return BishopMoves(bBoard()); };
-    bitset<64> bBishopMoves() { return BishopMoves(wBoard()); };
+    bitset<64> wBishopMoves() { return BishopMoves(bBoard(), wBishop.GetBoard()); };
+    bitset<64> bBishopMoves() { return BishopMoves(wBoard(), bBishop.GetBoard()); };
 
 
     //misc
