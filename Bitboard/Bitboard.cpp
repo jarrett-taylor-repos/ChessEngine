@@ -20,7 +20,6 @@ class Bitboard {
 
     public:
     Bitboard() { LoadFen(startFen); };
-
     Bitboard(string fen) { LoadFen(fen); };
 
     void LoadFen(string fen) {
@@ -88,6 +87,7 @@ class Bitboard {
     bitset<64> northWestOne(bitset<64> b) { return b >> 9 & notHFile; };
     bitset<64> southEastOne(bitset<64> b) { return b << 9 & notAFile; };
     bitset<64> southWestOne(bitset<64> b) { return b << 7 & notHFile; };
+    bool InBounds(int offset) { return (offset >= 0) && (offset < 64); };
 
     //pawn functions
     bitset<64> wSinglePushTargets(bitset<64> b) { return northOne(b) & EmptyBoard(); };
@@ -145,6 +145,23 @@ class Bitboard {
         return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotwBoard();
     };
 
+    //sliding
+    bool ValidTravel(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && !AllBoard().test(offset); };
+    bool ValidTravelCapture(bitset<64> canCap, bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && canCap.test(offset); };
+
+    bitset<64> SlidingMoves(bitset<64> canCap, bitset<64> overlap, int sq, int direction) {
+        bitset<64> moves;
+        int offset = sq + direction;
+        while(ValidTravel(overlap, offset)) {
+            moves.set(offset);
+            offset += direction;
+        }
+        if(ValidTravelCapture(canCap, overlap, offset)) {
+            moves.set(offset);
+        }
+        return moves;
+    }
+
     //bishop moves
     bitset<64> wBishopAttacks() {
         bitset<64> bishopAttacks;
@@ -159,6 +176,27 @@ class Bitboard {
         return bishopAttacks;
     }
 
+    bitset<64> BishopMoves(bitset<64> canCapture) {
+        bitset<64> moves;
+        vector<int> indexes = BitSetTrueIndexes(wBishop.GetBoard());
+        for(int sq : indexes) {
+            //travel northEastOne
+            moves |= SlidingMoves(canCapture, notAFile, sq, -7);
+            //travel northWestOne
+            moves |= SlidingMoves(canCapture,notHFile, sq, -9);
+            //travel southEastOne
+            moves |= SlidingMoves(canCapture,notAFile, sq, 9);
+            //travle southWestOne
+            moves |= SlidingMoves(canCapture,notHFile, sq, 7);
+        }
+        return moves;
+    }
+
+    bitset<64> wBishopMoves() { return BishopMoves(bBoard()); };
+    bitset<64> bBishopMoves() { return BishopMoves(wBoard()); };
+
+
+    //misc
     void PrintAllBoards() {
         wPawn.PrintBitBoard();
         bPawn.PrintBitBoard();

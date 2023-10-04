@@ -4,29 +4,13 @@
 int main () {
     PrecomputeData();
     Bitboard board;
+    bitset<64> wBishopMoves = board.wBishopMoves();
+    PrintBitSet(wBishopMoves, "wBishopMoves");
+
     board.LoadFen("rnbqkbn1/pppppppp/5r2/8/3B4/8/PPP3PP/RN1QKBNR w KQq - 0 1");
 
-    bitset<64> black = board.bBoard();
-    bitset<64> white = board.wBoard();
-    bitset<64> emptyboard = board.EmptyBoard();
-    bitset<64> wbish = board.GetwBishop().GetBoard();
-    vector<int> indexes = BitSetTrueIndexes(wbish);
-    PrintBitSet(wbish, "wbish");
-    //PrintVectorInt(indexes, "w bishops indexes");
-
-    for(int sq : indexes) {
-        bitset<64> diag = diagonals[sq];
-        bitset<64> mask = maskBishop[sq];
-        //PrintBitSet(diag, "diag " + to_string(sq));
-        //PrintBitSet(mask, "mask " + to_string(sq));
-        bitset<64> bishopattcks = mask & ~white | (mask & black);
-        PrintBitSet((mask & black), "mask & black");
-        PrintBitSet(bishopattcks, "bishopattcks");
-
-    }
-    //PrintBitSet(black, "black");
-    //PrintBitSet(white, "white");
-    //PrintBitSet(emptyboard, "emptyboard");
+    wBishopMoves = board.wBishopMoves();
+    PrintBitSet(wBishopMoves, "wBishopMoves");
 
     
     /*
