@@ -245,7 +245,7 @@ class Bitboard {
     bitset<64> wBishopAttacks() { return BishopAttacks(wBishop.GetBoard()); };
     bitset<64> bBishopAttacks() { return BishopAttacks(bBishop.GetBoard()); };
     bitset<64> wBishopMoves() { bitset<64> wbatt = wBishopAttacks(); return wbatt & ~(wbatt & wBoard()); };
-    bitset<64> bBishopMoves() { bitset<64> bbatt = wBishopAttacks(); return bbatt & ~(bbatt & bBoard()); };
+    bitset<64> bBishopMoves() { bitset<64> bbatt = bBishopAttacks(); return bbatt & ~(bbatt & bBoard()); };
 
     bitset<64> wRookAttacks() { return RookAttacks(wRook.GetBoard()); };
     bitset<64> bRookAttacks() { return RookAttacks(bRook.GetBoard()); };
