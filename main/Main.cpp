@@ -6,6 +6,7 @@ using namespace chrono;
 int main () {
     //PrecomputeData();
     Bitboard board;
+    board.LoadFen("");
 
     /*
         auto start = high_resolution_clock::now();

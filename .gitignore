@@ -17,6 +17,10 @@ Bitboard/*.obj
 Bitboard/*.pdb
 Bitboard/*.ilk
 
+tests/*.obj
+tests/*.pdb
+tests/*.ilk
+
 # Precompiled Headers
 *.gch
 *.pch
@@ -48,3 +52,7 @@ main/*.app
 Bitboard/*.exe
 Bitboard/*.out
 Bitboard/*.app
+
+tests/*.exe
+tests/*.out
+tests/*.app
