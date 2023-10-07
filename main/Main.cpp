@@ -1,9 +1,35 @@
 #include "..\Bitboard\Bitboard.cpp"
 #include "..\Bitboard\BitboardHelper.cpp"
+#include <chrono>
+using namespace chrono;
 
 int main () {
     //PrecomputeData();
     Bitboard board;
+
+    /*
+        auto start = high_resolution_clock::now();
+            
+        bitset<64> wBishopMoves = board.wBishopMoves();
+        bitset<64> bBishopMoves = board.bBishopMoves();
+
+
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        cout << "BITSET: bishop moves in microseconds" << endl;
+        cout << duration.count() << endl;
+
+        start = high_resolution_clock::now();
+            
+        bitset<64> wRookMoves = board.wRookMoves();
+        bitset<64> bRookMoves = board.bRookMoves();
+
+
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        cout << "BITSET: bishop moves in microseconds" << endl;
+        cout << duration.count() << endl;
+    */
 
     /*
         bitset<64> bKnightmoves = board.bKnightMoves();
