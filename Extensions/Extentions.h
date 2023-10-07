@@ -30,7 +30,7 @@ namespace Extensions {
             if(i % 8 == 0 && i != 0) {
                 cout << endl;
             }
-            if(board[i] == 1) {
+            if(board.test(i)) {
                 cout << board[i] << " ";
             } else {
                 cout << "." << " ";

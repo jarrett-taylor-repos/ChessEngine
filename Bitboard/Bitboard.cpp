@@ -25,19 +25,19 @@ class Bitboard {
     void LoadFen(string fen) {
         ClearBoard();
 
-        wPawn.LoadFen(fen, 1001);
-        wKnight.LoadFen(fen, 1010);
-        wBishop.LoadFen(fen, 1011);
-        wRook.LoadFen(fen, 1100);
-        wQueen.LoadFen(fen, 1101);
-        wKing.LoadFen(fen, 1110);
+        wPawn.LoadFen(fen, 0b1001);
+        wKnight.LoadFen(fen, 0b1010);
+        wBishop.LoadFen(fen, 0b1011);
+        wRook.LoadFen(fen, 0b1100);
+        wQueen.LoadFen(fen, 0b1101);
+        wKing.LoadFen(fen, 0b1110);
 
-        bPawn.LoadFen(fen, 0001);
-        bKnight.LoadFen(fen, 0010);
-        bBishop.LoadFen(fen, 0011);
-        bRook.LoadFen(fen, 0100);
-        bQueen.LoadFen(fen, 0101);
-        bKing.LoadFen(fen, 0110);
+        bPawn.LoadFen(fen, 0b0001);
+        bKnight.LoadFen(fen, 0b0010);
+        bBishop.LoadFen(fen, 0b0011);
+        bRook.LoadFen(fen, 0b0100);
+        bQueen.LoadFen(fen, 0b0101);
+        bKing.LoadFen(fen, 0b0110);
     };
 
     void ClearBoard() {
@@ -91,15 +91,9 @@ class Bitboard {
 
     //pawn functions
     bitset<64> wSinglePushTargets(bitset<64> b) { return northOne(b) & EmptyBoard(); };
-    bitset<64> wDoublePushTargets(bitset<64> b) { 
-        bitset<64> singlePushes = wSinglePushTargets(b);
-        return northOne(singlePushes) & EmptyBoard() & rank4; 
-    };
+    bitset<64> wDoublePushTargets(bitset<64> b) { return northOne(wSinglePushTargets(b)) & EmptyBoard() & rank4; };
     bitset<64> bSinglePushTargets(bitset<64> b) { return southOne(b) & EmptyBoard(); };
-    bitset<64> bDoublePushTargets(bitset<64> b) {
-        bitset<64> singlePushes = bSinglePushTargets(b);
-        return southOne(singlePushes) & EmptyBoard() & rank5; 
-    };
+    bitset<64> bDoublePushTargets(bitset<64> b) { return southOne(bSinglePushTargets(b)) & EmptyBoard() & rank5; };
     bitset<64> wPawnPushes() { return wSinglePushTargets(wPawn.GetBoard()) | wDoublePushTargets(wPawn.GetBoard()); };
     bitset<64> bPawnPushes() { return bSinglePushTargets(bPawn.GetBoard()) | bDoublePushTargets(bPawn.GetBoard()); };
 
@@ -149,21 +143,6 @@ class Bitboard {
     bool ValidTravel(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && !AllBoard().test(offset); };
     bool ValidTravelAtt(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && AllBoard().test(offset); };
 
-    //may not be needed
-    bool ValidTravelCapture(bitset<64> canCap, bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && canCap.test(offset); };
-    bitset<64> SlidingMoves(bitset<64> canCap, bitset<64> overlap, int sq, int direction) {
-        bitset<64> moves;
-        int offset = sq + direction;
-        while(ValidTravel(overlap, offset)) {
-            moves.set(offset);
-            offset += direction;
-        }
-        if(ValidTravelCapture(canCap, overlap, offset)) {
-            moves.set(offset);
-        }
-        return moves;
-    }
-
     bitset<64> SlidingAttacks(bitset<64> overlap, int sq, int direction) {
         bitset<64> moves;
         int offset = sq + direction;
@@ -205,38 +184,6 @@ class Bitboard {
             moves |= SlidingAttacks(notHFile, sq, -1);
             //travle southOne
             moves |= SlidingAttacks(~rank8, sq, 8);
-        }
-        return moves;
-    }
-
-    //may be able to remove helpers
-    bitset<64> BishopMovesHelper(bitset<64> opp, bitset<64> bishopBoard) {
-        bitset<64> moves;
-        vector<int> indexes = BitSetTrueIndexes(bishopBoard);
-        for(int sq : indexes) {
-            //travel northEastOne
-            moves |= SlidingMoves(opp, notAFile, sq, -7);
-            //travel northWestOne
-            moves |= SlidingMoves(opp, notHFile, sq, -9);
-            //travel southEastOne
-            moves |= SlidingMoves(opp, notAFile, sq, 9);
-            //travle southWestOne
-            moves |= SlidingMoves(opp, notHFile, sq, 7);
-        }
-        return moves;
-    }
-    bitset<64> RookMovesHelper(bitset<64> opp, bitset<64> rBoard) {
-        bitset<64> moves;
-        vector<int> indexes = BitSetTrueIndexes(rBoard);
-        for(int sq : indexes) {
-            //travel northOne
-            moves |= SlidingMoves(opp, ~rank1, sq, -8);
-            //travel eastOne
-            moves |= SlidingMoves(opp, notAFile, sq, 1);
-            //travel westOne
-            moves |= SlidingMoves(opp, notHFile, sq, -1);
-            //travle southOne
-            moves |= SlidingMoves(opp, ~rank8, sq, 8);
         }
         return moves;
     }

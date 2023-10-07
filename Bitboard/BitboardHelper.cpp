@@ -42,20 +42,8 @@ class BitBoardHelper {
     };
 
     void PrintBitBoard() {
-        char ch = PieceValueToChar(item);
-        string str(1, ch);
-        cout << str << endl;
-        for(int i = 0; i < 64; i++) {
-            if(i % 8 == 0 && i != 0) {
-                cout << endl;
-            }
-            if(board[i] == 1) {
-                cout << "1" << " ";
-            } else {
-                cout << "." <<  " ";
-            }
-        }
-        cout << endl << endl;
+        string str(1, PieceValueToChar(item));
+        PrintBitSet(board, str);
     };
 
     bool GetBit(int square) { return board.test(square); };
@@ -64,40 +52,40 @@ class BitBoardHelper {
     void PrintBinaryValue() { cout << board << endl; };
     bitset<64> GetBoard() { return board; };
     short int GetItem() { return item; };
-    long long BitsetToU64() {return board.to_ullong(); };
+    long long ToU64() {return board.to_ullong(); };
 
     short int FenCharToValue(char ch) {
         switch(ch) {
-            case 'p': return 0001;
-            case 'n': return 0010;
-            case 'b': return 0011;
-            case 'r': return 0100;
-            case 'q': return 0101;
-            case 'k': return 0110;
-            case 'P': return 1001;
-            case 'N': return 1010;
-            case 'B': return 1011;
-            case 'R': return 1100;
-            case 'Q': return 1101;
-            case 'K': return 1110;
-            default: return 0000;
+            case 'p': return 0b0001;
+            case 'n': return 0b0010;
+            case 'b': return 0b0011;
+            case 'r': return 0b0100;
+            case 'q': return 0b0101;
+            case 'k': return 0b0110;
+            case 'P': return 0b1001;
+            case 'N': return 0b1010;
+            case 'B': return 0b1011;
+            case 'R': return 0b1100;
+            case 'Q': return 0b1101;
+            case 'K': return 0b1110;
+            default: return 0b0000;
         }
     };
 
     char PieceValueToChar(short int item) {
         switch(item) { 
-            case 0001: return 'p';
-            case 0010: return 'n';
-            case 0011: return 'b';
-            case 0100: return 'r';
-            case 0101: return 'q';
-            case 0110: return 'k';
-            case 1001: return 'P';
-            case 1010: return 'N';
-            case 1011: return 'B';
-            case 1100: return 'R';
-            case 1101: return 'Q';
-            case 1110: return 'K';
+            case 0b0001: return 'p';
+            case 0b0010: return 'n';
+            case 0b0011: return 'b';
+            case 0b0100: return 'r';
+            case 0b0101: return 'q';
+            case 0b0110: return 'k';
+            case 0b1001: return 'P';
+            case 0b1010: return 'N';
+            case 0b1011: return 'B';
+            case 0b1100: return 'R';
+            case 0b1101: return 'Q';
+            case 0b1110: return 'K';
             default: return ' ';
         }
     };
