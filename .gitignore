@@ -9,6 +9,10 @@
 *.pdb
 *.ilk
 
+*/*.obj
+*/*.pdb
+*/*.ilk
+
 # Precompiled Headers
 *.gch
 *.pch
@@ -32,3 +36,7 @@
 *.exe
 *.out
 *.app
+
+*/*.exe
+*/*.out
+*/*.app
