@@ -9,9 +9,13 @@
 *.pdb
 *.ilk
 
-*/*.obj
-*/*.pdb
-*/*.ilk
+main/*.obj
+main/*.pdb
+main/*.ilk
+
+Bitboard/*.obj
+Bitboard/*.pdb
+Bitboard/*.ilk
 
 # Precompiled Headers
 *.gch
@@ -37,6 +41,10 @@
 *.out
 *.app
 
-*/*.exe
-*/*.out
-*/*.app
+main/*.exe
+main/*.out
+main/*.app
+
+BitBoard/*.exe
+BitBoard/*.out
+BitBoard/*.app
