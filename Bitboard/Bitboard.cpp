@@ -183,8 +183,8 @@ class Bitboard {
     vector<string> bPawnDoublePushesUCI() {
         bitset<64> bPawnBoard = bPawn.GetBoard();
         bitset<64> bPawnDoublePushes = bDoublePushTargets(bPawnBoard);
-        bitset<64> bPawDoublePushesOriginal = bPawnDoublePushes >> 16;
-        return BitsetToUCI(bPawDoublePushesOriginal, bPawnDoublePushes);
+        bitset<64> bPawnDoublePushesOriginal = bPawnDoublePushes >> 16;
+        return BitsetToUCI(bPawnDoublePushesOriginal, bPawnDoublePushes);
     }
 
     vector<string> bPawnMovesPushesUCI() { return Combine(bPawnSinglePushesUCI(), bPawnDoublePushesUCI()); };
@@ -204,6 +204,32 @@ class Bitboard {
 
     bitset<64> wKnightMoves(){ return KnightMoveHelper(wKnight.GetBoard()) & NotwBoard(); }
     bitset<64> bKnightMoves(){ return KnightMoveHelper(bKnight.GetBoard()) & NotbBoard(); }
+
+    vector<string> wKnightMovesUCI() { 
+        vector<string> ucimoves;
+        vector<int> indexes = BitSetTrueIndexes(wKnight.GetBoard());
+        for(int sq : indexes) {
+            bitset<64> helper;
+            helper.set(sq);
+            bitset<64> moves = KnightMoveHelper(helper) & NotwBoard();
+            vector<string> currMoves = BitsetToUCI(IndexToEnumSquare(sq), moves);
+            ucimoves = Combine(ucimoves, currMoves);
+        }
+        return ucimoves;
+    };
+
+    vector<string> bKnightMovesUCI() { 
+        vector<string> ucimoves;
+        vector<int> indexes = BitSetTrueIndexes(bKnight.GetBoard());
+        for(int sq : indexes) {
+            bitset<64> helper;
+            helper.set(sq);
+            bitset<64> moves = KnightMoveHelper(helper) & NotbBoard();
+            vector<string> currMoves = BitsetToUCI(IndexToEnumSquare(sq), moves);
+            ucimoves = Combine(ucimoves, currMoves);
+        }
+        return ucimoves;
+    };
 
     //king moves
     bitset<64> bKingMoves() { 

@@ -11,6 +11,11 @@ int main () {
     vector<string> bpawnuci = board.bPawnMovesUCI();
     PrintVector(bpawnuci, "bpawnuci");
 
+    vector<string> wKnightMovesUCI = board.wKnightMovesUCI();
+    PrintVector(wKnightMovesUCI, "wKnightMovesUCI");
+    vector<string> bKnightMovesUCI = board.bKnightMovesUCI();
+    PrintVector(bKnightMovesUCI, "bKnightMovesUCI");
+
     /*
         board.LoadFen("rnb1kbnr/ppppqppp/8/8/4R3/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1");
         bitset<64> xRaywRookAttacks = board.xRaywRookAttacks();
