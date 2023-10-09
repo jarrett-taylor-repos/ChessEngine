@@ -4,8 +4,23 @@
 using namespace chrono;
 
 int main () {
-    //PrecomputeData();
     Bitboard board;
+    board.LoadFen("rnb1kbnr/ppppqppp/3B4/8/4R3/8/PPPPPPPP/1NBQK1NR w Kkq - 0 1");
+    bitset<64> GetwPawn = board.GetwPawn().GetBoard();
+    PrintBitSet(GetwPawn, "GetwPawn");
+
+    bitset<64> wPawnMoves = board.wPawnMoves();
+    PrintBitSet(wPawnMoves, "wPawnMoves");
+
+    /*
+        board.LoadFen("rnb1kbnr/ppppqppp/8/8/4R3/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1");
+        bitset<64> xRaywRookAttacks = board.xRaywRookAttacks();
+        PrintBitSet(xRaywRookAttacks, "xRaywRookAttacks");
+
+        board.LoadFen("rnb1kbnr/ppppqppp/3B4/8/4R3/8/PPPPPPPP/1NBQK1NR w Kkq - 0 1");
+        bitset<64> xRaywBishopAttacks = board.xRaywBishopAttacks();
+        PrintBitSet(xRaywBishopAttacks, "xRaywBishopAttacks");
+        */
 
     /*
         auto start = high_resolution_clock::now();

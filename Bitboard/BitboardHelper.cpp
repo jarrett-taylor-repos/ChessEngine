@@ -1,8 +1,6 @@
 #include "..\Extensions\Extentions.h"
-#include <iostream>
 #include <ctype.h>
 #include <stdio.h>
-using namespace std;
 using namespace Extensions;
 #pragma once
 
@@ -20,7 +18,6 @@ class BitBoardHelper {
 
     void LoadFen(string fen, short int value) {
         item = value;
-        fen = Split(fen, ' ')[0];
         int square = 0;
 
         for(int i = 0; i < fen.length(); i++) {

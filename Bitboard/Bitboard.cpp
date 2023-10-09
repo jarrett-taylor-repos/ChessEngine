@@ -1,6 +1,5 @@
 #include "bitboardhelper.cpp"
-#include "..\MoveEngine\MoveCoordinates.h"
-using namespace MoveCoordinates;
+#include <unordered_map>
 
 class Bitboard {
     private:
@@ -18,26 +17,46 @@ class Bitboard {
     BitBoardHelper bQueen;
     BitBoardHelper bKing;
 
+    int halfMoveClock;
+    int fullTurnNum;
+    string enPassantTarget;
+    string currFen;
+    bool isWhiteMove;
+    string castlingRights;
+
+    unordered_map<string, int> hashFen; //used to see 3 move repition of fen, will be used in the future
+
     public:
     Bitboard() { LoadFen(startFen); };
     Bitboard(string fen) { LoadFen(fen); };
 
-    void LoadFen(string fen) {
+    void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
+        currFen = arguments[0];
+        string moveColor = arguments[1];
+        isWhiteMove = moveColor == "w";
+        castlingRights = arguments[2];
+        enPassantTarget = arguments[3];
+        fullTurnNum = stoi(arguments[4]);
+        halfMoveClock = stoi(arguments[5]);
+    };
 
-        wPawn.LoadFen(fen, 0b1001);
-        wKnight.LoadFen(fen, 0b1010);
-        wBishop.LoadFen(fen, 0b1011);
-        wRook.LoadFen(fen, 0b1100);
-        wQueen.LoadFen(fen, 0b1101);
-        wKing.LoadFen(fen, 0b1110);
+    void LoadFen(string fen) {
+        LoadFenHelper(Split(fen));
 
-        bPawn.LoadFen(fen, 0b0001);
-        bKnight.LoadFen(fen, 0b0010);
-        bBishop.LoadFen(fen, 0b0011);
-        bRook.LoadFen(fen, 0b0100);
-        bQueen.LoadFen(fen, 0b0101);
-        bKing.LoadFen(fen, 0b0110);
+        wPawn.LoadFen(currFen, 0b1001);
+        wKnight.LoadFen(currFen, 0b1010);
+        wBishop.LoadFen(currFen, 0b1011);
+        wRook.LoadFen(currFen, 0b1100);
+        wQueen.LoadFen(currFen, 0b1101);
+        wKing.LoadFen(currFen, 0b1110);
+
+        bPawn.LoadFen(currFen, 0b0001);
+        bKnight.LoadFen(currFen, 0b0010);
+        bBishop.LoadFen(currFen, 0b0011);
+        bRook.LoadFen(currFen, 0b0100);
+        bQueen.LoadFen(currFen, 0b0101);
+        bKing.LoadFen(currFen, 0b0110);
     };
 
     void ClearBoard() {
@@ -143,6 +162,9 @@ class Bitboard {
     bool ValidTravel(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && !AllBoard().test(offset); };
     bool ValidTravelAtt(bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && AllBoard().test(offset); };
 
+    bool ValidTravel(bitset<64> occ, bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && !occ.test(offset); };
+    bool ValidTravelAtt(bitset<64> occ, bitset<64> overlap, int offset) { return InBounds(offset) && overlap.test(offset) && occ.test(offset); };
+
     bitset<64> SlidingAttacks(bitset<64> overlap, int sq, int direction) {
         bitset<64> moves;
         int offset = sq + direction;
@@ -156,35 +178,96 @@ class Bitboard {
         return moves;
     }
 
+    bitset<64> SlidingAttacks(bitset<64> occ, bitset<64> overlap, int sq, int direction) {
+        bitset<64> moves;
+        int offset = sq + direction;
+        while(ValidTravel(occ, overlap, offset)) {
+            moves.set(offset);
+            offset += direction;
+        }
+        if(ValidTravelAtt(occ, overlap, offset)) {
+            moves.set(offset);
+        }
+        return moves;
+    }
+
+    bitset<64> BishopAttacksBySquare(int sq) {
+        bitset<64> moves;
+        //travel northEastOne
+        moves |= SlidingAttacks(~aFile, sq, -7);
+        //travel northWestOne
+        moves |= SlidingAttacks(~hFile, sq, -9);
+        //travel southEastOne
+        moves |= SlidingAttacks(~aFile, sq, 9);
+        //travle southWestOne
+        moves |= SlidingAttacks(~hFile, sq, 7);
+        return moves;
+    }
+
+    bitset<64> BishopAttacksBySquare(bitset<64> occ, int sq) {
+        bitset<64> moves;
+        //travel northEastOne
+        moves |= SlidingAttacks(occ, ~aFile, sq, -7);
+        //travel northWestOne
+        moves |= SlidingAttacks(occ, ~hFile, sq, -9);
+        //travel southEastOne
+        moves |= SlidingAttacks(occ, ~aFile, sq, 9);
+        //travle southWestOne
+        moves |= SlidingAttacks(occ, ~hFile, sq, 7);
+        return moves;
+    }
+
     bitset<64> BishopAttacks(bitset<64> bishopBoard) {
         bitset<64> moves;
         vector<int> indexes = BitSetTrueIndexes(bishopBoard);
-        for(int sq : indexes) {
-            //travel northEastOne
-            moves |= SlidingAttacks(notAFile, sq, -7);
-            //travel northWestOne
-            moves |= SlidingAttacks(notHFile, sq, -9);
-            //travel southEastOne
-            moves |= SlidingAttacks(notAFile, sq, 9);
-            //travle southWestOne
-            moves |= SlidingAttacks(notHFile, sq, 7);
-        }
+        for(int sq : indexes) moves |= BishopAttacksBySquare(sq); 
+        return moves;
+    }
+
+    bitset<64> BishopAttacks(bitset<64> bishopBoard, bitset<64> occ) {
+        bitset<64> moves;
+        vector<int> indexes = BitSetTrueIndexes(bishopBoard);
+        for(int sq : indexes) moves |= BishopAttacksBySquare(occ, sq); 
+        return moves;
+    }
+
+    bitset<64> RookAttacksBySquare(int sq) {
+        bitset<64> moves;
+        //travel northOne
+        moves |= SlidingAttacks(~rank1, sq, -8);
+        //travel eastOne
+        moves |= SlidingAttacks(notAFile, sq, 1);
+        //travel westOne
+        moves |= SlidingAttacks(notHFile, sq, -1);
+        //travle southOne
+        moves |= SlidingAttacks(~rank8, sq, 8);
+        return moves;
+    }
+
+    bitset<64> RookAttacksBySquare(bitset<64> occ, int sq) {
+        bitset<64> moves;
+        //travel northOne
+        moves |= SlidingAttacks(occ, ~rank1, sq, -8);
+        //travel eastOne
+        moves |= SlidingAttacks(occ, ~aFile, sq, 1);
+        //travel westOne
+        moves |= SlidingAttacks(occ, ~hFile, sq, -1);
+        //travle southOne
+        moves |= SlidingAttacks(occ, ~rank8, sq, 8);
         return moves;
     }
 
     bitset<64> RookAttacks(bitset<64> rBoard) {
         bitset<64> moves;
         vector<int> indexes = BitSetTrueIndexes(rBoard);
-        for(int sq : indexes) {
-            //travel northOne
-            moves |= SlidingAttacks(~rank1, sq, -8);
-            //travel eastOne
-            moves |= SlidingAttacks(notAFile, sq, 1);
-            //travel westOne
-            moves |= SlidingAttacks(notHFile, sq, -1);
-            //travle southOne
-            moves |= SlidingAttacks(~rank8, sq, 8);
-        }
+        for(int sq : indexes) moves |= RookAttacksBySquare(sq);
+        return moves;
+    }
+
+    bitset<64> RookAttacks(bitset<64> rBoard, bitset<64> occ) {
+        bitset<64> moves;
+        vector<int> indexes = BitSetTrueIndexes(rBoard);
+        for(int sq : indexes) moves |= RookAttacksBySquare(occ, sq);
         return moves;
     }
 
@@ -207,6 +290,66 @@ class Bitboard {
     //attacks
     bitset<64> wAttacks() { return wPawnAllAtt() | wKingMoves() | wKnightMoves() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
     bitset<64> bAttacks() { return bPawnAllAtt() | bKingMoves() | bKnightMoves() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
+
+    bitset<64> xRaywRookAttacks() {
+        bitset<64> wrookmoves = wRookMoves();
+        bitset<64> occ = AllBoard();
+        bitset<64> blockers = wrookmoves & occ;
+        blockers &= wrookmoves;
+        bitset<64> occAttacks = RookAttacks(wRook.GetBoard(), occ ^ blockers);
+        bitset<64> xrayattcks = (wrookmoves ^ occAttacks) & bBoard();
+        return xrayattcks;
+    }
+
+    bitset<64> xRaybRookAttacks() {
+        bitset<64> brookmoves = bRookMoves();
+        bitset<64> occ = AllBoard();
+        bitset<64> blockers = brookmoves & occ;
+        blockers &= brookmoves;
+        bitset<64> occAttacks = RookAttacks(bRook.GetBoard(), occ ^ blockers);
+        bitset<64> xrayattcks = (brookmoves ^ occAttacks) & wBoard();
+        return xrayattcks;
+    }
+
+    bitset<64> xRaywBishopAttacks() {
+        bitset<64> wbishopmoves =  wBishopMoves();
+        bitset<64> occ = AllBoard();
+        bitset<64> blockers = wbishopmoves & occ;
+        blockers &= wbishopmoves;
+        bitset<64> occAttacks = BishopAttacks(wBishop.GetBoard(), occ ^ blockers);
+        bitset<64> xrayattcks = (wbishopmoves ^ occAttacks) & bBoard();
+        return xrayattcks;
+    }
+
+    bitset<64> xRaybBishopAttacks() {
+        bitset<64> bbishopmoves =  bBishopMoves();
+        bitset<64> occ = AllBoard();
+        bitset<64> blockers = bbishopmoves & occ;
+        blockers &= bbishopmoves;
+        bitset<64> occAttacks = BishopAttacks(bBishop.GetBoard(), occ ^ blockers);
+        bitset<64> xrayattcks = (bbishopmoves ^ occAttacks) & wBoard();
+        return xrayattcks;
+    }
+
+    //move generation
+    bitset<64> GetwMoves() {
+        return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves();
+    }
+    bitset<64> GetbMoves() {
+        return bPawnMoves() | bKnightMoves() | bBishopMoves() | bRookMoves() | bQueenMoves() | bKingMoves();
+    }
+
+    bitset<64> GetMoves() {
+        if(isWhiteMove) return GetwMoves();
+        
+        return bPawnMoves();
+    }
+
+
+    //making moves 
+    void MakeMove() {
+        
+    }
 
 
     //misc

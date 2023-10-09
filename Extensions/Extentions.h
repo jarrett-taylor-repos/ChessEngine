@@ -1,21 +1,21 @@
-#include <iostream>
+#include "BitboardConstants.h"
 #include <sstream>
-#include <string>
 #include <vector>
-#include <bitset>
 using namespace std;
+using namespace BitboardConstants;
 
 namespace Extensions {
-    vector<string> Split(string str, const char delim) {
-        vector<string> out;
-        stringstream ss(str); 
 
-        string s; 
-        while (getline(ss, s, delim)) { 
-            out.push_back(s); 
-        } 
-        return out;
-    };
+    vector<string> Split(string str, const char token = ' '){
+        string tmp; 
+        stringstream ss(str);
+        vector<string> words;
+
+        while(getline(ss, tmp, token))  {
+            words.push_back(tmp);
+        }
+        return words;
+    }
 
     short int CharToInt(char ch) {
         string str(1, ch);
@@ -48,9 +48,7 @@ namespace Extensions {
     vector<int> BitSetTrueIndexes(bitset<64> b) {
         vector<int> indexes;
         for(int i = 0; i < 64; i++) {
-            if(b[i] == 1) {
-                indexes.push_back(i);
-            }
+            if(b.test(i)) indexes.push_back(i);
         }
         return indexes;
     }
@@ -63,5 +61,17 @@ namespace Extensions {
             cout << to_string(vect[i]) << " ";
         }
         cout << endl << endl;
+    }
+
+    string IndexToEnumSquare(int index) { return IntToEnumMap.at(index); }
+
+    vector<string> BoardPopulatedSquares(bitset<64> b) {
+        vector<string> coordinates;
+        vector<int> indexes = BitSetTrueIndexes(b);
+        for(int sq : indexes) {
+            string enSq = IndexToEnumSquare(sq);
+            coordinates.push_back(enSq);
+        }
+        return coordinates;
     }
 }
