@@ -408,6 +408,36 @@ class Bitboard {
         return ucimoves;
     }
 
+    vector<string> wRookMovesUCI() {
+        vector<string> ucimoves;
+        bitset<64> wrook = wRook.GetBoard();
+        vector<int> indexes = BitSetTrueIndexes(wrook);
+        for(int sq : indexes) {
+            bitset<64> singleRook;
+            singleRook.set(sq);
+            bitset<64> ratt = RookAttacks(singleRook);
+            bitset<64> rookmoves = ratt & ~(ratt & wBoard());
+            vector<string> currMoves = BitsetToUCI(IndexToEnumSquare(sq), rookmoves);
+            ucimoves = Combine(ucimoves, currMoves);
+        }
+        return ucimoves;
+    }
+
+    vector<string> bRookMovesUCI() {
+        vector<string> ucimoves;
+        bitset<64> brook = bRook.GetBoard();
+        vector<int> indexes = BitSetTrueIndexes(brook);
+        for(int sq : indexes) {
+            bitset<64> singleRook;
+            singleRook.set(sq);
+            bitset<64> ratt = RookAttacks(singleRook);
+            bitset<64> rookmoves = ratt & ~(ratt & bBoard());
+            vector<string> currMoves = BitsetToUCI(IndexToEnumSquare(sq), rookmoves);
+            ucimoves = Combine(ucimoves, currMoves);
+        }
+        return ucimoves;
+    }
+
     //attacks
     bitset<64> wAttacks() { return wPawnAllAtt() | wKingMoves() | wKnightMoves() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
     bitset<64> bAttacks() { return bPawnAllAtt() | bKingMoves() | bKnightMoves() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
