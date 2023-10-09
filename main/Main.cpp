@@ -5,12 +5,11 @@ using namespace chrono;
 
 int main () {
     Bitboard board;
-    board.LoadFen("rnb1kbnr/ppppqppp/3B4/8/4R3/8/PPPPPPPP/1NBQK1NR w Kkq - 0 1");
-    bitset<64> GetwPawn = board.GetwPawn().GetBoard();
-    PrintBitSet(GetwPawn, "GetwPawn");
-
-    bitset<64> wPawnMoves = board.wPawnMoves();
-    PrintBitSet(wPawnMoves, "wPawnMoves");
+    board.LoadFen("1nb1kbnr/ppppqppp/3B4/8/4R3/2r5/PPPPPPPP/1NBQK1NR w Kk - 0 1");
+    vector<string> wpawnuci = board.wPawnMovesUCI();
+    PrintVector(wpawnuci, "wpawnuci");
+    vector<string> bpawnuci = board.bPawnMovesUCI();
+    PrintVector(bpawnuci, "bpawnuci");
 
     /*
         board.LoadFen("rnb1kbnr/ppppqppp/8/8/4R3/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1");

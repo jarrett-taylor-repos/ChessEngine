@@ -74,4 +74,59 @@ namespace Extensions {
         }
         return coordinates;
     }
+
+    vector<string> SquareToUCI(vector<string> start, vector<string> end) {
+        vector<string> ucimoves;
+        for(int i = 0; i < start.size(); i++) {
+            string temp = start[i] + end[i];
+            ucimoves.push_back(temp);
+        }
+        return ucimoves;
+    }
+
+    vector<string> SquareToUCI(string start, vector<string> end) {
+        vector<string> ucimoves;
+        for(int i = 0; i < end.size(); i++) {
+            string temp = start + end[i];
+            ucimoves.push_back(temp);
+        }
+        return ucimoves;
+    }
+
+    vector<string> BitsetToUCI(bitset<64> a, bitset<64> b) {
+        vector<string> start = BoardPopulatedSquares(a);
+        vector<string> end = BoardPopulatedSquares(b);
+        vector<string> ucimoves;
+        for(int i = 0; i < start.size(); i++) {
+            string temp = start[i] + end[i];
+            ucimoves.push_back(temp);
+        }
+        return ucimoves;
+    }
+
+    vector<string> BitsetToUCI(string start, bitset<64> b) {
+        vector<string> end = BoardPopulatedSquares(b);
+        vector<string> ucimoves;
+        for(int i = 0; i < end.size(); i++) {
+            string temp = start + end[i];
+            ucimoves.push_back(temp);
+        }
+        return ucimoves;
+    }
+
+    vector<string> Combine(vector<string> a, vector<string> b) {
+        vector<string> ab = a;
+        ab.insert(ab.end(), b.begin(), b.end());
+        return ab;
+    }
+
+    void PrintVector(vector<string> a, string name = "") {
+        if(name.length() != 0) {
+            cout << name << endl;
+        }
+        for(string str : a) {
+            cout << str << endl;
+        }
+        cout << endl;
+    }
 }

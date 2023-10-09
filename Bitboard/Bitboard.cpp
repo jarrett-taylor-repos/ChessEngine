@@ -132,6 +132,64 @@ class Bitboard {
     bitset<64> wPawnMoves() { return wPawnAllCaptures() | wPawnPushes(); }
     bitset<64> bPawnMoves() { return bPawnAllCaptures() | bPawnPushes(); }
 
+    vector<string> wPawnWestCapturesUCI() { 
+        bitset<64> wPawnWestCap = wPawnWestAtt() & bBoard(); 
+        bitset<64> wPawnOrigin = wPawnWestCap << 7; 
+        return BitsetToUCI(wPawnOrigin, wPawnWestCap);
+    };
+    vector<string> wPawnEastCapturesUCI() {  
+        bitset<64> wPawnEastCap = wPawnEastAtt() & bBoard(); 
+        bitset<64> wPawnOrigin = wPawnEastCap << 9; 
+        return BitsetToUCI(wPawnOrigin, wPawnEastCap);
+    };
+
+    vector<string> wPawnMovesAllCapturesUCI() { return Combine(wPawnWestCapturesUCI(), wPawnEastCapturesUCI()); };
+
+    vector<string> wPawnSinglePushesUCI() {
+        bitset<64> wPawnBoard = wPawn.GetBoard();
+        bitset<64> wPawnSinglePushes = wSinglePushTargets(wPawnBoard);
+        bitset<64> wPawnSinglePushesOriginal = wPawnSinglePushes << 8;
+        return BitsetToUCI(wPawnSinglePushesOriginal, wPawnSinglePushes);
+    }
+    vector<string> wPawnDoublePushesUCI() {
+        bitset<64> wPawnBoard = wPawn.GetBoard();
+        bitset<64> wPawnDoublePushes = wDoublePushTargets(wPawnBoard);
+        bitset<64> wPawDoublePushesOriginal = wPawnDoublePushes << 16;
+        return BitsetToUCI(wPawDoublePushesOriginal, wPawnDoublePushes);
+    }
+
+    vector<string> wPawnMovesPushesUCI() { return Combine(wPawnSinglePushesUCI(), wPawnDoublePushesUCI()); };
+    vector<string> wPawnMovesUCI() { return Combine(wPawnMovesAllCapturesUCI(), wPawnMovesPushesUCI()); };
+
+    vector<string> bPawnWestCapturesUCI() { 
+        bitset<64> bPawnWestCap = bPawnWestAtt() & wBoard(); 
+        bitset<64> bPawnOrigin = bPawnWestCap >> 9; 
+        return BitsetToUCI(bPawnOrigin, bPawnWestCap);
+    };
+    vector<string> bPawnEastCapturesUCI() {  
+        bitset<64> bPawnEastCap = bPawnEastAtt() & wBoard(); 
+        bitset<64> bPawnOrigin = bPawnEastCap >> 7; 
+        return BitsetToUCI(bPawnOrigin, bPawnEastCap);
+    };
+
+    vector<string> bPawnMovesAllCapturesUCI() { return Combine(bPawnWestCapturesUCI(), bPawnEastCapturesUCI()); };
+
+    vector<string> bPawnSinglePushesUCI() {
+        bitset<64> bPawnBoard = bPawn.GetBoard();
+        bitset<64> bPawnSinglePushes = bSinglePushTargets(bPawnBoard);
+        bitset<64> bPawnSinglePushesOriginal = bPawnSinglePushes >> 8;
+        return BitsetToUCI(bPawnSinglePushesOriginal, bPawnSinglePushes);
+    }
+    vector<string> bPawnDoublePushesUCI() {
+        bitset<64> bPawnBoard = bPawn.GetBoard();
+        bitset<64> bPawnDoublePushes = bDoublePushTargets(bPawnBoard);
+        bitset<64> bPawDoublePushesOriginal = bPawnDoublePushes >> 16;
+        return BitsetToUCI(bPawDoublePushesOriginal, bPawnDoublePushes);
+    }
+
+    vector<string> bPawnMovesPushesUCI() { return Combine(bPawnSinglePushesUCI(), bPawnDoublePushesUCI()); };
+    vector<string> bPawnMovesUCI() { return Combine(bPawnMovesAllCapturesUCI(), bPawnMovesPushesUCI()); };
+
 
     //knight functions
     bitset<64> KnightMoveHelper(bitset<64> b) { return noNoEa(b) | noEaEa(b) | soEaEa(b) | soSoEa(b) | noNoWe(b) | noWeWe(b) | soWeWe(b) | soSoWe(b); }
@@ -332,6 +390,11 @@ class Bitboard {
     }
 
     //move generation
+    vector<string> wMovesUCI() {
+
+    }
+
+
     bitset<64> GetwMoves() {
         return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves();
     }
