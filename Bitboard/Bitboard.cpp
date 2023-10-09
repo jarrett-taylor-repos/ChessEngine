@@ -98,6 +98,7 @@ class Bitboard {
     bitset<64> NotwBoard() { return ~wBoard(); };
 
     //generic movement 
+    bitset<64> OneInAllDirection(bitset<64> b) { return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)); };
     bitset<64> northOne(bitset<64> b) { return b >> 8; };
     bitset<64> southOne(bitset<64> b) { return b << 8; };
     bitset<64> eastOne(bitset<64> b) { return b << 1 & notAFile; };
@@ -232,14 +233,19 @@ class Bitboard {
     };
 
     //king moves
-    bitset<64> bKingMoves() { 
-        bitset<64> b = bKing.GetBoard();
-        return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotbBoard();
+    bitset<64> wKingMoves() { return OneInAllDirection(wKing.GetBoard()) & NotwBoard(); };
+    bitset<64> bKingMoves() { return OneInAllDirection(bKing.GetBoard()) & NotbBoard(); };
+
+    vector<string> wKingMovesUCI() {
+        int index = BitSetTrueIndexes(wKing.GetBoard()).at(0);
+        bitset<64> wkingmoves = wKingMoves();
+        return BitsetToUCI(IndexToEnumSquare(index), wkingmoves);
     };
 
-    bitset<64> wKingMoves() { 
-        bitset<64> b = wKing.GetBoard();
-        return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)) & NotwBoard();
+    vector<string> bKingMovesUCI() {
+        int index = BitSetTrueIndexes(bKing.GetBoard()).at(0);
+        bitset<64> bkingmoves = bKingMoves();
+        return BitsetToUCI(IndexToEnumSquare(index), bkingmoves);
     };
 
     //sliding moves helper
