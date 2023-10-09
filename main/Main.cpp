@@ -31,6 +31,11 @@ int main () {
     vector<string> bRookMovesUCI = board.bRookMovesUCI();
     PrintVector(bRookMovesUCI, "bRookMovesUCI");
 
+    vector<string> wQueenMovesUCI = board.wQueenMovesUCI();
+    PrintVector(wQueenMovesUCI, "wQueenMovesUCI");
+    vector<string> bQueenMovesUCI = board.bQueenMovesUCI();
+    PrintVector(bQueenMovesUCI, "bQueenMovesUCI");
+
     /*
         board.LoadFen("rnb1kbnr/ppppqppp/8/8/4R3/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1");
         bitset<64> xRaywRookAttacks = board.xRaywRookAttacks();
