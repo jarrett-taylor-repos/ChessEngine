@@ -120,6 +120,10 @@ namespace Extensions {
         return ab;
     }
 
+    void Append(vector<string> v1, vector<string> v2) {
+        v1.insert(v1.end(), v2.begin(), v2.end());
+    }
+
     void PrintVector(vector<string> a, string name = "") {
         if(name.length() != 0) {
             cout << name << endl;

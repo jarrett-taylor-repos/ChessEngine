@@ -5,38 +5,46 @@ using namespace chrono;
 
 int main () {
     Bitboard board;
-    board.LoadFen("1nb1kbnr/ppppqppp/3B4/8/4R3/2r5/PPPPPPPP/1NBQK1NR w Kk - 0 1");
-    vector<string> wpawnuci = board.wPawnMovesUCI();
-    PrintVector(wpawnuci, "wpawnuci");
-    vector<string> bpawnuci = board.bPawnMovesUCI();
-    PrintVector(bpawnuci, "bpawnuci");
 
-    vector<string> wKnightMovesUCI = board.wKnightMovesUCI();
-    PrintVector(wKnightMovesUCI, "wKnightMovesUCI");
-    vector<string> bKnightMovesUCI = board.bKnightMovesUCI();
-    PrintVector(bKnightMovesUCI, "bKnightMovesUCI");
+    /* UCI MOVES
+        board.LoadFen("1nb1kbnr/ppppqppp/3B4/8/4R3/2r5/PPPPPPPP/1NBQK1NR w Kk - 0 1");
+        vector<string> wpawnuci = board.wPawnMovesUCI();
+        PrintVector(wpawnuci, "wpawnuci");
+        vector<string> bpawnuci = board.bPawnMovesUCI();
+        PrintVector(bpawnuci, "bpawnuci");
 
-    vector<string> wKingMovesUCI = board.wKingMovesUCI();
-    PrintVector(wKingMovesUCI, "wKingMovesUCI");
-    vector<string> bKingMovesUCI = board.bKingMovesUCI();
-    PrintVector(bKingMovesUCI, "bKingMovesUCI");
+        vector<string> wKnightMovesUCI = board.wKnightMovesUCI();
+        PrintVector(wKnightMovesUCI, "wKnightMovesUCI");
+        vector<string> bKnightMovesUCI = board.bKnightMovesUCI();
+        PrintVector(bKnightMovesUCI, "bKnightMovesUCI");
 
-    vector<string> wBishopMovesUCI = board.wBishopMovesUCI();
-    PrintVector(wBishopMovesUCI, "wBishopMovesUCI");
-    vector<string> bBishopMovesUCI = board.bBishopMovesUCI();
-    PrintVector(bBishopMovesUCI, "bBishopMovesUCI");
+        vector<string> wKingMovesUCI = board.wKingMovesUCI();
+        PrintVector(wKingMovesUCI, "wKingMovesUCI");
+        vector<string> bKingMovesUCI = board.bKingMovesUCI();
+        PrintVector(bKingMovesUCI, "bKingMovesUCI");
 
-    vector<string> wRookMovesUCI = board.wRookMovesUCI();
-    PrintVector(wRookMovesUCI, "wRookMovesUCI");
-    vector<string> bRookMovesUCI = board.bRookMovesUCI();
-    PrintVector(bRookMovesUCI, "bRookMovesUCI");
+        vector<string> wBishopMovesUCI = board.wBishopMovesUCI();
+        PrintVector(wBishopMovesUCI, "wBishopMovesUCI");
+        vector<string> bBishopMovesUCI = board.bBishopMovesUCI();
+        PrintVector(bBishopMovesUCI, "bBishopMovesUCI");
 
-    vector<string> wQueenMovesUCI = board.wQueenMovesUCI();
-    PrintVector(wQueenMovesUCI, "wQueenMovesUCI");
-    vector<string> bQueenMovesUCI = board.bQueenMovesUCI();
-    PrintVector(bQueenMovesUCI, "bQueenMovesUCI");
+        vector<string> wRookMovesUCI = board.wRookMovesUCI();
+        PrintVector(wRookMovesUCI, "wRookMovesUCI");
+        vector<string> bRookMovesUCI = board.bRookMovesUCI();
+        PrintVector(bRookMovesUCI, "bRookMovesUCI");
 
-    /*
+        vector<string> wQueenMovesUCI = board.wQueenMovesUCI();
+        PrintVector(wQueenMovesUCI, "wQueenMovesUCI");
+        vector<string> bQueenMovesUCI = board.bQueenMovesUCI();
+        PrintVector(bQueenMovesUCI, "bQueenMovesUCI");
+
+        vector<string> wUciMoves = board.wUciMoves();
+        PrintVector(wUciMoves, "wUciMoves");
+        vector<string> bUciMoves = board.bUciMoves();
+        PrintVector(bUciMoves, "bUciMoves");
+    */
+
+    /* XRAY
         board.LoadFen("rnb1kbnr/ppppqppp/8/8/4R3/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1");
         bitset<64> xRaywRookAttacks = board.xRaywRookAttacks();
         PrintBitSet(xRaywRookAttacks, "xRaywRookAttacks");
@@ -44,9 +52,9 @@ int main () {
         board.LoadFen("rnb1kbnr/ppppqppp/3B4/8/4R3/8/PPPPPPPP/1NBQK1NR w Kkq - 0 1");
         bitset<64> xRaywBishopAttacks = board.xRaywBishopAttacks();
         PrintBitSet(xRaywBishopAttacks, "xRaywBishopAttacks");
-        */
+    */
 
-    /*
+    /* TIME
         auto start = high_resolution_clock::now();
             
         bitset<64> wBishopMoves = board.wBishopMoves();
@@ -70,7 +78,7 @@ int main () {
         cout << duration.count() << endl;
     */
 
-    /*
+    /* MOVE GENERATION
         bitset<64> bKnightmoves = board.bKnightMoves();
         bitset<64> wKnightmoves = board.wKnightMoves();
 

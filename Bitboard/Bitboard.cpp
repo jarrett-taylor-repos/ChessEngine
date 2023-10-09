@@ -472,6 +472,27 @@ class Bitboard {
         return ucimoves;
     }
 
+    //UCI moves
+    vector<string> wUciMoves() {
+        vector<string> ucimoves = wPawnMovesUCI();
+        ucimoves = Combine(ucimoves, wKnightMovesUCI());
+        ucimoves = Combine(ucimoves, wKingMovesUCI());
+        ucimoves = Combine(ucimoves, wBishopMovesUCI());
+        ucimoves = Combine(ucimoves, wRookMovesUCI());
+        ucimoves = Combine(ucimoves, wQueenMovesUCI());
+        return ucimoves;
+    };
+
+    vector<string> bUciMoves() {
+        vector<string> ucimoves = bPawnMovesUCI();
+        ucimoves = Combine(ucimoves, bKnightMovesUCI());
+        ucimoves = Combine(ucimoves, bKingMovesUCI());
+        ucimoves = Combine(ucimoves, bBishopMovesUCI());
+        ucimoves = Combine(ucimoves, bRookMovesUCI());
+        ucimoves = Combine(ucimoves, bQueenMovesUCI());
+        return ucimoves;
+    };
+
     //attacks
     bitset<64> wAttacks() { return wPawnAllAtt() | wKingMoves() | wKnightMoves() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
     bitset<64> bAttacks() { return bPawnAllAtt() | bKingMoves() | bKnightMoves() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
