@@ -5,11 +5,17 @@ using namespace chrono;
 
 int main () {
     Bitboard board; 
-    board.LoadFen("1nb1kbnr/ppppqppp/3B4/8/4R3/2r5/PPPPPPPP/1NBQK1NR w Kk - 0 1");
+    board.LoadFen("r1bqkbnr/pPppppp1/2n5/8/8/5N2/P1PPPPpP/RNBQKB1R w Qkq - 0 1");
     vector<string> ucimoves = board.GetUciMoves();
     string move = ucimoves[0];
+    cout << move << endl;
+    board.MakeMove(move);
+    ucimoves = board.GetUciMoves();
+    move = ucimoves[0];
+    cout << move << endl;
     board.MakeMove(move);
     board.PrintAllBoards();
+    //board.PrintAllBoards();
 
 
     /* UCI MOVE GENERATION TIMED

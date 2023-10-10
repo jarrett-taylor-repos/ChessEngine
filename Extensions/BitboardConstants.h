@@ -5,9 +5,12 @@
 #include <bitset>
 #include <iterator>
 #include <map>
+#include <sstream>
+#include <vector>
 using namespace std;
 
 namespace BitboardConstants {
+    vector<string> promotionUci = {"q", "r", "b", "n"};
     string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     bitset<64> notHFile("0111111101111111011111110111111101111111011111110111111101111111");
@@ -68,6 +71,6 @@ namespace BitboardConstants {
         {"a4", 32}, {"b4", 33}, {"c4", 34}, {"d4", 35}, {"e4", 36}, {"f4", 37}, {"g4", 38}, {"h4", 39},
         {"a3", 40}, {"b3", 41}, {"c3", 42}, {"d3", 43}, {"e3", 44}, {"f3", 45}, {"g3", 46}, {"h3", 47},
         {"a2", 48}, {"b2", 49}, {"c2", 50}, {"d2", 51}, {"e2", 52}, {"f2", 53}, {"g2", 54}, {"h2", 55},
-        {"a1", 56}, {"b1", 57}, {"c1", 58}, {"d1", 59}, {"e1", 60}, {"f1", 61}, {"g1", 62}, {"h1", 64}
+        {"a1", 56}, {"b1", 57}, {"c1", 58}, {"d1", 59}, {"e1", 60}, {"f1", 61}, {"g1", 62}, {"h1", 63}
     };
 }

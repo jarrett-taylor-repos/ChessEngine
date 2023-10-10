@@ -1,6 +1,4 @@
 #include "BitboardConstants.h"
-#include <sstream>
-#include <vector>
 using namespace std;
 using namespace BitboardConstants;
 
@@ -94,13 +92,23 @@ namespace Extensions {
         return ucimoves;
     }
 
-    vector<string> BitsetToUCI(bitset<64> a, bitset<64> b) {
+    vector<string> BitsetToUCI(bitset<64> a, bitset<64> b, bool isPawn = false, bool isWhite = false) {
         vector<string> start = BoardPopulatedSquares(a);
         vector<string> end = BoardPopulatedSquares(b);
         vector<string> ucimoves;
         for(int i = 0; i < start.size(); i++) {
-            string temp = start[i] + end[i];
-            ucimoves.push_back(temp);
+            string temp;
+
+            bool isPromo = isPawn && ((isWhite && StringtoIndex(end[i]) < 8) || (!isWhite && StringtoIndex(end[i]) > 55));
+            if(isPromo) {
+                for(int j = 0; j < promotionUci.size(); j++) {
+                    temp = start[i] + end[i] + promotionUci[j];
+                    ucimoves.push_back(temp);
+                }
+            } else {
+                temp = start[i] + end[i];
+                ucimoves.push_back(temp);
+            }
         }
         return ucimoves;
     }
