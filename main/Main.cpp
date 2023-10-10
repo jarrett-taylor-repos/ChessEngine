@@ -5,18 +5,30 @@ using namespace chrono;
 
 int main () {
     Bitboard board; 
-    board.LoadFen("r1bqkbnr/pPppppp1/2n5/8/8/5N2/P1PPPPpP/RNBQKB1R w Qkq - 0 1");
-    vector<string> ucimoves = board.GetUciMoves();
-    string move = ucimoves[0];
-    cout << move << endl;
-    board.MakeMove(move);
-    ucimoves = board.GetUciMoves();
-    move = ucimoves[0];
-    cout << move << endl;
-    board.MakeMove(move);
-    board.PrintAllBoards();
+    //board.LoadFen("r1bqkbnr/pPppppp1/2n5/8/8/5N2/P1PPPPpP/RNBQKB1R w Qkq - 0 1");
+    string fen = board.GetFen();
+    cout << fen << endl;
+    auto start = high_resolution_clock::now();
+    board.MakeMove("b7a8q");
+    board.MakeMove("g2h1q");
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << duration.count() << endl;
     //board.PrintAllBoards();
 
+
+    /* PROMOTION and make move 
+        board.LoadFen("r1bqkbnr/pPppppp1/2n5/8/8/5N2/P1PPPPpP/RNBQKB1R w Qkq - 0 1");
+        vector<string> ucimoves = board.GetUciMoves();
+        string move = ucimoves[0];
+        cout << move << endl;
+        board.MakeMove(move);
+        ucimoves = board.GetUciMoves();
+        move = ucimoves[0];
+        cout << move << endl;
+        board.MakeMove(move);
+        //board.PrintAllBoards();
+    */
 
     /* UCI MOVE GENERATION TIMED
         auto start = high_resolution_clock::now();

@@ -60,6 +60,52 @@ class Bitboard {
         bKing.LoadFen(currFen, 0b0110);
     };
 
+    string GetFen() {
+        bitset<64> allb = AllBoard();
+        string fen = "";
+        int temp = 0;
+        for(int i = 0; i < 64; i++) {
+            if((i != 0) && (i % 8 == 0)) { 
+                if(temp != 0) {
+                    fen += to_string(temp);
+                    temp = 0;
+                }
+                fen += "/";  
+            }
+
+            if(allb.test(i)) {
+                if(temp != 0) {
+                    fen += to_string(temp);
+                }
+                fen += GetPieceAtIndex(i);
+                temp=0;
+            } else {
+                temp++;
+            }
+        }
+        string moveColor = isWhiteMove ? " w" : " b";
+        string fenOthers = moveColor +" "+ castlingRights +" "+ enPassantTarget +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
+        fen += fenOthers;
+
+        return fen;
+    };
+
+    string GetPieceAtIndex(int index) {
+        if(wPawn.GetBit(index)) return "P";
+        if(wKnight.GetBit(index)) return "N";
+        if(wBishop.GetBit(index)) return "B";
+        if(wRook.GetBit(index)) return "R";
+        if(wQueen.GetBit(index)) return "Q";
+        if(wKing.GetBit(index)) return "K";
+
+        if(bPawn.GetBit(index)) return "p";
+        if(bKnight.GetBit(index)) return "n";
+        if(bBishop.GetBit(index)) return "b";
+        if(bRook.GetBit(index)) return "r";
+        if(bQueen.GetBit(index)) return "q";
+        if(bKing.GetBit(index)) return "k";
+    }
+
     void ClearBoard() {
         wPawn.ClearBoard();
         wKnight.ClearBoard();
@@ -687,12 +733,12 @@ class Bitboard {
     };
 
     //making moves 
-    void MakeMove(string move) {
+    bool MakeMove(string move) {
         vector<string> ucimoves = GetUciMoves();
 
         //if move is not in moves
         auto it = find(ucimoves.begin(), ucimoves.end(), move);
-        if (it == ucimoves.end()) return;
+        if (it == ucimoves.end()) return false;
         
         //determine board and moves
         string startSquare = move.substr(0, 2);
@@ -723,6 +769,8 @@ class Bitboard {
 
         //after move is made 
         isWhiteMove = !isWhiteMove;
+
+        return true;
     };
 
 
