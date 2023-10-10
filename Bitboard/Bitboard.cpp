@@ -565,11 +565,17 @@ class Bitboard {
 
     void GetBoardandResetIndex(int index, bool isCapture) {
         if(isWhiteMove) {
-            if(isCapture) GetbBoardandResetIndex(index); 
+            if(isCapture)  {
+                GetbBoardandResetIndex(index); 
+            } else {
+                GetwBoardandResetIndex(index); 
+            } 
+        }
+        if(isCapture) {
+            GetbBoardandResetIndex(index); 
+        } else {
             GetwBoardandResetIndex(index); 
         }
-        if(isCapture) GetbBoardandResetIndex(index); 
-        GetwBoardandResetIndex(index); 
     };
 
     void GetwBoardandSetIndex(int index) {
@@ -591,8 +597,11 @@ class Bitboard {
     }
 
     void GetBoardandSetIndex(int index) {
-        if(isWhiteMove) GetwBoardandSetIndex(index); 
-        GetbBoardandSetIndex(index); 
+        if(isWhiteMove)  {
+            GetwBoardandSetIndex(index); 
+        } else {
+            GetbBoardandSetIndex(index); 
+        }
     };
 
     void CaptureMoveUpdate(int startIndex, int targetIndex) {
