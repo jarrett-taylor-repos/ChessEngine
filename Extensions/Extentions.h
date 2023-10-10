@@ -63,13 +63,14 @@ namespace Extensions {
         cout << endl << endl;
     }
 
-    string IndexToEnumSquare(int index) { return IntToEnumMap.at(index); }
+    string IndexToSquare(int index) { return IntToSquareMap.at(index); }
+    int StringtoIndex(string str) {return SquaretoIntMap.at(str); }
 
     vector<string> BoardPopulatedSquares(bitset<64> b) {
         vector<string> coordinates;
         vector<int> indexes = BitSetTrueIndexes(b);
         for(int sq : indexes) {
-            string enSq = IndexToEnumSquare(sq);
+            string enSq = IndexToSquare(sq);
             coordinates.push_back(enSq);
         }
         return coordinates;

@@ -4,7 +4,34 @@
 using namespace chrono;
 
 int main () {
-    Bitboard board;
+    Bitboard board; 
+    board.LoadFen("1nb1kbnr/ppppqppp/3B4/8/4R3/2r5/PPPPPPPP/1NBQK1NR w Kk - 0 1");
+    vector<string> ucimoves = board.GetUciMoves();
+    string move = ucimoves[0];
+    board.MakeMove(move);
+    board.PrintAllBoards();
+
+
+    /* UCI MOVE GENERATION TIMED
+        auto start = high_resolution_clock::now();
+                
+        vector<string> wUciMoves = board.wUciMoves();
+
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        cout << "WHITE UCI MOVE GENERATION" << endl;
+        cout << duration.count() << endl;
+
+        start = high_resolution_clock::now();
+            
+        vector<string> bUciMoves = board.bUciMoves();
+
+
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        cout << "BLACK UCI MOVE GENERATION" << endl;
+        cout << duration.count() << endl;
+    */
 
     /* UCI MOVES
         board.LoadFen("1nb1kbnr/ppppqppp/3B4/8/4R3/2r5/PPPPPPPP/1NBQK1NR w Kk - 0 1");
