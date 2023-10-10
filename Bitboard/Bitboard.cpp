@@ -595,6 +595,17 @@ class Bitboard {
         GetbBoardandSetIndex(index); 
     };
 
+    void CaptureMoveUpdate(int startIndex, int targetIndex) {
+        GetBoardandResetIndex(targetIndex, true);
+        GetBoardandResetIndex(startIndex, false);
+        GetBoardandSetIndex(targetIndex);
+    }
+
+    void QuietMoveUpdate(int startIndex, int targetIndex) {
+        GetBoardandResetIndex(startIndex, false);
+        GetBoardandSetIndex(targetIndex);
+    }
+
     //making moves 
     void MakeMove(string move) {
         vector<string> ucimoves = GetUciMoves();
@@ -611,11 +622,11 @@ class Bitboard {
 
         //tets if capture and update
         bool isCaptureMove = AllBoard().test(targetIndex);
-        if(isCaptureMove) { GetBoardandResetIndex(targetIndex, true); }
-
-        //update board
-        GetBoardandResetIndex(startIndex, false);
-        GetBoardandSetIndex(targetIndex);
+        if(isCaptureMove) { 
+            CaptureMoveUpdate(startIndex, targetIndex); 
+        } else {
+            QuietMoveUpdate(startIndex, targetIndex);
+        }
 
         //after move is made 
     };
