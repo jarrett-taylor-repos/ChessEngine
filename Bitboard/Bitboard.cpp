@@ -1,21 +1,24 @@
-#include "bitboardhelper.cpp"
+#include "..\Extensions\Extentions.h"
+#include <ctype.h>
+#include <stdio.h>
 #include <unordered_map>
+using namespace Extensions;
 
 class Bitboard {
     private:
-    BitBoardHelper wPawn;
-    BitBoardHelper wKnight;
-    BitBoardHelper wBishop;
-    BitBoardHelper wRook;
-    BitBoardHelper wQueen;
-    BitBoardHelper wKing;
+    bitset<64> wPawn;
+    bitset<64> wKnight;
+    bitset<64> wBishop;
+    bitset<64> wRook;
+    bitset<64> wQueen;
+    bitset<64> wKing;
 
-    BitBoardHelper bPawn;
-    BitBoardHelper bKnight;
-    BitBoardHelper bBishop;
-    BitBoardHelper bRook;
-    BitBoardHelper bQueen;
-    BitBoardHelper bKing;
+    bitset<64> bPawn;
+    bitset<64> bKnight;
+    bitset<64> bBishop;
+    bitset<64> bRook;
+    bitset<64> bQueen;
+    bitset<64> bKing;
 
     int halfMoveClock;
     int fullTurnNum;
@@ -42,22 +45,53 @@ class Bitboard {
         halfMoveClock = stoi(arguments[5]);
     };
 
+    void SetBoard(char c, int sq) {
+        switch(c) {
+            case 'p':
+                bPawn.set(sq);return;
+            case 'b':
+                bBishop.set(sq);return;
+            case 'n':
+                bKnight.set(sq);return;
+            case 'r':
+                bRook.set(sq);return;
+            case 'q':
+                bQueen.set(sq);return;
+            case 'k':
+                bKing.set(sq);return;
+            case 'P':
+                wPawn.set(sq);return;
+            case 'B':
+                wBishop.set(sq);return;
+            case 'N':
+                wKnight.set(sq);return;
+            case 'R':
+                wRook.set(sq);return;
+            case 'Q':
+                wQueen.set(sq);return;
+            case 'K':
+                wKing.set(sq);return;
+        }
+    }
+
     void LoadFen(string fen) {
         LoadFenHelper(Split(fen));
 
-        wPawn.LoadFen(currFen, 0b1001);
-        wKnight.LoadFen(currFen, 0b1010);
-        wBishop.LoadFen(currFen, 0b1011);
-        wRook.LoadFen(currFen, 0b1100);
-        wQueen.LoadFen(currFen, 0b1101);
-        wKing.LoadFen(currFen, 0b1110);
+        int sq = 0;
+        for(int i = 0; i < currFen.length(); i++) {
+            char curr = currFen[i];
+            if(curr != '/') {
+                bool isInt = isdigit(curr);
 
-        bPawn.LoadFen(currFen, 0b0001);
-        bKnight.LoadFen(currFen, 0b0010);
-        bBishop.LoadFen(currFen, 0b0011);
-        bRook.LoadFen(currFen, 0b0100);
-        bQueen.LoadFen(currFen, 0b0101);
-        bKing.LoadFen(currFen, 0b0110);
+                if(isInt) {
+                    int value = CharToInt(curr);
+                    sq += value;
+                } else {
+                    SetBoard(curr, sq);
+                    sq++;
+                }
+            }
+        }
     };
 
     string GetFen() {
@@ -91,53 +125,53 @@ class Bitboard {
     };
 
     string GetPieceAtIndex(int index) {
-        if(wPawn.GetBit(index)) return "P";
-        if(wKnight.GetBit(index)) return "N";
-        if(wBishop.GetBit(index)) return "B";
-        if(wRook.GetBit(index)) return "R";
-        if(wQueen.GetBit(index)) return "Q";
-        if(wKing.GetBit(index)) return "K";
+        if(wPawn.test(index)) return "P";
+        if(wKnight.test(index)) return "N";
+        if(wBishop.test(index)) return "B";
+        if(wRook.test(index)) return "R";
+        if(wQueen.test(index)) return "Q";
+        if(wKing.test(index)) return "K";
 
-        if(bPawn.GetBit(index)) return "p";
-        if(bKnight.GetBit(index)) return "n";
-        if(bBishop.GetBit(index)) return "b";
-        if(bRook.GetBit(index)) return "r";
-        if(bQueen.GetBit(index)) return "q";
-        if(bKing.GetBit(index)) return "k";
-    }
-
-    void ClearBoard() {
-        wPawn.ClearBoard();
-        wKnight.ClearBoard();
-        wBishop.ClearBoard();
-        wRook.ClearBoard();
-        wQueen.ClearBoard();
-        wKing.ClearBoard();
-
-        bPawn.ClearBoard();
-        bKnight.ClearBoard();
-        bBishop.ClearBoard();
-        bRook.ClearBoard();
-        bQueen.ClearBoard();
-        bKing.ClearBoard();
+        if(bPawn.test(index)) return "p";
+        if(bKnight.test(index)) return "n";
+        if(bBishop.test(index)) return "b";
+        if(bRook.test(index)) return "r";
+        if(bQueen.test(index)) return "q";
+        if(bKing.test(index)) return "k";
     };
 
-    BitBoardHelper GetwPawn() { return wPawn; };
-    BitBoardHelper GetwKnight() { return wKnight; };
-    BitBoardHelper GetwBishop() { return wBishop; };
-    BitBoardHelper GetwRook() { return wRook; };
-    BitBoardHelper GetwQueen() { return wQueen; };
-    BitBoardHelper GetwKing() { return wKing; };
-    BitBoardHelper GetbPawn() { return bPawn; };
-    BitBoardHelper GetbKnight() { return bKnight; };
-    BitBoardHelper GetbBishop() { return bBishop; };
-    BitBoardHelper GetbRook() { return bRook; };
-    BitBoardHelper GetbQueen() { return bQueen; };
-    BitBoardHelper GetbKing() { return bKing; };
+    void ClearBoard() {
+        wPawn.reset();
+        wKnight.reset();
+        wBishop.reset();
+        wRook.reset();
+        wQueen.reset();
+        wKing.reset();
+
+        bPawn.reset();
+        bKnight.reset();
+        bBishop.reset();
+        bRook.reset();
+        bQueen.reset();
+        bKing.reset();
+    };
+
+    bitset<64> GetwPawn() { return wPawn; };
+    bitset<64> GetwKnight() { return wKnight; };
+    bitset<64> GetwBishop() { return wBishop; };
+    bitset<64> GetwRook() { return wRook; };
+    bitset<64> GetwQueen() { return wQueen; };
+    bitset<64> GetwKing() { return wKing; };
+    bitset<64> GetbPawn() { return bPawn; };
+    bitset<64> GetbKnight() { return bKnight; };
+    bitset<64> GetbBishop() { return bBishop; };
+    bitset<64> GetbRook() { return bRook; };
+    bitset<64> GetbQueen() { return bQueen; };
+    bitset<64> GetbKing() { return bKing; };
 
     //board functions
-    bitset<64> wBoard() { return wPawn.GetBoard() | wKnight.GetBoard() | wBishop.GetBoard() | wRook.GetBoard() | wQueen.GetBoard() | wKing.GetBoard(); };
-    bitset<64> bBoard() { return bPawn.GetBoard() | bKnight.GetBoard() | bBishop.GetBoard() | bRook.GetBoard() | bQueen.GetBoard() | bKing.GetBoard(); };
+    bitset<64> wBoard() { return wPawn | wKnight | wBishop | wRook | wQueen | wKing; };
+    bitset<64> bBoard() { return bPawn | bKnight | bBishop | bRook | bQueen | bKing; };
     bitset<64> AllBoard() { return wBoard() | bBoard(); };
 
     bitset<64> EmptyBoard() { return ~AllBoard(); };
@@ -161,14 +195,14 @@ class Bitboard {
     bitset<64> wDoublePushTargets(bitset<64> b) { return northOne(wSinglePushTargets(b)) & EmptyBoard() & rank4; };
     bitset<64> bSinglePushTargets(bitset<64> b) { return southOne(b) & EmptyBoard(); };
     bitset<64> bDoublePushTargets(bitset<64> b) { return southOne(bSinglePushTargets(b)) & EmptyBoard() & rank5; };
-    bitset<64> wPawnPushes() { return wSinglePushTargets(wPawn.GetBoard()) | wDoublePushTargets(wPawn.GetBoard()); };
-    bitset<64> bPawnPushes() { return bSinglePushTargets(bPawn.GetBoard()) | bDoublePushTargets(bPawn.GetBoard()); };
+    bitset<64> wPawnPushes() { return wSinglePushTargets(wPawn) | wDoublePushTargets(wPawn); };
+    bitset<64> bPawnPushes() { return bSinglePushTargets(bPawn) | bDoublePushTargets(bPawn); };
 
-    bitset<64> wPawnWestAtt() { return (wPawn.GetBoard() >> 9) & notHFile; };
-    bitset<64> wPawnEastAtt() { return (wPawn.GetBoard() >> 7) & notAFile; };
+    bitset<64> wPawnWestAtt() { return (wPawn >> 9) & notHFile; };
+    bitset<64> wPawnEastAtt() { return (wPawn >> 7) & notAFile; };
     bitset<64> wPawnAllAtt() { return wPawnEastAtt() | wPawnWestAtt(); };
-    bitset<64> bPawnWestAtt() { return (bPawn.GetBoard() << 9) & notAFile; };
-    bitset<64> bPawnEastAtt() { return (bPawn.GetBoard() << 7) & notHFile; };
+    bitset<64> bPawnWestAtt() { return (bPawn << 9) & notAFile; };
+    bitset<64> bPawnEastAtt() { return (bPawn << 7) & notHFile; };
     bitset<64> bPawnAllAtt() { return bPawnEastAtt() | bPawnWestAtt(); };
     bitset<64> wPawnWestCaptures() { return wPawnWestAtt() & bBoard(); };
     bitset<64> wPawnEastCaptures() { return wPawnEastAtt() & bBoard(); };
@@ -194,13 +228,13 @@ class Bitboard {
     vector<string> wPawnMovesAllCapturesUCI() { return Combine(wPawnWestCapturesUCI(), wPawnEastCapturesUCI()); };
 
     vector<string> wPawnSinglePushesUCI() {
-        bitset<64> wPawnBoard = wPawn.GetBoard();
+        bitset<64> wPawnBoard = wPawn;
         bitset<64> wPawnSinglePushes = wSinglePushTargets(wPawnBoard);
         bitset<64> wPawnSinglePushesOriginal = wPawnSinglePushes << 8;
         return BitsetToUCI(wPawnSinglePushesOriginal, wPawnSinglePushes, true, true);
     };
     vector<string> wPawnDoublePushesUCI() {
-        bitset<64> wPawnBoard = wPawn.GetBoard();
+        bitset<64> wPawnBoard = wPawn;
         bitset<64> wPawnDoublePushes = wDoublePushTargets(wPawnBoard);
         bitset<64> wPawDoublePushesOriginal = wPawnDoublePushes << 16;
         return BitsetToUCI(wPawDoublePushesOriginal, wPawnDoublePushes);
@@ -226,13 +260,13 @@ class Bitboard {
 
     vector<string> bPawnSinglePushesUCI() {
         //need to check for promo
-        bitset<64> bPawnBoard = bPawn.GetBoard();
+        bitset<64> bPawnBoard = bPawn;
         bitset<64> bPawnSinglePushes = bSinglePushTargets(bPawnBoard);
         bitset<64> bPawnSinglePushesOriginal = bPawnSinglePushes >> 8;
         return BitsetToUCI(bPawnSinglePushesOriginal, bPawnSinglePushes, true, false);
     };
     vector<string> bPawnDoublePushesUCI() {
-        bitset<64> bPawnBoard = bPawn.GetBoard();
+        bitset<64> bPawnBoard = bPawn;
         bitset<64> bPawnDoublePushes = bDoublePushTargets(bPawnBoard);
         bitset<64> bPawnDoublePushesOriginal = bPawnDoublePushes >> 16;
         return BitsetToUCI(bPawnDoublePushesOriginal, bPawnDoublePushes);
@@ -253,12 +287,12 @@ class Bitboard {
     bitset<64> noWeWe(bitset<64> b) {return (b >> 10) & (notGFile & notHFile); };
     bitset<64> noNoWe(bitset<64> b) {return (b >> 17) & notHFile; };
 
-    bitset<64> wKnightMoves(){ return KnightMoveHelper(wKnight.GetBoard()) & NotwBoard(); };
-    bitset<64> bKnightMoves(){ return KnightMoveHelper(bKnight.GetBoard()) & NotbBoard(); };
+    bitset<64> wKnightMoves(){ return KnightMoveHelper(wKnight) & NotwBoard(); };
+    bitset<64> bKnightMoves(){ return KnightMoveHelper(bKnight) & NotbBoard(); };
 
     vector<string> wKnightMovesUCI() { 
         vector<string> ucimoves;
-        vector<int> indexes = BitSetTrueIndexes(wKnight.GetBoard());
+        vector<int> indexes = BitSetTrueIndexes(wKnight);
         for(int sq : indexes) {
             bitset<64> helper;
             helper.set(sq);
@@ -271,7 +305,7 @@ class Bitboard {
 
     vector<string> bKnightMovesUCI() { 
         vector<string> ucimoves;
-        vector<int> indexes = BitSetTrueIndexes(bKnight.GetBoard());
+        vector<int> indexes = BitSetTrueIndexes(bKnight);
         for(int sq : indexes) {
             bitset<64> helper;
             helper.set(sq);
@@ -283,17 +317,17 @@ class Bitboard {
     };
 
     //king moves
-    bitset<64> wKingMoves() { return OneInAllDirection(wKing.GetBoard()) & NotwBoard(); };
-    bitset<64> bKingMoves() { return OneInAllDirection(bKing.GetBoard()) & NotbBoard(); };
+    bitset<64> wKingMoves() { return OneInAllDirection(wKing) & NotwBoard(); };
+    bitset<64> bKingMoves() { return OneInAllDirection(bKing) & NotbBoard(); };
 
     vector<string> wKingMovesUCI() {
-        int index = BitSetTrueIndexes(wKing.GetBoard()).at(0);
+        int index = BitSetTrueIndexes(wKing).at(0);
         bitset<64> wkingmoves = wKingMoves();
         return BitsetToUCI(IndexToSquare(index), wkingmoves);
     };
 
     vector<string> bKingMovesUCI() {
-        int index = BitSetTrueIndexes(bKing.GetBoard()).at(0);
+        int index = BitSetTrueIndexes(bKing).at(0);
         bitset<64> bkingmoves = bKingMoves();
         return BitsetToUCI(IndexToSquare(index), bkingmoves);
     };
@@ -412,25 +446,28 @@ class Bitboard {
     };
 
     //sliding moves
-    bitset<64> wBishopAttacks() { return BishopAttacks(wBishop.GetBoard()); };
-    bitset<64> bBishopAttacks() { return BishopAttacks(bBishop.GetBoard()); };
+    bitset<64> wBishopAttacks() { return BishopAttacks(wBishop); };
+    bitset<64> bBishopAttacks() { return BishopAttacks(bBishop); };
     bitset<64> wBishopMoves() { bitset<64> wbatt = wBishopAttacks(); return wbatt & ~(wbatt & wBoard()); };
     bitset<64> bBishopMoves() { bitset<64> bbatt = bBishopAttacks(); return bbatt & ~(bbatt & bBoard()); };
 
-    bitset<64> wRookAttacks() { return RookAttacks(wRook.GetBoard()); };
-    bitset<64> bRookAttacks() { return RookAttacks(bRook.GetBoard()); };
+    bitset<64> wRookAttacks() { return RookAttacks(wRook); };
+    bitset<64> bRookAttacks() { return RookAttacks(bRook); };
     bitset<64> wRookMoves() { bitset<64> wratt = wRookAttacks(); return wratt & ~(wratt & wBoard()); };
     bitset<64> bRookMoves() { bitset<64> bratt = bRookAttacks(); return bratt & ~(bratt & bBoard()); };
 
-    bitset<64> wQueenAttacks() { return RookAttacks(wQueen.GetBoard()) | BishopAttacks(wQueen.GetBoard()); };
-    bitset<64> bQueenAttacks() { return RookAttacks(bQueen.GetBoard()) | BishopAttacks(bQueen.GetBoard()); };
+    bitset<64> wQueenAttacks() { return RookAttacks(wQueen) | BishopAttacks(wQueen); };
+    bitset<64> bQueenAttacks() { return RookAttacks(bQueen) | BishopAttacks(bQueen); };
     bitset<64> wQueenMoves() { bitset<64> wqatt = wQueenAttacks(); return wqatt & ~(wqatt & wBoard()); };
     bitset<64> bQueenMoves() { bitset<64> bqatt = bQueenAttacks(); return bqatt & ~(bqatt & bBoard()); };
+
+    bitset<64> wMoves() { return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves(); };
+    bitset<64> bMoves() { return bPawnMoves() | bKnightMoves() | bBishopMoves() | bRookMoves() | bQueenMoves() | bKingMoves(); };
 
 
     vector<string> wBishopMovesUCI() {
         vector<string> ucimoves;
-        bitset<64> wbishop = wBishop.GetBoard();
+        bitset<64> wbishop = wBishop;
         vector<int> indexes = BitSetTrueIndexes(wbishop);
         for(int sq : indexes) {
             bitset<64> singleBishop;
@@ -445,7 +482,7 @@ class Bitboard {
 
     vector<string> bBishopMovesUCI() {
         vector<string> ucimoves;
-        bitset<64> bbishop = bBishop.GetBoard();
+        bitset<64> bbishop = bBishop;
         vector<int> indexes = BitSetTrueIndexes(bbishop);
         for(int sq : indexes) {
             bitset<64> singleBishop;
@@ -460,7 +497,7 @@ class Bitboard {
 
     vector<string> wRookMovesUCI() {
         vector<string> ucimoves;
-        bitset<64> wrook = wRook.GetBoard();
+        bitset<64> wrook = wRook;
         vector<int> indexes = BitSetTrueIndexes(wrook);
         for(int sq : indexes) {
             bitset<64> singleRook;
@@ -475,7 +512,7 @@ class Bitboard {
 
     vector<string> bRookMovesUCI() {
         vector<string> ucimoves;
-        bitset<64> brook = bRook.GetBoard();
+        bitset<64> brook = bRook;
         vector<int> indexes = BitSetTrueIndexes(brook);
         for(int sq : indexes) {
             bitset<64> singleRook;
@@ -490,7 +527,7 @@ class Bitboard {
 
     vector<string> wQueenMovesUCI() {
         vector<string> ucimoves;
-        bitset<64> wqueen = wQueen.GetBoard();
+        bitset<64> wqueen = wQueen;
         vector<int> indexes = BitSetTrueIndexes(wqueen);
         for(int sq : indexes) {
             bitset<64> singleQueen;
@@ -507,7 +544,7 @@ class Bitboard {
 
     vector<string> bQueenMovesUCI() {
         vector<string> ucimoves;
-        bitset<64> bqueen = bQueen.GetBoard();
+        bitset<64> bqueen = bQueen;
         vector<int> indexes = BitSetTrueIndexes(bqueen);
         for(int sq : indexes) {
             bitset<64> singleQueen;
@@ -531,7 +568,7 @@ class Bitboard {
         bitset<64> occ = AllBoard();
         bitset<64> blockers = wrookmoves & occ;
         blockers &= wrookmoves;
-        bitset<64> occAttacks = RookAttacks(wRook.GetBoard(), occ ^ blockers);
+        bitset<64> occAttacks = RookAttacks(wRook, occ ^ blockers);
         bitset<64> xrayattcks = (wrookmoves ^ occAttacks) & bBoard();
         return xrayattcks;
     };
@@ -541,7 +578,7 @@ class Bitboard {
         bitset<64> occ = AllBoard();
         bitset<64> blockers = brookmoves & occ;
         blockers &= brookmoves;
-        bitset<64> occAttacks = RookAttacks(bRook.GetBoard(), occ ^ blockers);
+        bitset<64> occAttacks = RookAttacks(bRook, occ ^ blockers);
         bitset<64> xrayattcks = (brookmoves ^ occAttacks) & wBoard();
         return xrayattcks;
     };
@@ -551,7 +588,7 @@ class Bitboard {
         bitset<64> occ = AllBoard();
         bitset<64> blockers = wbishopmoves & occ;
         blockers &= wbishopmoves;
-        bitset<64> occAttacks = BishopAttacks(wBishop.GetBoard(), occ ^ blockers);
+        bitset<64> occAttacks = BishopAttacks(wBishop, occ ^ blockers);
         bitset<64> xrayattcks = (wbishopmoves ^ occAttacks) & bBoard();
         return xrayattcks;
     };
@@ -561,7 +598,7 @@ class Bitboard {
         bitset<64> occ = AllBoard();
         bitset<64> blockers = bbishopmoves & occ;
         blockers &= bbishopmoves;
-        bitset<64> occAttacks = BishopAttacks(bBishop.GetBoard(), occ ^ blockers);
+        bitset<64> occAttacks = BishopAttacks(bBishop, occ ^ blockers);
         bitset<64> xrayattcks = (bbishopmoves ^ occAttacks) & wBoard();
         return xrayattcks;
     };
@@ -595,8 +632,8 @@ class Bitboard {
 
     //making moves helpers 
     bool isPawn(int sq) {
-        if(isWhiteMove) return wPawn.GetBit(sq);
-        return bPawn.GetBit(sq);
+        if(isWhiteMove) return wPawn.test(sq);
+        return bPawn.test(sq);
     };
 
     bool isPromotionSquare(int sq) {
@@ -605,72 +642,64 @@ class Bitboard {
     };
 
     void GetwBoardandResetIndex(int index) {
-        if(wPawn.GetBit(index)) wPawn.ClearBit(index); 
-        if(wKnight.GetBit(index)) wKnight.ClearBit(index); 
-        if(wBishop.GetBit(index)) wBishop.ClearBit(index); 
-        if(wRook.GetBit(index)) wRook.ClearBit(index); 
-        if(wKing.GetBit(index)) wKing.ClearBit(index); 
-        if(wQueen.GetBit(index)) wQueen.ClearBit(index); 
+        if(wPawn.test(index)) wPawn.reset(index); 
+        if(wKnight.test(index)) wKnight.reset(index); 
+        if(wBishop.test(index)) wBishop.reset(index); 
+        if(wRook.test(index)) wRook.reset(index); 
+        if(wKing.test(index)) wKing.reset(index); 
+        if(wQueen.test(index)) wQueen.reset(index); 
     };
 
     void GetbBoardandResetIndex(int index) {
-        if(bPawn.GetBit(index))  bPawn.ClearBit(index); 
-        if(bKnight.GetBit(index))  bKnight.ClearBit(index); 
-        if(bBishop.GetBit(index))  bBishop.ClearBit(index); 
-        if(bRook.GetBit(index))  bRook.ClearBit(index); 
-        if(bKing.GetBit(index))  bKing.ClearBit(index); 
-        if(bQueen.GetBit(index))  bQueen.ClearBit(index); 
+        if(bPawn.test(index))  bPawn.reset(index); 
+        if(bKnight.test(index))  bKnight.reset(index); 
+        if(bBishop.test(index))  bBishop.reset(index); 
+        if(bRook.test(index))  bRook.reset(index); 
+        if(bKing.test(index))  bKing.reset(index); 
+        if(bQueen.test(index))  bQueen.reset(index); 
     };
 
     void GetwBoardandSetIndex(int index) {
-        if(wPawn.GetBit(index)) wPawn.SetBit(index); 
-        if(wKnight.GetBit(index)) wKnight.SetBit(index); 
-        if(wBishop.GetBit(index)) wBishop.SetBit(index); 
-        if(wRook.GetBit(index)) wRook.SetBit(index); 
-        if(wKing.GetBit(index)) wKing.SetBit(index); 
-        if(wQueen.GetBit(index)) wQueen.SetBit(index); 
+        if(wPawn.test(index)) wPawn.set(index); 
+        if(wKnight.test(index)) wKnight.set(index); 
+        if(wBishop.test(index)) wBishop.set(index); 
+        if(wRook.test(index)) wRook.set(index); 
+        if(wKing.test(index)) wKing.set(index); 
+        if(wQueen.test(index)) wQueen.set(index); 
     };
 
     void GetbBoardandSetIndex(int index) {
-        if(bPawn.GetBit(index)) bPawn.SetBit(index); 
-        if(bKnight.GetBit(index)) bKnight.SetBit(index); 
-        if(bBishop.GetBit(index)) bBishop.SetBit(index); 
-        if(bRook.GetBit(index)) bRook.SetBit(index); 
-        if(bKing.GetBit(index)) bKing.SetBit(index); 
-        if(bQueen.GetBit(index)) bQueen.SetBit(index); 
+        if(bPawn.test(index)) bPawn.set(index); 
+        if(bKnight.test(index)) bKnight.set(index); 
+        if(bBishop.test(index)) bBishop.set(index); 
+        if(bRook.test(index)) bRook.set(index); 
+        if(bKing.test(index)) bKing.set(index); 
+        if(bQueen.test(index)) bQueen.set(index); 
     };
 
     void GetwBoardandSetPromoIndex(int index, char promoP) {
         switch(promoP){
             case 'q':
-                wQueen.SetBit(index);
-                return;
+                wQueen.set(index);return;
             case 'r':
-                wRook.SetBit(index);
-                return;
+                wRook.set(index);return;
             case 'b':
-                wBishop.SetBit(index);
-                return;
+                wBishop.set(index);return;
             case 'n':
-                wKnight.SetBit(index);
-                return;
+                wKnight.set(index);return;
         } 
     };
 
     void GetbBoardandSetPromoIndex(int index, char promoP) {
         switch(promoP){
             case 'q':
-                bQueen.SetBit(index);
-                return;
+                bQueen.set(index);return;
             case 'r':
-                bRook.SetBit(index);
-                return;
+                bRook.set(index);return;
             case 'b':
-                bBishop.SetBit(index);
-                return;
+                bBishop.set(index);return;
             case 'n':
-                bKnight.SetBit(index);
-                return;
+                bKnight.set(index);return;
         } 
     };
 
@@ -778,17 +807,17 @@ class Bitboard {
 
     //misc
     void PrintAllBoards() {
-        wPawn.PrintBitBoard();
-        bPawn.PrintBitBoard();
-        wKnight.PrintBitBoard();
-        bKnight.PrintBitBoard();
-        wBishop.PrintBitBoard();
-        bBishop.PrintBitBoard();
-        wRook.PrintBitBoard();
-        bRook.PrintBitBoard();
-        wQueen.PrintBitBoard();
-        bQueen.PrintBitBoard();
-        wKing.PrintBitBoard();
-        bKing.PrintBitBoard();
-    }
+        PrintBitSet(wPawn, "wPawn");
+        PrintBitSet(bPawn, "bPawn");
+        PrintBitSet(wKnight, "wKnight");
+        PrintBitSet(bKnight, "bKnight");
+        PrintBitSet(wBishop, "wBishop");
+        PrintBitSet(bBishop, "bBishop");
+        PrintBitSet(wRook, "wRook");
+        PrintBitSet(bRook, "bRook");
+        PrintBitSet(wQueen, "wQueen");
+        PrintBitSet(bQueen, "bQueen");
+        PrintBitSet(wKing, "wKing");
+        PrintBitSet(bKing, "bKing");
+    };
 };

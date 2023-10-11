@@ -1,5 +1,4 @@
 #include "..\Bitboard\Bitboard.cpp"
-#include "..\Bitboard\BitboardHelper.cpp"
 #include <chrono>
 using namespace chrono;
 
@@ -31,7 +30,7 @@ int main() {
     // 4 - 2103487
     // 5 - 89,941,194
     Bitboard b;
-    b.LoadFen(testPos);
+    //b.LoadFen(testPos);
 
     // 1	20
     // 2	400
