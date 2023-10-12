@@ -735,10 +735,6 @@ class Bitboard {
         }
     };
 
-    void GetwBoardPromoUpdate(int index, char promoP) {
-
-    }
-
     void CaptureMoveUpdate(int startIndex, int targetIndex) {
         GetBoardandResetIndex(targetIndex, true);
         GetBoardandResetIndex(startIndex, false);

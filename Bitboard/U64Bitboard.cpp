@@ -198,67 +198,6 @@ class U64Bitboard {
     U64 wPawnMoves() { return wPawnAllCaptures() | wPawnPushes(); };
     U64 bPawnMoves() { return bPawnAllCaptures() | bPawnPushes(); };
 
-    vector<string> wPawnWestCapturesUCI() { 
-        U64 wPawnWestCap = wPawnWestAtt() & bBoard(); 
-        U64 wPawnOrigin = wPawnWestCap << 9; 
-        return BitsetToUCI(wPawnOrigin, wPawnWestCap, true, true);
-    };
-    vector<string> wPawnEastCapturesUCI() {  
-        U64 wPawnEastCap = wPawnEastAtt() & bBoard(); 
-        U64 wPawnOrigin = wPawnEastCap << 7; 
-        return BitsetToUCI(wPawnOrigin, wPawnEastCap, true, true);
-    };
-
-    vector<string> wPawnMovesAllCapturesUCI() { return Combine(wPawnWestCapturesUCI(), wPawnEastCapturesUCI()); };
-
-    vector<string> wPawnSinglePushesUCI() {
-        U64 wPawnBoard = wPawn;
-        U64 wPawnSinglePushes = wSinglePushTargets(wPawnBoard);
-        U64 wPawnSinglePushesOriginal = wPawnSinglePushes << 8;
-        return BitsetToUCI(wPawnSinglePushesOriginal, wPawnSinglePushes, true, true);
-    };
-    vector<string> wPawnDoublePushesUCI() {
-        U64 wPawnBoard = wPawn;
-        U64 wPawnDoublePushes = wDoublePushTargets(wPawnBoard);
-        U64 wPawDoublePushesOriginal = wPawnDoublePushes << 16;
-        return BitsetToUCI(wPawDoublePushesOriginal, wPawnDoublePushes);
-    };
-
-    vector<string> wPawnMovesPushesUCI() { return Combine(wPawnSinglePushesUCI(), wPawnDoublePushesUCI()); };
-    vector<string> wPawnMovesUCI() { return Combine(wPawnMovesAllCapturesUCI(), wPawnMovesPushesUCI()); };
-
-    vector<string> bPawnWestCapturesUCI() { 
-        //need to check fro promo
-        U64 bPawnWestCap = bPawnWestAtt() & wBoard(); 
-        U64 bPawnOrigin = bPawnWestCap >> 9; 
-        return BitsetToUCI(bPawnOrigin, bPawnWestCap, true, false);
-    };
-    vector<string> bPawnEastCapturesUCI() {  
-        //need to check for promo
-        U64 bPawnEastCap = bPawnEastAtt() & wBoard(); 
-        U64 bPawnOrigin = bPawnEastCap >> 7; 
-        return BitsetToUCI(bPawnOrigin, bPawnEastCap, true, false);
-    };
-
-    vector<string> bPawnMovesAllCapturesUCI() { return Combine(bPawnWestCapturesUCI(), bPawnEastCapturesUCI()); };
-
-    vector<string> bPawnSinglePushesUCI() {
-        //need to check for promo
-        U64 bPawnBoard = bPawn;
-        U64 bPawnSinglePushes = bSinglePushTargets(bPawnBoard);
-        U64 bPawnSinglePushesOriginal = bPawnSinglePushes >> 8;
-        return BitsetToUCI(bPawnSinglePushesOriginal, bPawnSinglePushes, true, false);
-    };
-    vector<string> bPawnDoublePushesUCI() {
-        U64 bPawnBoard = bPawn;
-        U64 bPawnDoublePushes = bDoublePushTargets(bPawnBoard);
-        U64 bPawnDoublePushesOriginal = bPawnDoublePushes >> 16;
-        return BitsetToUCI(bPawnDoublePushesOriginal, bPawnDoublePushes);
-    };
-
-    vector<string> bPawnMovesPushesUCI() { return Combine(bPawnSinglePushesUCI(), bPawnDoublePushesUCI()); };
-    vector<string> bPawnMovesUCI() { return Combine(bPawnMovesAllCapturesUCI(), bPawnMovesPushesUCI()); };
-
 
     //knight functions
     U64 KnightMoveHelper(U64 b) { return noNoEa(b) | noEaEa(b) | soEaEa(b) | soSoEa(b) | noNoWe(b) | noWeWe(b) | soWeWe(b) | soSoWe(b); };
@@ -274,47 +213,9 @@ class U64Bitboard {
     U64 wKnightMoves(){ return KnightMoveHelper(wKnight) & NotwBoard(); };
     U64 bKnightMoves(){ return KnightMoveHelper(bKnight) & NotbBoard(); };
 
-    vector<string> wKnightMovesUCI() { 
-        vector<string> ucimoves;
-        vector<int> indexes = GetTrueBits(wKnight);
-        for(int sq : indexes) {
-            U64 helper;
-            SetBit(helper, sq);
-            U64 moves = KnightMoveHelper(helper) & NotwBoard();
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), moves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
-    vector<string> bKnightMovesUCI() { 
-        vector<string> ucimoves;
-        vector<int> indexes = GetTrueBits(bKnight);
-        for(int sq : indexes) {
-            U64 helper;
-            SetBit(helper, sq);
-            U64 moves = KnightMoveHelper(helper) & NotbBoard();
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), moves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
     //king moves
     U64 wKingMoves() { return OneInAllDirection(wKing) & NotwBoard(); };
     U64 bKingMoves() { return OneInAllDirection(bKing) & NotbBoard(); };
-
-    vector<string> wKingMovesUCI() {
-        int index = GetTrueBits(wKing).at(0);
-        U64 wkingmoves = wKingMoves();
-        return BitsetToUCI(IndexToSquare(index), wkingmoves);
-    };
-
-    vector<string> bKingMovesUCI() {
-        int index = GetTrueBits(bKing).at(0);
-        U64 bkingmoves = bKingMoves();
-        return BitsetToUCI(IndexToSquare(index), bkingmoves);
-    };
 
     //sliding moves helper
     bool ValidTravel(U64 overlap, int offset) { 
@@ -454,104 +355,6 @@ class U64Bitboard {
     U64 wQueenMoves() { U64 wqatt = wQueenAttacks(); return wqatt & ~(wqatt & wBoard()); };
     U64 bQueenMoves() { U64 bqatt = bQueenAttacks(); return bqatt & ~(bqatt & bBoard()); };
 
-    U64 wMoves() { return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves(); };
-    U64 bMoves() { return bPawnMoves() | bKnightMoves() | bBishopMoves() | bRookMoves() | bQueenMoves() | bKingMoves(); };
-
-
-    vector<string> wBishopMovesUCI() {
-        vector<string> ucimoves;
-        U64 wbishop = wBishop;
-        vector<int> indexes = GetTrueBits(wbishop);
-        for(int sq : indexes) {
-            U64 singleBishop;
-            SetBit(singleBishop, sq);
-            U64 batt = BishopAttacks(singleBishop);
-            U64 bishopmoves = batt & ~(batt & wBoard());
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), bishopmoves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
-    vector<string> bBishopMovesUCI() {
-        vector<string> ucimoves;
-        U64 bbishop = bBishop;
-        vector<int> indexes = GetTrueBits(bbishop);
-        for(int sq : indexes) {
-            U64 singleBishop;
-            SetBit(singleBishop, sq);
-            U64 batt = BishopAttacks(singleBishop);
-            U64 bishopmoves = batt & ~(batt & bBoard());
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), bishopmoves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
-    vector<string> wRookMovesUCI() {
-        vector<string> ucimoves;
-        U64 wrook = wRook;
-        vector<int> indexes = GetTrueBits(wrook);
-        for(int sq : indexes) {
-            U64 singleRook;
-            SetBit(singleRook, sq);
-            U64 ratt = RookAttacks(singleRook);
-            U64 rookmoves = ratt & ~(ratt & wBoard());
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), rookmoves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
-    vector<string> bRookMovesUCI() {
-        vector<string> ucimoves;
-        U64 brook = bRook;
-        vector<int> indexes = GetTrueBits(brook);
-        for(int sq : indexes) {
-            U64 singleRook;
-            SetBit(singleRook, sq);
-            U64 ratt = RookAttacks(singleRook);
-            U64 rookmoves = ratt & ~(ratt & bBoard());
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), rookmoves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
-    vector<string> wQueenMovesUCI() {
-        vector<string> ucimoves;
-        U64 wqueen = wQueen;
-        vector<int> indexes = GetTrueBits(wqueen);
-        for(int sq : indexes) {
-            U64 singleQueen;
-            SetBit(singleQueen, sq);
-            U64 ratt = RookAttacks(singleQueen);
-            U64 batt = BishopAttacks(singleQueen);
-            U64 qatt = ratt | batt;
-            U64 queenMoves = qatt & ~(qatt & wBoard()); 
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), queenMoves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
-    vector<string> bQueenMovesUCI() {
-        vector<string> ucimoves;
-        U64 bqueen = bQueen;
-        vector<int> indexes = GetTrueBits(bqueen);
-        for(int sq : indexes) {
-            U64 singleQueen;
-            SetBit(singleQueen, sq);
-            U64 ratt = RookAttacks(singleQueen);
-            U64 batt = BishopAttacks(singleQueen);
-            U64 qatt = ratt | batt;
-            U64 queenMoves = qatt & ~(qatt & bBoard()); 
-            vector<string> currMoves = BitsetToUCI(IndexToSquare(sq), queenMoves);
-            ucimoves = Combine(ucimoves, currMoves);
-        }
-        return ucimoves;
-    };
-
     //attacks
     U64 wAttacks() { return wPawnAllAtt() | wKingMoves() | wKnightMoves() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
     U64 bAttacks() { return bPawnAllAtt() | bKingMoves() | bKnightMoves() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
@@ -596,37 +399,20 @@ class U64Bitboard {
         return xrayattcks;
     };
 
-    //UCI moves
-    vector<string> wUciMoves() {
-        vector<string> ucimoves = wPawnMovesUCI();
-        ucimoves = Combine(ucimoves, wKnightMovesUCI());
-        ucimoves = Combine(ucimoves, wKingMovesUCI());
-        ucimoves = Combine(ucimoves, wBishopMovesUCI());
-        ucimoves = Combine(ucimoves, wRookMovesUCI());
-        ucimoves = Combine(ucimoves, wQueenMovesUCI());
-        return ucimoves;
-    };
-
-    vector<string> bUciMoves() {
-        vector<string> ucimoves = bPawnMovesUCI();
-        ucimoves = Combine(ucimoves, bKnightMovesUCI());
-        ucimoves = Combine(ucimoves, bKingMovesUCI());
-        ucimoves = Combine(ucimoves, bBishopMovesUCI());
-        ucimoves = Combine(ucimoves, bRookMovesUCI());
-        ucimoves = Combine(ucimoves, bQueenMovesUCI());
-        return ucimoves;
-    };
-
-   vector<string> GetUciMoves() {
-        if(isWhiteMove) return wUciMoves();
-        return bUciMoves();
-    };
-    
-    
     //making moves helpers 
     bool isPawn(int sq) {
         if(isWhiteMove) return TestBit(wPawn, sq);
         return TestBit(bPawn, sq);
+    };
+
+    
+    //all moves
+    U64 wMoves() { return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves(); };
+    U64 bMoves() { return bPawnMoves() | bKnightMoves() | bBishopMoves() | bRookMoves() | bQueenMoves() | bKingMoves(); };
+
+    U64 GetMoves() {
+        if(isWhiteMove) return wMoves();
+        return bMoves();
     };
 
     bool isPromotionSquare(int sq) {
@@ -689,11 +475,8 @@ class U64Bitboard {
     };
 
     void GetBoardandSetIndex(int index) {
-        if(isWhiteMove)  {
-            GetwBoardandSetIndex(index); 
-        } else {
-            GetbBoardandSetIndex(index); 
-        }
+        if(isWhiteMove) return GetwBoardandSetIndex(index); 
+        return GetbBoardandSetIndex(index); 
     };
 
     void GetBoardandResetIndex(int index, bool isCapture) {
@@ -713,16 +496,9 @@ class U64Bitboard {
     };
 
     void GetBoardandSetPromoIndex(int index, char promoP) {
-        if(isWhiteMove)  {
-            GetwBoardandSetPromoIndex(index, promoP); 
-        } else {
-            GetbBoardandSetPromoIndex(index, promoP); 
-        }
+        if(isWhiteMove) return GetwBoardandSetPromoIndex(index, promoP); 
+        return GetbBoardandSetPromoIndex(index, promoP); 
     };
-
-    void GetwBoardPromoUpdate(int index, char promoP) {
-
-    }
 
     void CaptureMoveUpdate(int startIndex, int targetIndex) {
         GetBoardandResetIndex(targetIndex, true);
@@ -746,19 +522,41 @@ class U64Bitboard {
         GetBoardandSetPromoIndex(targetIndex, promoP);
     };
 
+    U64 GetwBoardMoves(int index) {
+        if(TestBit(wPawn, index)) return wPawnMoves(); 
+        if(TestBit(wKnight, index)) return wKnightMoves();
+        if(TestBit(wBishop, index)) return wBishopMoves();
+        if(TestBit(wRook, index)) return wRookMoves();
+        if(TestBit(wQueen, index)) return wQueenMoves();
+        if(TestBit(wKing, index)) return wKingMoves();
+        return C64(0);
+    };
+
+    U64 GetbBoardMoves(int index) {
+        if(TestBit(bPawn, index)) return bPawn; 
+        if(TestBit(bKnight, index)) return bKnight;
+        if(TestBit(bBishop, index)) return bBishop;
+        if(TestBit(bRook, index)) return bRook;
+        if(TestBit(bQueen, index)) return bQueen;
+        if(TestBit(bKing, index)) return bKing;
+        return C64(0);
+    };
+
+    U64 GetMovesByBoard(int index) {
+        if(isWhiteMove) return GetwBoardMoves(index);
+        return GetbBoardMoves(index);
+    };
+
     //making moves 
     bool MakeMove(string move) {
-        vector<string> ucimoves = GetUciMoves();
-
-        //if move is not in moves
-        auto it = find(ucimoves.begin(), ucimoves.end(), move);
-        if (it == ucimoves.end()) return false;
-        
         //determine board and moves
         string startSquare = move.substr(0, 2);
         string targetSquare = move.substr(2, 2);
         int startIndex = StringtoIndex(startSquare);
         int targetIndex = StringtoIndex(targetSquare);
+
+        U64 movesBoard = GetMovesByBoard(startIndex);
+        if(movesBoard == C64(0) || !TestBit(movesBoard, targetIndex)) return false;
 
         //test if promotion
         U64 allb = AllBoard();

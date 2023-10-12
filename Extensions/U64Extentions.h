@@ -1,4 +1,6 @@
 #include "U64BitboardConstants.h"
+#include <chrono>
+using namespace chrono;
 using namespace std;
 using namespace U64BitboardConstants;
 
