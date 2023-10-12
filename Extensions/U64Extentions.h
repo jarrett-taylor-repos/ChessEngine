@@ -96,7 +96,7 @@ namespace U64Extensions {
         return ucimoves;
     }
 
-    vector<string> BitsetToUCI(U64 a, U64 b, bool isPawn = false, bool isWhite = false) {
+    vector<string> U64ToUCI(U64 a, U64 b, bool isPawn = false, bool isWhite = false) {
         vector<string> start = BoardPopulatedSquares(a);
         vector<string> end = BoardPopulatedSquares(b);
         vector<string> ucimoves;
@@ -117,14 +117,13 @@ namespace U64Extensions {
         return ucimoves;
     }
 
-    vector<string> BitsetToUCI(string start, U64 b) {
+    void U64ToUCI(vector<string> &ucimoves, int sq, U64 b) {
+        string start = IndexToSquare(sq);
         vector<string> end = BoardPopulatedSquares(b);
-        vector<string> ucimoves;
         for(int i = 0; i < end.size(); i++) {
             string temp = start + end[i];
             ucimoves.push_back(temp);
         }
-        return ucimoves;
     }
 
     vector<string> Combine(vector<string> a, vector<string> b) {

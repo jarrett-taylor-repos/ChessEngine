@@ -223,11 +223,13 @@ class U64Bitboard {
 
     //sliding moves helper
     bool ValidTravel(U64 overlap, int offset) { 
-        U64 notallb = !AllBoard();
+        U64 notallb = ~AllBoard();
+        //Print(notallb, "notallb");
         return InBounds(offset) && TestBit(overlap, offset) && TestBit(notallb, offset); 
     };
     bool ValidTravelAtt(U64 overlap, int offset) { 
         U64 allb = AllBoard();
+        //Print(allb, "allb");
         return InBounds(offset) && TestBit(overlap, offset) && TestBit(allb, offset); 
     };
 
@@ -238,7 +240,8 @@ class U64Bitboard {
     bool ValidTravelAtt(U64 occ, U64 overlap, int offset) { return InBounds(offset) && TestBit(overlap, offset) && TestBit(occ, offset); };
 
     U64 SlidingAttacks(U64 overlap, int sq, int direction) {
-        U64 moves;
+        U64 moves = 0;
+        //Print(overlap);
         int offset = sq + direction;
         while(ValidTravel(overlap, offset)) {
             SetBit(moves, offset);
@@ -247,11 +250,12 @@ class U64Bitboard {
         if(ValidTravelAtt(overlap, offset)) {
             SetBit(moves, offset);
         }
+        //Print(moves);
         return moves;
     };
 
     U64 SlidingAttacks(U64 occ, U64 overlap, int sq, int direction) {
-        U64 moves;
+        U64 moves = 0;
         int offset = sq + direction;
         while(ValidTravel(occ, overlap, offset)) {
             SetBit(moves, offset);
@@ -264,20 +268,20 @@ class U64Bitboard {
     };
 
     U64 BishopAttacksBySquare(int sq) {
-        U64 moves;
+        U64 moves = 0;
         //travel northEastOne
-        moves |= SlidingAttacks(~aFile, sq, -7);
+        moves |= SlidingAttacks(notAFile, sq, -7);
         //travel northWestOne
-        moves |= SlidingAttacks(~hFile, sq, -9);
+        moves |= SlidingAttacks(notHFile, sq, -9);
         //travel southEastOne
-        moves |= SlidingAttacks(~aFile, sq, 9);
+        moves |= SlidingAttacks(notAFile, sq, 9);
         //travle southWestOne
-        moves |= SlidingAttacks(~hFile, sq, 7);
+        moves |= SlidingAttacks(notHFile, sq, 7);
         return moves;
     };
 
     U64 BishopAttacksBySquare(U64 occ, int sq) {
-        U64 moves;
+        U64 moves = 0;
         //travel northEastOne
         moves |= SlidingAttacks(occ, ~aFile, sq, -7);
         //travel northWestOne
@@ -290,21 +294,21 @@ class U64Bitboard {
     };
 
     U64 BishopAttacks(U64 bishopBoard) {
-        U64 moves;
+        U64 moves = 0;
         vector<int> indexes = GetTrueBits(bishopBoard);
         for(int sq : indexes) moves |= BishopAttacksBySquare(sq); 
         return moves;
     };
 
     U64 BishopAttacks(U64 bishopBoard, U64 occ) {
-        U64 moves;
+        U64 moves = 0;
         vector<int> indexes = GetTrueBits(bishopBoard);
         for(int sq : indexes) moves |= BishopAttacksBySquare(occ, sq); 
         return moves;
     };
 
     U64 RookAttacksBySquare(int sq) {
-        U64 moves;
+        U64 moves = 0;
         //travel northOne
         moves |= SlidingAttacks(~rank1, sq, -8);
         //travel eastOne
@@ -317,7 +321,7 @@ class U64Bitboard {
     };
 
     U64 RookAttacksBySquare(U64 occ, int sq) {
-        U64 moves;
+        U64 moves = 0;
         //travel northOne
         moves |= SlidingAttacks(occ, ~rank1, sq, -8);
         //travel eastOne
@@ -330,14 +334,14 @@ class U64Bitboard {
     };
 
     U64 RookAttacks(U64 rBoard) {
-        U64 moves;
+        U64 moves = 0;
         vector<int> indexes = GetTrueBits(rBoard);
         for(int sq : indexes) moves |= RookAttacksBySquare(sq);
         return moves;
     };
 
     U64 RookAttacks(U64 rBoard, U64 occ) {
-        U64 moves;
+        U64 moves = 0;
         vector<int> indexes = GetTrueBits(rBoard);
         for(int sq : indexes) moves |= RookAttacksBySquare(occ, sq);
         return moves;
@@ -414,11 +418,57 @@ class U64Bitboard {
     U64 wMoves() { return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves(); };
     U64 bMoves() { return bPawnMoves() | bKnightMoves() | bBishopMoves() | bRookMoves() | bQueenMoves() | bKingMoves(); };
 
+    U64 GetPawnMoves() {
+        if(isWhiteMove) return wPawnMoves();
+        return bPawnMoves();
+    };
+
+    U64 GetKnightMoves() {
+        if(isWhiteMove) return wKnightMoves();
+        return bKnightMoves();
+    };
+
+    U64 GetBishopMoves() {
+        if(isWhiteMove) return wBishopMoves();
+        return bBishopMoves();
+    };
+
+    U64 GetRookMoves() {
+        if(isWhiteMove) return wRookMoves();
+        return bRookMoves();
+    };
+
+    U64 GetQueenMoves() {
+        if(isWhiteMove) return wQueenMoves();
+        return bQueenMoves();
+    };
+
+    U64 GetKingMoves() {
+        if(isWhiteMove) return wKingMoves();
+        return bKingMoves();
+    };
+
     U64 GetMoves() {
         if(isWhiteMove) return wMoves();
         return bMoves();
     };
 
+    //vector<int> moves
+    void GetwIntMoves(vector<int> &moves) {
+        
+    };
+
+    void GetbIntMoves(vector<int> &moves) {
+        
+    };
+
+    vector<int> GetIntMoves() {
+        vector<int> moves;
+        if(isWhiteMove) GetwIntMoves(moves); return moves;
+        GetbIntMoves(moves); return moves;
+    };
+
+    //make move helpers
     bool isPromotionSquare(int sq) {
         if(isWhiteMove) return (sq < 8);
         return (sq > 55);
@@ -551,6 +601,8 @@ class U64Bitboard {
         return GetbBoardMoves(index);
     };
 
+    bool isMoveCapture(int targetSq) { U64 allb = AllBoard(); return TestBit(allb, targetSq); };
+
     //making moves 
     bool MakeMove(string move) {
         //determine board and moves
@@ -558,20 +610,25 @@ class U64Bitboard {
         string targetSquare = move.substr(2, 2);
         int startIndex = StringtoIndex(startSquare);
         int targetIndex = StringtoIndex(targetSquare);
+        char promoP = (move.length() == 5) ? move[4] : ' ';
 
-        U64 movesBoard = GetMovesByBoard(startIndex);
-        if(movesBoard == C64(0) || !TestBit(movesBoard, targetIndex)) return false;
+        return MakeMove(startIndex, targetIndex, promoP);
+    };
+
+    bool MakeMove(int startSq, int targetSq, char promoP = ' ') {
+        //determine board and moves
+
+        U64 movesBoard = GetMovesByBoard(startSq);
+        if(movesBoard == C64(0) || !TestBit(movesBoard, targetSq)) return false;
 
         //test if promotion
-        U64 allb = AllBoard();
-        bool isPromotion = move.length() == 5;
-        bool isCaptureMove = TestBit(allb, targetIndex);
+        bool isPromotion = promoP != ' ';
+        bool isCaptureMove = isMoveCapture(targetSq);
         if(isPromotion) {
-            char piecePromotion = move[4];
             if(isCaptureMove) {
-                CapturePromoUpdate(startIndex, targetIndex, piecePromotion);
+                CapturePromoUpdate(startSq, targetSq, promoP);
             } else {
-                QuietPromoUpdate(startIndex, targetIndex, piecePromotion);
+                QuietPromoUpdate(startSq, targetSq, promoP);
             }
         }
 
@@ -579,9 +636,9 @@ class U64Bitboard {
 
         //test if capture
         else if(isCaptureMove) { 
-            CaptureMoveUpdate(startIndex, targetIndex); 
+            CaptureMoveUpdate(startSq, targetSq); 
         } else {
-            QuietMoveUpdate(startIndex, targetIndex);
+            QuietMoveUpdate(startSq, targetSq);
         }
 
         //after move is made 
