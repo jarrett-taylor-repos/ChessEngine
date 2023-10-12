@@ -1,5 +1,5 @@
 
-#include "..\Bitboard\Bitboard.cpp"
+#include "..\Bitboard\U64Bitboard.cpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -13,7 +13,7 @@ int main() {
 
   if (FENfile.is_open()) {
     int linenum = 0;
-    Bitboard b;
+    U64Bitboard b;
     string FEN = "";
     while (getline(FENfile, line)) {
       switch (linenum) {

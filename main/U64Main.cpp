@@ -13,5 +13,4 @@ int main () {
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<nanoseconds>(stop - start);
     cout << "Time to get all uci moves: " + to_string(duration.count()) << endl;
-
 }

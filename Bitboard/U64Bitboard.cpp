@@ -105,6 +105,10 @@ class U64Bitboard {
             }
         }
 
+        string moveColor = isWhiteMove ? " w" : " b";
+        string fenOthers = moveColor +" "+ castlingRights +" "+ enPassantTarget +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
+        fen += fenOthers;
+
         return fen;
     };
 
