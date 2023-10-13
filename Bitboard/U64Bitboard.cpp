@@ -106,7 +106,7 @@ class U64Bitboard {
         }
 
         string moveColor = isWhiteMove ? " w" : " b";
-        string fenOthers = moveColor +" "+ CastlingRightsString(castlingRights) +" "+ IndexToSquare(enPassantTarget) +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
+        string fenOthers = moveColor +" "+ CastlingRightsString(castlingRights) +" "+ EnpassantTargetToString(enPassantTarget) +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
         fen += fenOthers;
 
         return fen;
@@ -276,19 +276,65 @@ class U64Bitboard {
     U64 wKnightMoves(){ return KnightAttacks(wKnight) & NotwBoard(); };
     U64 bKnightMoves(){ return KnightAttacks(bKnight) & NotbBoard(); };
 
+    U64 wKnightAtt(){ return KnightAttacks(wKnight); };
+    U64 bKnightAtt(){ return KnightAttacks(bKnight); };
+
+    
+
     //king moves
-    U64 wKingMoves() { return OneInAllDirection(wKing) & NotwBoard(); };
-    U64 bKingMoves() { return OneInAllDirection(bKing) & NotbBoard(); };
+    U64 wKingCastleShort() {
+        bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'K');
+        if(!canCastle) return C64(0);
+        U64 allb = AllBoard();
+        bool hasBlocker = TestBit(allb, 61) || TestBit(allb, 62);
+        if(hasBlocker) return C64(0);
+        return SingleBitBoard(62);
+    };
+
+    U64 wKingCastleLong() {
+        bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'Q');
+        if(!canCastle) return C64(0);
+        U64 allb = AllBoard();
+        bool hasBlocker = TestBit(allb, 57) || TestBit(allb, 58) || TestBit(allb, 59);
+        if(hasBlocker) return C64(0);
+        return SingleBitBoard(58);
+    };
+
+    U64 wKingCastle() { return wKingCastleShort() | wKingCastleLong(); };
+
+    U64 bKingCastleShort() {
+        bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'k');
+        if(!canCastle) return C64(0);
+        U64 allb = AllBoard();
+        bool hasBlocker = TestBit(allb, 5) || TestBit(allb, 6);
+        if(hasBlocker) return C64(0);
+        return SingleBitBoard(6);
+    };
+
+    U64 bKingCastleLong() {
+        bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'q');
+        if(!canCastle) return C64(0);
+        U64 allb = AllBoard();
+        bool hasBlocker = TestBit(allb, 1) || TestBit(allb, 2) || TestBit(allb, 3);
+        if(hasBlocker) return C64(0);
+        return SingleBitBoard(2);
+    };
+
+    U64 bKingCastle() { return bKingCastleShort() | bKingCastleLong(); };
+
+    U64 wKingMoves() { return (OneInAllDirection(wKing) | wKingCastle() ) & NotwBoard(); };
+    U64 bKingMoves() { return (OneInAllDirection(bKing) | bKingCastle() ) & NotbBoard(); };
+
+    U64 wKingAtt() { return OneInAllDirection(wKing); };
+    U64 bKingAtt() { return OneInAllDirection(bKing); };
 
     //sliding moves helper
     bool ValidTravel(U64 overlap, int offset) { 
         U64 notallb = ~AllBoard();
-        //Print(notallb, "notallb");
         return InBounds(offset) && TestBit(overlap, offset) && TestBit(notallb, offset); 
     };
     bool ValidTravelAtt(U64 overlap, int offset) { 
         U64 allb = AllBoard();
-        //Print(allb, "allb");
         return InBounds(offset) && TestBit(overlap, offset) && TestBit(allb, offset); 
     };
 
@@ -300,7 +346,6 @@ class U64Bitboard {
 
     U64 SlidingAttacks(U64 overlap, int sq, int direction) {
         U64 moves = 0;
-        //Print(overlap);
         int offset = sq + direction;
         while(ValidTravel(overlap, offset)) {
             SetBit(moves, offset);
@@ -309,7 +354,6 @@ class U64Bitboard {
         if(ValidTravelAtt(overlap, offset)) {
             SetBit(moves, offset);
         }
-        //Print(moves);
         return moves;
     };
 
@@ -423,8 +467,8 @@ class U64Bitboard {
     U64 bQueenMoves() { U64 bqatt = bQueenAttacks(); return bqatt & ~(bqatt & bBoard()); };
 
     //attacks
-    U64 wAttacks() { return wPawnAllAtt() | wKingMoves() | wKnightMoves() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
-    U64 bAttacks() { return bPawnAllAtt() | bKingMoves() | bKnightMoves() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
+    U64 wAttacks() { return wPawnAllAtt() | wKingAtt() | wKnightAtt() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
+    U64 bAttacks() { return bPawnAllAtt() | bKingAtt() | bKnightAtt() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
 
     U64 xRaywRookAttacks() {
         U64 wrookmoves = wRookMoves();
@@ -633,7 +677,7 @@ class U64Bitboard {
 
     void GetbMapKingMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bKing);
-        U64 kingMoves = wKingMoves();
+        U64 kingMoves = bKingMoves();
         U64ToMapMoves(moves, indexes[0], kingMoves);
     };
 
@@ -661,6 +705,16 @@ class U64Bitboard {
         } else {
             GetbMapMoves(moves);
         }
+    };
+
+    multimap<int, pair<int, char>> GetMapMoves() {
+        multimap<int, pair<int, char>> moves;
+        if(isWhiteMove) {
+            GetwMapMoves(moves);
+        } else {
+            GetbMapMoves(moves);
+        }
+        return moves;
     };
 
     //make move helpers
@@ -796,6 +850,55 @@ class U64Bitboard {
         GetBoardandResetIndex(startIndex, false);
         GetBoardandSetPromoIndex(targetIndex, promoP);
     };
+    
+    void CastleUpdateHelper(U64 &b, int start, int end) {
+        ResetBit(b, start);
+        SetBit(b, end);
+    };
+
+    void wCastleLongUpdate() {
+        CastleUpdateHelper(wRook, 56, 59);
+        CastleUpdateHelper(wKing, 60, 58);
+    };
+
+    void wCastleShortUpdate() {
+        CastleUpdateHelper(wRook, 63, 61);
+        CastleUpdateHelper(wKing, 60, 62);
+    };
+
+    void wCastleUpdate(int targetMinusStart) {
+        if(targetMinusStart > 0) {
+            wCastleShortUpdate();
+        } else {
+            wCastleLongUpdate();
+        }
+    };
+
+    void bCastleLongUpdate() {
+        CastleUpdateHelper(bRook, 0, 3);
+        CastleUpdateHelper(bKing, 4, 2);
+    };
+
+    void bCastleShortUpdate() {
+        CastleUpdateHelper(bRook, 7, 5);
+        CastleUpdateHelper(bKing, 4, 2);
+    };
+
+    void bCastleUpdate(int targetMinusStart) {
+        if(targetMinusStart > 0) {
+            bCastleShortUpdate();
+        } else {
+            bCastleLongUpdate();
+        }
+    };
+
+    void CastleUpdate(int targetMinusStart) {
+        if(isWhiteMove) {
+            wCastleUpdate(targetMinusStart);
+        } else {
+            bCastleUpdate(targetMinusStart);
+        }
+    }
 
     U64 GetwBoardMoves(int index) {
         if(TestBit(wPawn, index)) return wPawnMoves(); 
@@ -808,12 +911,12 @@ class U64Bitboard {
     };
 
     U64 GetbBoardMoves(int index) {
-        if(TestBit(bPawn, index)) return bPawn; 
-        if(TestBit(bKnight, index)) return bKnight;
-        if(TestBit(bBishop, index)) return bBishop;
-        if(TestBit(bRook, index)) return bRook;
-        if(TestBit(bQueen, index)) return bQueen;
-        if(TestBit(bKing, index)) return bKing;
+        if(TestBit(bPawn, index)) return bPawnMoves(); 
+        if(TestBit(bKnight, index)) return bKnightMoves();
+        if(TestBit(bBishop, index)) return bBishopMoves();
+        if(TestBit(bRook, index)) return bRookMoves();
+        if(TestBit(bQueen, index)) return bQueenMoves();
+        if(TestBit(bKing, index)) return bKingMoves();
         return C64(0);
     };
 
@@ -830,11 +933,15 @@ class U64Bitboard {
         return isPawn && isEnpassant;
     };
 
-    bool isCastle(int startSq, int targetSq) { 
+    bool isKingMove(int startSq) {
         U64 king = isWhiteMove ? wKing : bKing;
-        bool isKingMove = TestBit(king, startSq); 
+        return TestBit(king, startSq); 
+    };
+
+    bool isCastle(int startSq, int targetSq) {
+        bool isKing = isKingMove(startSq);
         bool isCastle = abs(startSq-targetSq) == 2;
-        return isCastle && isKingMove;
+        return isCastle && isKing;
     };
 
     bool isPawnMove(int startSq) { 
@@ -848,8 +955,21 @@ class U64Bitboard {
         return pawnmove && doubleMove;
     };
 
-    void UpdateCastlingRights(int startSq, int targetSq) {
+    void UpdateCastlingRightsFromKing() {
+        if(isWhiteMove) {
+            SetCastlingRightsFalse(castlingRights, 'Q');
+            SetCastlingRightsFalse(castlingRights, 'K');
+        } else {
+            SetCastlingRightsFalse(castlingRights, 'q');
+            SetCastlingRightsFalse(castlingRights, 'k');
+        }
+    }
 
+    void UpdateCastlingRightsFromRook(int startSq, int targetSq) {
+        if(startSq == 0 || targetSq == 0) { SetCastlingRightsFalse(castlingRights, 'q'); }
+        if(startSq == 7 || targetSq == 7) { SetCastlingRightsFalse(castlingRights, 'k'); }
+        if(startSq == 56 || targetSq == 56) { SetCastlingRightsFalse(castlingRights, 'Q'); }
+        if(startSq == 63 || targetSq == 63) { SetCastlingRightsFalse(castlingRights, 'K'); }
     };
 
     //making moves 
@@ -866,13 +986,13 @@ class U64Bitboard {
 
     bool MakeMove(int startSq, int targetSq, char promoP = ' ') {
         //determine board and moves
-
         U64 movesBoard = GetMovesByBoard(startSq);
         if(movesBoard == C64(0) || !TestBit(movesBoard, targetSq)) return false;
 
         //booleans for moves
         bool isPromotion = promoP != ' ';
         bool isMovePawn = isPawnMove(startSq);
+        bool isMoveKing = isKingMove(startSq);
         bool isCaptureMove = isCapture(targetSq);
         bool isCastleMove = isCastle(startSq, targetSq);
         bool isDoublePawn = isDoublePawnMove(startSq, targetSq);
@@ -886,7 +1006,7 @@ class U64Bitboard {
                 QuietPromoUpdate(startSq, targetSq, promoP);
             }
         } else if (isCastleMove) { //test if castle
-
+            CastleUpdate(targetSq - startSq);
         } else if(isEnpassantMove) { //test if enpassant 
             int offsetSq = isWhiteMove ? enPassantTarget + 8 : enPassantTarget - 8; 
             EnpassantMoveUpdate(startSq, targetSq, offsetSq);
@@ -897,12 +1017,19 @@ class U64Bitboard {
         }
 
 
-        //after move is made 
+        //castling right update
+        isMoveKing ? UpdateCastlingRightsFromKing() : UpdateCastlingRightsFromRook(startSq, targetSq);
+    
+        //enpassant target 
         if(isDoublePawn && isWhiteMove) { enPassantTarget = startSq-8; }
         if(isDoublePawn && !isWhiteMove) { enPassantTarget = startSq+8; }
+        if(!isDoublePawn) { enPassantTarget = 0; }
+        
+        //move side, move num and half clock num 
         isMovePawn || isCaptureMove ? halfMoveClock = 0: halfMoveClock++;
         if(isWhiteMove) { fullTurnNum++; }
         isWhiteMove = !isWhiteMove;
+
         return true;
     };
 

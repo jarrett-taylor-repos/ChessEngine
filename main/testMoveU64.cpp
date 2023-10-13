@@ -7,8 +7,7 @@ int moveGenerationTest(U64Bitboard b, int depth) {
 
     int numPos = 0;
     string fen = b.GetFen();
-    multimap<int, pair<int, char>> m;
-    b.GetMapMoves(m);
+    multimap<int, pair<int, char>> m = b.GetMapMoves();
     for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
         //cout << it->first << " " << it->second.first << " " << it->second.second << endl;
         int sq = it->first;

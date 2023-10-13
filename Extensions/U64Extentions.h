@@ -48,6 +48,14 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    void Print(vector<int> vect, string name = "") {
+        if(name.length() != 0) { cout << name << endl; }
+        for(int i = 0; i < vect.size(); i++) {
+            cout << to_string(vect[i]) << " ";
+        }
+        cout << endl << endl;
+    }
+
     string CastlingRightsString(map<char, bool> m) {
         string temp = "";
         for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
@@ -66,6 +74,16 @@ namespace U64Extensions {
         return m;
     }
 
+    void SetCastlingRightsFalse(map<char, bool> &m, char c) {
+        auto it = m.find(c);
+        it->second = false;
+    }
+
+    bool GetCastlingRightsValueByChar(map<char, bool> m, char c) {
+        auto it = m.find(c);
+        return it->second;
+    }
+
     vector<string> Split(string str, const char token = ' '){
         string tmp; 
         stringstream ss(str);
@@ -82,14 +100,6 @@ namespace U64Extensions {
         return stoi(str);
     };
 
-    void Print(vector<int> vect, string name = "") {
-        if(name.length() != 0) { cout << name << endl; }
-        for(int i = 0; i < vect.size(); i++) {
-            cout << to_string(vect[i]) << " ";
-        }
-        cout << endl << endl;
-    }
-
     vector<int> GetTrueBits(U64 b) {
         vector<int> indexes;
         for(int i = 0; i < 64; i++) {
@@ -100,6 +110,11 @@ namespace U64Extensions {
 
     string IndexToSquare(int index) { return IntToSquareMap.at(index); }
     int StringtoIndex(string str) {return SquaretoIntMap.at(str); }
+
+    string EnpassantTargetToString(int index) { 
+        if(index == 0) return "-";
+        return IndexToSquare(index);
+    }
 
     void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {
         //Print(b, "U64ToMapMoves");

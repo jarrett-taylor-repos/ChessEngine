@@ -2,9 +2,44 @@
 
 int main () {
     U64Bitboard u64;
-    u64.LoadFen("r1bqkbnr/pPppppp1/2n5/8/8/5N2/P1PPPPpP/RNBQKB1R w Qkq - 0 1");
 
-    
+    u64.LoadFen("r3k2r/pp1bqppp/2n1pn2/2pp2B1/1bPP4/2N1PN2/PP1QBPPP/R3K2R w KQkq - 5 9");//castling
+
+    auto start = high_resolution_clock::now();
+    U64 moves =  u64.GetMoves();
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
+
+    start = high_resolution_clock::now();
+    bool movemade = u64.MakeMove("e1c1");//e1g1
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Time to get make move: " + to_string(duration.count()) << endl;
+
+    u64.PrintAllBoards();
+
+    string currfen = u64.GetFen();
+    cout << currfen << endl;
+
+    multimap<int, pair<int, char>> mapmoves;
+    start = high_resolution_clock::now();
+    u64.GetMapMoves(mapmoves);
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Time to get get stored moves: " + to_string(duration.count()) << endl;
+
+    start = high_resolution_clock::now();
+    movemade = u64.MakeMove("e8c8");//e8g8
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Time to get make move: " + to_string(duration.count()) << endl;
+
+    //Print(mapmoves, "mapmoves");
+
+    u64.PrintAllBoards();
+
+    /*
         string fen = u64.GetFen();
         cout << fen << endl;
 
@@ -14,6 +49,7 @@ int main () {
         auto duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
 
+        u64.LoadFen("r1bqkbnr/pPppppp1/2n5/8/8/5N2/P1PPPPpP/RNBQKB1R w Qkq - 0 1");//promotion
         string move = "b7a8q";
         start = high_resolution_clock::now();
         bool moveMade =  u64.MakeMove(move);
@@ -21,7 +57,7 @@ int main () {
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get make a move moves: " + to_string(duration.count()) << endl;
 
-        u64.LoadFen("rnbqkbnr/1ppp1ppp/p7/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 3");
+        u64.LoadFen("rnbqkbnr/1ppp1ppp/p7/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 3"); //en passant 
 
         multimap<int, pair<int, char>> mapmoves;
         start = high_resolution_clock::now();
@@ -30,7 +66,6 @@ int main () {
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get get stored moves: " + to_string(duration.count()) << endl;
         
-        //Print(mapmoves, "mapmoves");
 
         move = "d5e6";
         start = high_resolution_clock::now();
@@ -38,25 +73,24 @@ int main () {
         stop = high_resolution_clock::now();
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get make a move moves: " + to_string(duration.count()) << endl;
+    */
 
-        //u64.PrintAllBoards();
 
+    /* 
+        U64 allmoves = u64.GetMoves();
+        U64 pawnMoves = u64.GetPawnMoves();
+        U64 knightMoves = u64.GetKnightMoves();
+        U64 bishopMoves = u64.GetBishopMoves();
+        U64 rookMoves = u64.GetRookMoves();
+        U64 queenMoves = u64.GetQueenMoves();
+        U64 kingMoves = u64.GetKingMoves();
 
-        /* 
-            U64 allmoves = u64.GetMoves();
-            U64 pawnMoves = u64.GetPawnMoves();
-            U64 knightMoves = u64.GetKnightMoves();
-            U64 bishopMoves = u64.GetBishopMoves();
-            U64 rookMoves = u64.GetRookMoves();
-            U64 queenMoves = u64.GetQueenMoves();
-            U64 kingMoves = u64.GetKingMoves();
-
-            Print(allmoves, "allmoves");
-            Print(pawnMoves, "pawnMoves");
-            Print(knightMoves, "knightMoves");
-            Print(bishopMoves, "bishopMoves");
-            Print(rookMoves, "rookMoves");
-            Print(queenMoves, "queenMoves");
-            Print(kingMoves, "kingMoves");
-        */
+        Print(allmoves, "allmoves");
+        Print(pawnMoves, "pawnMoves");
+        Print(knightMoves, "knightMoves");
+        Print(bishopMoves, "bishopMoves");
+        Print(rookMoves, "rookMoves");
+        Print(queenMoves, "queenMoves");
+        Print(kingMoves, "kingMoves");
+    */
 }
