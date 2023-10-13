@@ -22,10 +22,10 @@ class U64Bitboard {
 
     int halfMoveClock;
     int fullTurnNum;
-    string enPassantTarget;
+    int enPassantTarget;
     string currFen;
     bool isWhiteMove;
-    string castlingRights;
+    map<char, bool> castlingRights;
     map<string, int> hashFen; //used to see 3 move repition of fen, will be used in the future
 
 
@@ -38,8 +38,8 @@ class U64Bitboard {
         currFen = arguments[0];
         string moveColor = arguments[1];
         isWhiteMove = moveColor == "w";
-        castlingRights = arguments[2];
-        enPassantTarget = arguments[3];
+        castlingRights = SetCastlingRights(arguments[2]);
+        enPassantTarget = (arguments[3] == "-") ? 0 : StringtoIndex(arguments[3]);
         fullTurnNum = stoi(arguments[4]);
         halfMoveClock = stoi(arguments[5]);
     };
@@ -106,7 +106,7 @@ class U64Bitboard {
         }
 
         string moveColor = isWhiteMove ? " w" : " b";
-        string fenOthers = moveColor +" "+ castlingRights +" "+ enPassantTarget +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
+        string fenOthers = moveColor +" "+ CastlingRightsString(castlingRights) +" "+ IndexToSquare(enPassantTarget) +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
         fen += fenOthers;
 
         return fen;
@@ -195,11 +195,31 @@ class U64Bitboard {
     U64 bPawnWestAtt() { return (bPawn << 9) & notAFile; };
     U64 bPawnEastAtt() { return (bPawn << 7) & notHFile; };
     U64 bPawnAllAtt() { return bPawnEastAtt() | bPawnWestAtt(); };
-    U64 wPawnWestCaptures() { return wPawnWestAtt() & bBoard(); };
-    U64 wPawnEastCaptures() { return wPawnEastAtt() & bBoard(); };
+    U64 wPawnWestCaptures() { 
+        U64 wpatt = wPawnWestAtt();
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 westcaptures = (wpatt & bBoard()) | (wpatt & enpass);
+        return westcaptures;
+    };
+    U64 wPawnEastCaptures() { 
+        U64 wpatt = wPawnEastAtt();
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 eastcaptures = (wpatt & bBoard()) | (wpatt & enpass);
+        return eastcaptures;
+    };
     U64 wPawnAllCaptures() { return wPawnEastCaptures() | wPawnWestCaptures(); };
-    U64 bPawnWestCaptures() { return bPawnWestAtt() & wBoard(); };
-    U64 bPawnEastCaptures() { return bPawnEastAtt() & wBoard(); };
+    U64 bPawnWestCaptures() { 
+        U64 bpatt = bPawnWestAtt();
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 westcaptures = (bpatt & wBoard()) | (bpatt & enpass);
+        return westcaptures;
+    };
+    U64 bPawnEastCaptures() { 
+        U64 bpatt = bPawnEastAtt();
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 eastcaptures = (bpatt & wBoard()) | (bpatt & enpass);
+        return eastcaptures;
+    };
     U64 bPawnAllCaptures() { return bPawnEastCaptures() | bPawnWestCaptures(); };
 
     U64 wPawnMoves() { return wPawnAllCaptures() | wPawnPushes(); };
@@ -211,11 +231,31 @@ class U64Bitboard {
     U64 bPawnWestAtt(U64 b) { return (b << 9) & notAFile; };
     U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
     U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
-    U64 wPawnWestCaptures(U64 b) { return wPawnWestAtt(b) & bBoard(); };
-    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & bBoard(); };
+    U64 wPawnWestCaptures(U64 b) { 
+        U64 wpatt = wPawnWestAtt(b);
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 westcaptures = (wpatt & bBoard()) | (wpatt & enpass);
+        return westcaptures;
+    };
+    U64 wPawnEastCaptures(U64 b) { 
+        U64 wpatt = wPawnEastAtt(b);
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 eastcaptures = (wpatt & bBoard()) | (wpatt & enpass);
+        return eastcaptures;
+    };
     U64 wPawnAllCaptures(U64 b) { return wPawnEastCaptures(b) | wPawnWestCaptures(b); };
-    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & wBoard(); };
-    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & wBoard(); };
+    U64 bPawnWestCaptures(U64 b) { 
+        U64 bpatt = bPawnWestAtt(b);
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 westcaptures = (bpatt & wBoard()) | (bpatt & enpass);
+        return westcaptures;
+    };
+    U64 bPawnEastCaptures(U64 b) { 
+        U64 bpatt = bPawnEastAtt(b);
+        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 eastcaptures = (bpatt & wBoard()) | (bpatt & enpass);
+        return eastcaptures;
+    };
     U64 bPawnAllCaptures(U64 b) { return bPawnEastCaptures(b) | bPawnWestCaptures(b); };
 
     U64 wPawnMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
@@ -647,8 +687,26 @@ class U64Bitboard {
         if(TestBit(bKing, index))  ResetBit(bKing, index); 
     };
 
+    void GetwBoardResetStartandSetTarget(int start, int target) {
+        if(TestBit(wPawn, start))  { ResetBit(wPawn, start); SetBit(wPawn, target);}
+        if(TestBit(wKnight, start)) { ResetBit(wKnight, start); SetBit(wKnight, target);}
+        if(TestBit(wBishop, start)) { ResetBit(wBishop, start); SetBit(wBishop, target);}
+        if(TestBit(wRook, start)) { ResetBit(wRook, start); SetBit(wRook, target);}
+        if(TestBit(wQueen, start)) { ResetBit(wQueen, start); SetBit(wQueen, target);}
+        if(TestBit(wKing, start)) { ResetBit(wKing, start); SetBit(wKing, target);}
+    };
+
+    void GetbBoardResetStartandSetTarget(int start, int target) {
+        if(TestBit(bPawn, start)) { ResetBit(bPawn, start); SetBit(bPawn, target); }
+        if(TestBit(bKnight, start)) { ResetBit(bKnight, start); SetBit(bKnight, target);}
+        if(TestBit(bBishop, start)) { ResetBit(bBishop, start); SetBit(bBishop, target);}
+        if(TestBit(bRook, start)) { ResetBit(bRook, start); SetBit(bRook, target);}
+        if(TestBit(bQueen, start)) { ResetBit(bQueen, start); SetBit(bQueen, target);}
+        if(TestBit(bKing, start)) { ResetBit(bKing, start); SetBit(bKing, target);}
+    };
+
     void GetwBoardandSetIndex(int index) {
-        if(TestBit(wPawn,index)) SetBit(wPawn,index); 
+        if(TestBit(wPawn, index)) SetBit(wPawn, index); 
         if(TestBit(wKnight, index)) SetBit(wKnight, index); 
         if(TestBit(wBishop, index)) SetBit(wBishop, index); 
         if(TestBit(wRook, index)) SetBit(wRook, index); 
@@ -709,15 +767,23 @@ class U64Bitboard {
         return GetbBoardandSetPromoIndex(index, promoP); 
     };
 
+    void GetBoardResetStartandSetTarget(int start, int target) {
+        if(isWhiteMove) return GetwBoardResetStartandSetTarget(start, target); 
+        return GetbBoardResetStartandSetTarget(start, target); 
+    };
+
+    void EnpassantMoveUpdate(int startIndex, int targetIndex, int enpassantPawnIndex) {
+        GetBoardandResetIndex(enpassantPawnIndex, true);
+        GetBoardResetStartandSetTarget(startIndex, targetIndex);
+    };
+
     void CaptureMoveUpdate(int startIndex, int targetIndex) {
         GetBoardandResetIndex(targetIndex, true);
-        GetBoardandResetIndex(startIndex, false);
-        GetBoardandSetIndex(targetIndex);
+        GetBoardResetStartandSetTarget(startIndex, targetIndex);
     };
 
     void QuietMoveUpdate(int startIndex, int targetIndex) {
-        GetBoardandResetIndex(startIndex, false);
-        GetBoardandSetIndex(targetIndex);
+        GetBoardResetStartandSetTarget(startIndex, targetIndex);
     };
 
     void CapturePromoUpdate(int startIndex, int targetIndex, char promoP) {
@@ -756,7 +822,35 @@ class U64Bitboard {
         return GetbBoardMoves(index);
     };
 
-    bool isMoveCapture(int targetSq) { U64 allb = AllBoard(); return TestBit(allb, targetSq); };
+    bool isCapture(int targetSq) { U64 allb = AllBoard(); return TestBit(allb, targetSq); };
+
+    bool isEnpassant(int startSq, int targetSq) {
+        bool isPawn = isPawnMove(startSq);
+        bool isEnpassant = targetSq == enPassantTarget;
+        return isPawn && isEnpassant;
+    };
+
+    bool isCastle(int startSq, int targetSq) { 
+        U64 king = isWhiteMove ? wKing : bKing;
+        bool isKingMove = TestBit(king, startSq); 
+        bool isCastle = abs(startSq-targetSq) == 2;
+        return isCastle && isKingMove;
+    };
+
+    bool isPawnMove(int startSq) { 
+        U64 pawn = isWhiteMove ? wPawn : bPawn;
+        return TestBit(pawn, startSq);
+    };
+
+    bool isDoublePawnMove(int startSq, int targetSq) { 
+        bool pawnmove = isPawnMove(startSq);
+        bool doubleMove = abs(startSq-targetSq) == 16;
+        return pawnmove && doubleMove;
+    };
+
+    void UpdateCastlingRights(int startSq, int targetSq) {
+
+    };
 
     //making moves 
     bool MakeMove(string move) {
@@ -776,29 +870,39 @@ class U64Bitboard {
         U64 movesBoard = GetMovesByBoard(startSq);
         if(movesBoard == C64(0) || !TestBit(movesBoard, targetSq)) return false;
 
-        //test if promotion
+        //booleans for moves
         bool isPromotion = promoP != ' ';
-        bool isCaptureMove = isMoveCapture(targetSq);
-        if(isPromotion) {
+        bool isMovePawn = isPawnMove(startSq);
+        bool isCaptureMove = isCapture(targetSq);
+        bool isCastleMove = isCastle(startSq, targetSq);
+        bool isDoublePawn = isDoublePawnMove(startSq, targetSq);
+        bool isEnpassantMove = isEnpassant(startSq, targetSq);
+
+
+        if(isPromotion) { //test if promotion
             if(isCaptureMove) {
                 CapturePromoUpdate(startSq, targetSq, promoP);
             } else {
                 QuietPromoUpdate(startSq, targetSq, promoP);
             }
-        }
+        } else if (isCastleMove) { //test if castle
 
-        //test if castle
-
-        //test if capture
-        else if(isCaptureMove) { 
+        } else if(isEnpassantMove) { //test if enpassant 
+            int offsetSq = isWhiteMove ? enPassantTarget + 8 : enPassantTarget - 8; 
+            EnpassantMoveUpdate(startSq, targetSq, offsetSq);
+        } else if(isCaptureMove) { //test if capture
             CaptureMoveUpdate(startSq, targetSq); 
         } else {
             QuietMoveUpdate(startSq, targetSq);
         }
 
-        //after move is made 
-        isWhiteMove = !isWhiteMove;
 
+        //after move is made 
+        if(isDoublePawn && isWhiteMove) { enPassantTarget = startSq-8; }
+        if(isDoublePawn && !isWhiteMove) { enPassantTarget = startSq+8; }
+        isMovePawn || isCaptureMove ? halfMoveClock = 0: halfMoveClock++;
+        if(isWhiteMove) { fullTurnNum++; }
+        isWhiteMove = !isWhiteMove;
         return true;
     };
 

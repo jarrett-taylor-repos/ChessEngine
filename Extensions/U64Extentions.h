@@ -22,6 +22,12 @@ namespace U64Extensions {
 
     void Reset(U64 &b) { b = 0; }
 
+    U64 SingleBitBoard(int sq) {
+        U64 temp = 0;
+        SetBit(temp, sq);
+        return temp;
+    }
+
     void Print(U64 b, string name = "") {
         if(name.length() != 0) { cout << name << endl;}
 
@@ -42,6 +48,24 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    string CastlingRightsString(map<char, bool> m) {
+        string temp = "";
+        for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
+            if(it->second) { temp += it->first; }
+        }
+        return temp;
+    }
+
+    map<char, bool> SetCastlingRights(string str) {
+        map<char, bool> m = castlingRightsDefault;
+
+        for(char c : str) {
+            auto it = m.find(c);
+            it->second = true;
+        }
+        return m;
+    }
+
     vector<string> Split(string str, const char token = ' '){
         string tmp; 
         stringstream ss(str);
@@ -58,7 +82,7 @@ namespace U64Extensions {
         return stoi(str);
     };
 
-    void PrintVectorInt(vector<int> vect, string name = "") {
+    void Print(vector<int> vect, string name = "") {
         if(name.length() != 0) { cout << name << endl; }
         for(int i = 0; i < vect.size(); i++) {
             cout << to_string(vect[i]) << " ";
@@ -76,64 +100,6 @@ namespace U64Extensions {
 
     string IndexToSquare(int index) { return IntToSquareMap.at(index); }
     int StringtoIndex(string str) {return SquaretoIntMap.at(str); }
-
-    vector<string> BoardPopulatedSquares(U64 b) {
-        vector<string> coordinates;
-        vector<int> indexes = GetTrueBits(b);
-        for(int sq : indexes) {
-            string enSq = IndexToSquare(sq);
-            coordinates.push_back(enSq);
-        }
-        return coordinates;
-    }
-
-    vector<string> SquareToUCI(vector<string> start, vector<string> end) {
-        vector<string> ucimoves;
-        for(int i = 0; i < start.size(); i++) {
-            string temp = start[i] + end[i];
-            ucimoves.push_back(temp);
-        }
-        return ucimoves;
-    }
-
-    vector<string> SquareToUCI(string start, vector<string> end) {
-        vector<string> ucimoves;
-        for(int i = 0; i < end.size(); i++) {
-            string temp = start + end[i];
-            ucimoves.push_back(temp);
-        }
-        return ucimoves;
-    }
-
-    vector<string> U64ToUCI(U64 a, U64 b, bool isPawn = false, bool isWhite = false) {
-        vector<string> start = BoardPopulatedSquares(a);
-        vector<string> end = BoardPopulatedSquares(b);
-        vector<string> ucimoves;
-        for(int i = 0; i < start.size(); i++) {
-            string temp;
-
-            bool isPromo = isPawn && ((isWhite && StringtoIndex(end[i]) < 8) || (!isWhite && StringtoIndex(end[i]) > 55));
-            if(isPromo) {
-                for(int j = 0; j < promotionUci.size(); j++) {
-                    temp = start[i] + end[i] + promotionUci[j];
-                    ucimoves.push_back(temp);
-                }
-            } else {
-                temp = start[i] + end[i];
-                ucimoves.push_back(temp);
-            }
-        }
-        return ucimoves;
-    }
-
-    void U64ToUCI(vector<string> &ucimoves, int sq, U64 b) {
-        string start = IndexToSquare(sq);
-        vector<string> end = BoardPopulatedSquares(b);
-        for(int i = 0; i < end.size(); i++) {
-            string temp = start + end[i];
-            ucimoves.push_back(temp);
-        }
-    }
 
     void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {
         //Print(b, "U64ToMapMoves");
@@ -153,25 +119,5 @@ namespace U64Extensions {
                 moves.insert(temp);
             }
         }
-    }
-
-    vector<string> Combine(vector<string> a, vector<string> b) {
-        vector<string> ab = a;
-        ab.insert(ab.end(), b.begin(), b.end());
-        return ab;
-    }
-
-    void Append(vector<string> v1, vector<string> v2) {
-        v1.insert(v1.end(), v2.begin(), v2.end());
-    }
-
-    void PrintVector(vector<string> a, string name = "") {
-        if(name.length() != 0) {
-            cout << name << endl;
-        }
-        for(string str : a) {
-            cout << str << endl;
-        }
-        cout << endl;
     }
 }

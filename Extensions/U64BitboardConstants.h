@@ -13,6 +13,11 @@ typedef unsigned long long U64;
 #define C64(constantU64) constantU64##ULL
 
 namespace U64BitboardConstants {
+    pair<char, int> wKingCastle = pair<char, int> ('K', false);
+    pair<char, int> wQueenCastle = pair<char, int> ('Q', false);
+    pair<char, int> bKingCastle = pair<char, int> ('k', false);
+    pair<char, int> bQueenCastle = pair<char, int> ('q', false);
+    map<char, bool> castlingRightsDefault = {wKingCastle, wQueenCastle, bKingCastle, bQueenCastle};
     string promotionUci = "qrbn";
     string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 

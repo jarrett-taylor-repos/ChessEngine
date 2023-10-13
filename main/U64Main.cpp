@@ -21,14 +21,26 @@ int main () {
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get make a move moves: " + to_string(duration.count()) << endl;
 
+        u64.LoadFen("rnbqkbnr/1ppp1ppp/p7/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 3");
+
         multimap<int, pair<int, char>> mapmoves;
         start = high_resolution_clock::now();
         u64.GetMapMoves(mapmoves);
         stop = high_resolution_clock::now();
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get get stored moves: " + to_string(duration.count()) << endl;
-
+        
         //Print(mapmoves, "mapmoves");
+
+        move = "d5e6";
+        start = high_resolution_clock::now();
+        moveMade =  u64.MakeMove(move);
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        cout << "Time to get make a move moves: " + to_string(duration.count()) << endl;
+
+        //u64.PrintAllBoards();
+
 
         /* 
             U64 allmoves = u64.GetMoves();
