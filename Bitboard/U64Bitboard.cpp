@@ -186,6 +186,9 @@ class U64Bitboard {
     U64 wPawnPushes() { return wSinglePushTargets(wPawn) | wDoublePushTargets(wPawn); };
     U64 bPawnPushes() { return bSinglePushTargets(bPawn) | bDoublePushTargets(bPawn); };
 
+    U64 wPawnPushes(U64 b) { return wSinglePushTargets(b) | wDoublePushTargets(b); };
+    U64 bPawnPushes(U64 b) { return bSinglePushTargets(b) | bDoublePushTargets(b); };
+
     U64 wPawnWestAtt() { return (wPawn >> 9) & notHFile; };
     U64 wPawnEastAtt() { return (wPawn >> 7) & notAFile; };
     U64 wPawnAllAtt() { return wPawnEastAtt() | wPawnWestAtt(); };
@@ -202,9 +205,25 @@ class U64Bitboard {
     U64 wPawnMoves() { return wPawnAllCaptures() | wPawnPushes(); };
     U64 bPawnMoves() { return bPawnAllCaptures() | bPawnPushes(); };
 
+    U64 wPawnWestAtt(U64 b) { return (b >> 9) & notHFile; };
+    U64 wPawnEastAtt(U64 b) { return (b >> 7) & notAFile; };
+    U64 wPawnAllAtt(U64 b) { return wPawnEastAtt(b) | wPawnWestAtt(b); };
+    U64 bPawnWestAtt(U64 b) { return (b << 9) & notAFile; };
+    U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
+    U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
+    U64 wPawnWestCaptures(U64 b) { return wPawnWestAtt(b) & bBoard(); };
+    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & bBoard(); };
+    U64 wPawnAllCaptures(U64 b) { return wPawnEastCaptures(b) | wPawnWestCaptures(b); };
+    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & wBoard(); };
+    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & wBoard(); };
+    U64 bPawnAllCaptures(U64 b) { return bPawnEastCaptures(b) | bPawnWestCaptures(b); };
+
+    U64 wPawnMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
+    U64 bPawnMoves(U64 b) { return bPawnAllCaptures(b) | bPawnPushes(b); };
+
 
     //knight functions
-    U64 KnightMoveHelper(U64 b) { return noNoEa(b) | noEaEa(b) | soEaEa(b) | soSoEa(b) | noNoWe(b) | noWeWe(b) | soWeWe(b) | soSoWe(b); };
+    U64 KnightAttacks(U64 b) { return noNoEa(b) | noEaEa(b) | soEaEa(b) | soSoEa(b) | noNoWe(b) | noWeWe(b) | soWeWe(b) | soSoWe(b); };
     U64 noNoEa(U64 b) {return (b >> 15) & notAFile; };
     U64 noEaEa(U64 b) {return (b >> 6) & (notAFile & notBFile);};
     U64 soEaEa(U64 b) {return (b << 10) & (notAFile & notBFile);};
@@ -214,8 +233,8 @@ class U64Bitboard {
     U64 noWeWe(U64 b) {return (b >> 10) & (notGFile & notHFile); };
     U64 noNoWe(U64 b) {return (b >> 17) & notHFile; };
 
-    U64 wKnightMoves(){ return KnightMoveHelper(wKnight) & NotwBoard(); };
-    U64 bKnightMoves(){ return KnightMoveHelper(bKnight) & NotbBoard(); };
+    U64 wKnightMoves(){ return KnightAttacks(wKnight) & NotwBoard(); };
+    U64 bKnightMoves(){ return KnightAttacks(bKnight) & NotbBoard(); };
 
     //king moves
     U64 wKingMoves() { return OneInAllDirection(wKing) & NotwBoard(); };
@@ -454,18 +473,154 @@ class U64Bitboard {
     };
 
     //vector<int> moves
-    void GetwIntMoves(vector<int> &moves) {
-        
+    void GetwMapPawnMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(wPawn);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 pawnMoves = wPawnMoves(temp);
+            U64ToMapMoves(moves, sq, pawnMoves, true, true);
+        }
     };
 
-    void GetbIntMoves(vector<int> &moves) {
-        
+    void GetbMapPawnMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(bPawn);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 pawnMoves = bPawnMoves(temp);
+            U64ToMapMoves(moves, sq, pawnMoves, true, false);
+        }
     };
 
-    vector<int> GetIntMoves() {
-        vector<int> moves;
-        if(isWhiteMove) GetwIntMoves(moves); return moves;
-        GetbIntMoves(moves); return moves;
+    void GetwMapKnightMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(wKnight);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 watt = KnightAttacks(temp);
+            U64 knightMoves = watt & NotwBoard();
+            U64ToMapMoves(moves, sq, knightMoves);
+        }
+    };
+
+    void GetbMapKnightMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(bKnight);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 batt = KnightAttacks(temp);
+            U64 knightMoves = batt & NotbBoard();
+            U64ToMapMoves(moves, sq, knightMoves);
+        }
+    };
+
+    void GetwMapBishopMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(wBishop);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 watt = BishopAttacks(temp);
+            U64 bMoves = watt & ~(watt & wBoard());
+            U64ToMapMoves(moves, sq, bMoves);
+        }
+    };
+
+    void GetbMapBishopMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(bBishop);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 batt = BishopAttacks(temp);
+            U64 bMoves = batt & ~(batt & bBoard());
+            U64ToMapMoves(moves, sq, bMoves);
+        }
+    };
+
+    void GetwMapRookMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(wRook);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 watt = RookAttacks(temp);
+            U64 rMoves = watt & ~(watt & wBoard());
+            U64ToMapMoves(moves, sq, rMoves);
+        }
+    };
+
+    void GetbMapRookMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(bRook);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 batt = RookAttacks(temp);
+            U64 rMoves = batt & ~(batt & bBoard());
+            U64ToMapMoves(moves, sq, rMoves);
+        }
+    };
+
+    void GetwMapQueenMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(wQueen);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 wbatt = BishopAttacks(temp);
+            U64 wratt = RookAttacks(temp);
+            U64 watt = wratt | wbatt;
+            U64 qMoves = watt & ~(watt & wBoard());
+            U64ToMapMoves(moves, sq, qMoves);
+        }
+    };
+
+    void GetbMapQueenMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(bQueen);
+        for(int sq : indexes) {
+            U64 temp = 0;
+            SetBit(temp, sq);
+            U64 bbatt = BishopAttacks(temp);
+            U64 bratt = RookAttacks(temp);
+            U64 batt = bratt | bbatt;
+            U64 qMoves = batt & ~(batt & bBoard());
+            U64ToMapMoves(moves, sq, qMoves);
+        }
+    };
+
+    void GetwMapKingMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(wKing);
+        U64 kingMoves = wKingMoves();
+        U64ToMapMoves(moves, indexes[0], kingMoves);
+    };
+
+    void GetbMapKingMoves(multimap<int, pair<int, char>> &moves) {
+        vector<int> indexes = GetTrueBits(bKing);
+        U64 kingMoves = wKingMoves();
+        U64ToMapMoves(moves, indexes[0], kingMoves);
+    };
+
+    void GetwMapMoves(multimap<int, pair<int, char>> &moves) {
+        GetwMapPawnMoves(moves);
+        GetwMapKnightMoves(moves);
+        GetwMapBishopMoves(moves);
+        GetwMapRookMoves(moves);
+        GetwMapQueenMoves(moves);
+        GetwMapKingMoves(moves);
+    };
+
+    void GetbMapMoves(multimap<int, pair<int, char>> &moves) {
+        GetbMapPawnMoves(moves);
+        GetbMapKnightMoves(moves);
+        GetbMapBishopMoves(moves);
+        GetbMapRookMoves(moves);
+        GetbMapQueenMoves(moves);
+        GetbMapKingMoves(moves);
+    };
+
+    void GetMapMoves(multimap<int, pair<int, char>> &moves) {
+        if(isWhiteMove) {
+            GetwMapMoves(moves);
+        } else {
+            GetbMapMoves(moves);
+        }
     };
 
     //make move helpers

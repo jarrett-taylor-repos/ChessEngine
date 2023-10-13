@@ -7,12 +7,16 @@ int moveGenerationTest(U64Bitboard b, int depth) {
 
     int numPos = 0;
     string fen = b.GetFen();
-    vector<string> notmoves = b.GetUciMoves();
-    for(int i = 0; i < notmoves.size(); i++) {
-        string tempmove = notmoves[i];
+    multimap<int, pair<int, char>> m;
+    b.GetMapMoves(m);
+    for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
+        //cout << it->first << " " << it->second.first << " " << it->second.second << endl;
+        int sq = it->first;
+        int end = it->second.first;
+        char promo = it->second.second;
         U64Bitboard temp;
         temp.LoadFen(fen);
-        bool mademove = temp.MakeMove(tempmove);
+        bool mademove = temp.MakeMove(sq, end, promo);
         if(mademove) {
             numPos += moveGenerationTest(temp, depth-1);
         } else {

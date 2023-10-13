@@ -13,7 +13,7 @@ typedef unsigned long long U64;
 #define C64(constantU64) constantU64##ULL
 
 namespace U64BitboardConstants {
-    vector<string> promotionUci = {"q", "r", "b", "n"};
+    string promotionUci = "qrbn";
     string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     const U64 notHFile = 0x7F7F7F7F7F7F7F7F;

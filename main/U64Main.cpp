@@ -11,14 +11,40 @@ int main () {
         auto start = high_resolution_clock::now();
         U64 moves =  u64.GetMoves();
         auto stop = high_resolution_clock::now();
-        auto duration = duration_cast<nanoseconds>(stop - start);
+        auto duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
 
         string move = "b7a8q";
         start = high_resolution_clock::now();
         bool moveMade =  u64.MakeMove(move);
         stop = high_resolution_clock::now();
-        duration = duration_cast<nanoseconds>(stop - start);
+        duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get make a move moves: " + to_string(duration.count()) << endl;
-        
+
+        multimap<int, pair<int, char>> mapmoves;
+        start = high_resolution_clock::now();
+        u64.GetMapMoves(mapmoves);
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        cout << "Time to get get stored moves: " + to_string(duration.count()) << endl;
+
+        //Print(mapmoves, "mapmoves");
+
+        /* 
+            U64 allmoves = u64.GetMoves();
+            U64 pawnMoves = u64.GetPawnMoves();
+            U64 knightMoves = u64.GetKnightMoves();
+            U64 bishopMoves = u64.GetBishopMoves();
+            U64 rookMoves = u64.GetRookMoves();
+            U64 queenMoves = u64.GetQueenMoves();
+            U64 kingMoves = u64.GetKingMoves();
+
+            Print(allmoves, "allmoves");
+            Print(pawnMoves, "pawnMoves");
+            Print(knightMoves, "knightMoves");
+            Print(bishopMoves, "bishopMoves");
+            Print(rookMoves, "rookMoves");
+            Print(queenMoves, "queenMoves");
+            Print(kingMoves, "kingMoves");
+        */
 }

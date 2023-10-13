@@ -33,6 +33,15 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    void Print(multimap<int, pair<int, char>> m, string name = "") {
+        if(name.length() != 0) { cout << name << endl;}
+
+        for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
+            cout << it->first << " " << it->second.first << " " << it->second.second << endl;
+        }
+        cout << endl << endl;
+    }
+
     vector<string> Split(string str, const char token = ' '){
         string tmp; 
         stringstream ss(str);
@@ -123,6 +132,26 @@ namespace U64Extensions {
         for(int i = 0; i < end.size(); i++) {
             string temp = start + end[i];
             ucimoves.push_back(temp);
+        }
+    }
+
+    void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {
+        //Print(b, "U64ToMapMoves");
+        vector<int> end = GetTrueBits(b);
+        for(int i = 0; i < end.size(); i++) {
+            bool isPromo = (isWhitePawn ? end[i] < 8 : end[i] > 55) && isPawnMove;
+            if(isPromo) {
+                for(int j = 0; j < promotionUci.length(); j++) {
+                    char curr = promotionUci[j];
+                    pair<int, char> chartemp = pair<int, char>(end[i], curr);
+                    pair<int, pair<int, char>> temp = pair<int, pair<int, char>>(sq, chartemp);
+                    moves.insert(temp);
+                }
+            } else {
+                pair<int, char> chartemp = pair<int, char>(end[i], ' ');
+                pair<int, pair<int, char>> temp = pair<int, pair<int, char>>(sq, chartemp);
+                moves.insert(temp);
+            }
         }
     }
 
