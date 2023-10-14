@@ -210,6 +210,11 @@ class U64Bitboard {
     U64 GetbQueen() { return bQueen; };
     U64 GetbKing() { return bKing; };
 
+    int GetMoveColor() {
+        if(isWhiteMove) return 1;
+        return -1;
+    };
+
     //board functions
     U64 wBoard() { return wPawn | wKnight | wBishop | wRook | wQueen | wKing; };
     U64 bBoard() { return bPawn | bKnight | bBishop | bRook | bQueen | bKing; };
