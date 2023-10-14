@@ -5,13 +5,13 @@
 #include <string>
 #include <typeinfo>
 #include <bitset>
+// #include "..\Extensions\U64Extentions.h"
 using namespace std;
 
 int main() {
   std::string line;
   std::ifstream FENfile("test_files/pseudoMoves.txt");
   freopen("wrong_pseudo_moves.txt","w",stdout);
-
   if (FENfile.is_open()) {
     int linenum = 0;
     U64Bitboard b;
@@ -25,7 +25,7 @@ int main() {
         case 1:
           if (line!=bitset<64>(b.wPawnMoves()).to_string()) {
             cout<<"White Pawn moves are incorrect for FEN: "<<FEN<<endl;
-            cout<<"file bitset:  "<<line<<endl<<"board Bitset: "<<b.wPawnMoves()<<endl;
+            cout<<"file bitset:  "<<line<<endl<<"board Bitset: "<<bitset<64>(b.wPawnMoves()).to_string()<<endl;
           }
           break;
         case 2:
@@ -57,7 +57,7 @@ int main() {
         case 6:
           if (line != bitset<64>(b.wKingMoves()).to_string()) {
             cout << "White King moves are incorrect for FEN: " << FEN << endl;
-            cout << "file bitset:  " << line << endl << "board Bitset: " << b.wKingMoves() << endl;
+            cout << "file bitset:  " << line << endl << "board Bitset: " << bitset<64>(b.wKingMoves()).to_string() << endl;
           }
           break;
 
@@ -99,7 +99,8 @@ int main() {
         case 12:
           if (line != bitset<64>(b.bKingMoves()).to_string()) {
             cout << "Black King moves are incorrect for FEN: " << FEN << endl;
-            cout << "file bitset:  " << line << endl << "board Bitset: " << b.bKingMoves() << endl;
+            cout << "file bitset:  " << line << endl << "board Bitset: " << bitset<64>(b.bKingMoves()).to_string() << endl;
+            Print(b.bKingMoves());
           }
           linenum=-1;
           break;
