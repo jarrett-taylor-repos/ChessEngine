@@ -34,7 +34,6 @@ class U64Bitboard {
     public:
     U64Bitboard() { LoadFen(startFen); };
     U64Bitboard(string fen) { LoadFen(fen); };
-
     U64Bitboard(const U64Bitboard& other) {
         // Copy the scalar members
         this->halfMoveClock = other.halfMoveClock;
@@ -61,7 +60,7 @@ class U64Bitboard {
         this->bRook = other.bRook;
         this->bQueen = other.bQueen;
         this->bKing = other.bKing;
-    }
+    };
     
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
@@ -76,18 +75,52 @@ class U64Bitboard {
 
     void SetBoard(char c, int sq) {
         switch(c) {
-            case 'p': SetBit(bPawn, sq);return;
-            case 'b': SetBit(bBishop, sq);return;
-            case 'n': SetBit(bKnight, sq);return;
-            case 'r': SetBit(bRook, sq);return;
-            case 'q': SetBit(bQueen, sq);return;
-            case 'k': SetBit(bKing, sq);return;
-            case 'P': SetBit(wPawn, sq);return;
-            case 'B': SetBit(wBishop, sq);return;
-            case 'N': SetBit(wKnight, sq);return;
-            case 'R': SetBit(wRook, sq);return;
-            case 'Q': SetBit(wQueen, sq);return;
-            case 'K': SetBit(wKing, sq);return;
+            case 'p': SetBit(bPawn, sq); AddMaterialValue(c); return;
+            case 'b': SetBit(bBishop, sq); AddMaterialValue(c); return;
+            case 'n': SetBit(bKnight, sq); AddMaterialValue(c); return;
+            case 'r': SetBit(bRook, sq); AddMaterialValue(c); return;
+            case 'q': SetBit(bQueen, sq); AddMaterialValue(c); return;
+            case 'k': SetBit(bKing, sq); AddMaterialValue(c); return;
+            case 'P': SetBit(wPawn, sq); AddMaterialValue(c); return;
+            case 'B': SetBit(wBishop, sq); AddMaterialValue(c); return;
+            case 'N': SetBit(wKnight, sq); AddMaterialValue(c); return;
+            case 'R': SetBit(wRook, sq); AddMaterialValue(c); return;
+            case 'Q': SetBit(wQueen, sq); AddMaterialValue(c); return;
+            case 'K': SetBit(wKing, sq); AddMaterialValue(c); return;
+        }
+    }
+
+    void AddMaterialValue(char c) {
+        switch(c) {
+            case 'p': materialValue -= 100; return;
+            case 'b': materialValue -= 325;return;
+            case 'n': materialValue -= 300;return;
+            case 'r': materialValue -= 500;return;
+            case 'q': materialValue -= 900;return;
+            case 'k': materialValue -= 100000;return;
+            case 'P': materialValue += 100;return;
+            case 'B': materialValue += 325;return;
+            case 'N': materialValue += 300;return;
+            case 'R': materialValue += 500;return;
+            case 'Q': materialValue += 900;return;
+            case 'K': materialValue += 100000;return;
+        }
+    }
+
+    void RemoveMaterialValue(char c) {
+        switch(c) {
+            case 'p': materialValue += 100; return;
+            case 'b': materialValue += 325;return;
+            case 'n': materialValue += 300;return;
+            case 'r': materialValue += 500;return;
+            case 'q': materialValue += 900;return;
+            case 'k': materialValue += 100000;return;
+            case 'P': materialValue -= 100;return;
+            case 'B': materialValue -= 325;return;
+            case 'N': materialValue -= 300;return;
+            case 'R': materialValue -= 500;return;
+            case 'Q': materialValue -= 900;return;
+            case 'K': materialValue -= 100000;return;
         }
     }
 
@@ -175,28 +208,19 @@ class U64Bitboard {
         return 0;
     };
 
-    int GetMaterialValue() {
+    int GetMaterialValueOld() {
         int sum = 0;
         for (int i = 0; i<64; i++) {
             sum += GetValueAtIndex(i);
         };
         return sum;
-    }
+    };
+
+    int GetMaterialValue() { return materialValue; };
 
     void ClearBoard() {
-        Reset(wPawn);
-        Reset(wKnight);
-        Reset(wBishop);
-        Reset(wRook);
-        Reset(wQueen);
-        Reset(wKing);
-
-        Reset(bPawn);
-        Reset(bKnight);
-        Reset(bBishop);
-        Reset(bRook);
-        Reset(bQueen);
-        Reset(bKing);
+        Reset(wPawn); Reset(wKnight); Reset(wBishop); Reset(wRook); Reset(wQueen); Reset(wKing);
+        Reset(bPawn); Reset(bKnight); Reset(bBishop); Reset(bRook); Reset(bQueen); Reset(bKing);
     };
 
     U64 GetwPawn() { return wPawn; };
@@ -213,10 +237,7 @@ class U64Bitboard {
     U64 GetbKing() { return bKing; };
 
     bool IsWhiteMove() { return isWhiteMove; };
-    int GetMoveMultiplier() {
-        if(isWhiteMove) return 1;
-        return -1;
-    };
+    int GetMoveMultiplier() { return (isWhiteMove) ? 1 : -1; };
 
     //board functions
     U64 wBoard() { return wPawn | wKnight | wBishop | wRook | wQueen | wKing; };
@@ -768,28 +789,24 @@ class U64Bitboard {
         return moves;
     };
 
-    //make move helpers
-    bool isPromotionSquare(int sq) {
-        if(isWhiteMove) return (sq < 8);
-        return (sq > 55);
-    };
 
+    //make move helpers
     void GetwBoardandResetIndex(int index) {
-        if(TestBit(wPawn, index)) ResetBit(wPawn, index); 
-        if(TestBit(wKnight, index)) ResetBit(wKnight, index); 
-        if(TestBit(wBishop, index)) ResetBit(wBishop, index); 
-        if(TestBit(wRook, index)) ResetBit(wRook, index); 
-        if(TestBit(wQueen, index)) ResetBit(wQueen, index); 
-        if(TestBit(wKing, index)) ResetBit(wKing, index); 
+        if(TestBit(wPawn, index)) ResetBit(wPawn, index); RemoveMaterialValue('P');
+        if(TestBit(wKnight, index)) ResetBit(wKnight, index); RemoveMaterialValue('N');
+        if(TestBit(wBishop, index)) ResetBit(wBishop, index); RemoveMaterialValue('B');
+        if(TestBit(wRook, index)) ResetBit(wRook, index); RemoveMaterialValue('R');
+        if(TestBit(wQueen, index)) ResetBit(wQueen, index); RemoveMaterialValue('Q');
+        if(TestBit(wKing, index)) ResetBit(wKing, index); RemoveMaterialValue('K');
     };
 
     void GetbBoardandResetIndex(int index) {
-        if(TestBit(bPawn, index))  ResetBit(bPawn, index); 
-        if(TestBit(bKnight, index))  ResetBit(bKnight, index); 
-        if(TestBit(bBishop, index))  ResetBit(bBishop, index); 
-        if(TestBit(bRook, index))  ResetBit(bRook, index); 
-        if(TestBit(bQueen, index))  ResetBit(bQueen, index); 
-        if(TestBit(bKing, index))  ResetBit(bKing, index); 
+        if(TestBit(bPawn, index))  ResetBit(bPawn, index); RemoveMaterialValue('p');
+        if(TestBit(bKnight, index))  ResetBit(bKnight, index); RemoveMaterialValue('n');
+        if(TestBit(bBishop, index))  ResetBit(bBishop, index); RemoveMaterialValue('b');
+        if(TestBit(bRook, index))  ResetBit(bRook, index); RemoveMaterialValue('r');
+        if(TestBit(bQueen, index))  ResetBit(bQueen, index); RemoveMaterialValue('q');
+        if(TestBit(bKing, index))  ResetBit(bKing, index); RemoveMaterialValue('k');
     };
 
     void GetwBoardResetStartandSetTarget(int start, int target) {
@@ -810,45 +827,22 @@ class U64Bitboard {
         if(TestBit(bKing, start)) { ResetBit(bKing, start); SetBit(bKing, target);}
     };
 
-    void GetwBoardandSetIndex(int index) {
-        if(TestBit(wPawn, index)) SetBit(wPawn, index); 
-        if(TestBit(wKnight, index)) SetBit(wKnight, index); 
-        if(TestBit(wBishop, index)) SetBit(wBishop, index); 
-        if(TestBit(wRook, index)) SetBit(wRook, index); 
-        if(TestBit(wQueen, index)) SetBit(wQueen, index); 
-        if(TestBit(wKing, index)) SetBit(wKing, index); 
-    };
-
-    void GetbBoardandSetIndex(int index) {
-        if(TestBit(bPawn, index))  SetBit(bPawn, index); 
-        if(TestBit(bKnight, index))  SetBit(bKnight, index); 
-        if(TestBit(bBishop, index))  SetBit(bBishop, index); 
-        if(TestBit(bRook, index))  SetBit(bRook, index); 
-        if(TestBit(bQueen, index))  SetBit(bQueen, index); 
-        if(TestBit(bKing, index))  SetBit(bKing, index); 
-    };
-
     void GetwBoardandSetPromoIndex(int index, char promoP) {
         switch(promoP){
-            case 'q': SetBit(wQueen, index);return;
-            case 'r': SetBit(wRook, index);return;
-            case 'b': SetBit(wBishop, index);return;
-            case 'n': SetBit(wKnight, index);return;
+            case 'q': SetBit(wQueen, index); AddMaterialValue('Q'); return;
+            case 'r': SetBit(wRook, index); AddMaterialValue('R'); return;
+            case 'b': SetBit(wBishop, index); AddMaterialValue('B'); return;
+            case 'n': SetBit(wKnight, index); AddMaterialValue('N'); return;
         } 
     };
 
     void GetbBoardandSetPromoIndex(int index, char promoP) {
         switch(promoP){
-            case 'q': SetBit(bQueen, index);return;
-            case 'r': SetBit(bRook, index);return;
-            case 'b': SetBit(bBishop, index);return;
-            case 'n': SetBit(bKnight, index);return;
+            case 'q': SetBit(bQueen, index); AddMaterialValue('q'); return;
+            case 'r': SetBit(bRook, index); AddMaterialValue('r'); return;
+            case 'b': SetBit(bBishop, index); AddMaterialValue('b'); return;
+            case 'n': SetBit(bKnight, index); AddMaterialValue('n'); return;
         } 
-    };
-
-    void GetBoardandSetIndex(int index) {
-        if(isWhiteMove) return GetwBoardandSetIndex(index); 
-        return GetbBoardandSetIndex(index); 
     };
 
     void GetBoardandResetIndex(int index, bool isCapture) {
@@ -902,20 +896,9 @@ class U64Bitboard {
         GetBoardandSetPromoIndex(targetIndex, promoP);
     };
     
-    void CastleUpdateHelper(U64 &b, int start, int end) {
-        ResetBit(b, start);
-        SetBit(b, end);
-    };
-
-    void wCastleLongUpdate() {
-        CastleUpdateHelper(wRook, 56, 59);
-        CastleUpdateHelper(wKing, 60, 58);
-    };
-
-    void wCastleShortUpdate() {
-        CastleUpdateHelper(wRook, 63, 61);
-        CastleUpdateHelper(wKing, 60, 62);
-    };
+    void CastleUpdateHelper(U64 &b, int start, int end) { ResetBit(b, start); SetBit(b, end); };
+    void wCastleLongUpdate() { CastleUpdateHelper(wRook, 56, 59); CastleUpdateHelper(wKing, 60, 58); };
+    void wCastleShortUpdate() { CastleUpdateHelper(wRook, 63, 61); CastleUpdateHelper(wKing, 60, 62); };
 
     void wCastleUpdate(int targetMinusStart) {
         if(targetMinusStart > 0) {
@@ -925,15 +908,8 @@ class U64Bitboard {
         }
     };
 
-    void bCastleLongUpdate() {
-        CastleUpdateHelper(bRook, 0, 3);
-        CastleUpdateHelper(bKing, 4, 2);
-    };
-
-    void bCastleShortUpdate() {
-        CastleUpdateHelper(bRook, 7, 5);
-        CastleUpdateHelper(bKing, 4, 2);
-    };
+    void bCastleLongUpdate() { CastleUpdateHelper(bRook, 0, 3); CastleUpdateHelper(bKing, 4, 2); };
+    void bCastleShortUpdate() { CastleUpdateHelper(bRook, 7, 5); CastleUpdateHelper(bKing, 4, 2); };
 
     void bCastleUpdate(int targetMinusStart) {
         if(targetMinusStart > 0) {
@@ -976,35 +952,14 @@ class U64Bitboard {
         return GetbBoardMoves(index);
     };
 
+    bool isPromotionSquare(int sq) { if(isWhiteMove) return (sq < 8); return (sq > 55); };
     bool isCapture(int targetSq) { U64 allb = AllBoard(); return TestBit(allb, targetSq); };
+    bool isEnpassant(int startSq, int targetSq) { return isPawnMove(startSq) && (targetSq == enPassantTarget); };
+    bool isKingMove(int startSq) { U64 king = isWhiteMove ? wKing : bKing; return TestBit(king, startSq); };
+    bool isCastle(int startSq, int targetSq) { bool isKing = isKingMove(startSq); bool isCastle = abs(startSq-targetSq) == 2; return isCastle && isKing; };
+    bool isPawnMove(int startSq) { U64 pawn = isWhiteMove ? wPawn : bPawn; return TestBit(pawn, startSq); };
 
-    bool isEnpassant(int startSq, int targetSq) {
-        bool isPawn = isPawnMove(startSq);
-        bool isEnpassant = targetSq == enPassantTarget;
-        return isPawn && isEnpassant;
-    };
-
-    bool isKingMove(int startSq) {
-        U64 king = isWhiteMove ? wKing : bKing;
-        return TestBit(king, startSq); 
-    };
-
-    bool isCastle(int startSq, int targetSq) {
-        bool isKing = isKingMove(startSq);
-        bool isCastle = abs(startSq-targetSq) == 2;
-        return isCastle && isKing;
-    };
-
-    bool isPawnMove(int startSq) { 
-        U64 pawn = isWhiteMove ? wPawn : bPawn;
-        return TestBit(pawn, startSq);
-    };
-
-    bool isDoublePawnMove(int startSq, int targetSq) { 
-        bool pawnmove = isPawnMove(startSq);
-        bool doubleMove = abs(startSq-targetSq) == 16;
-        return pawnmove && doubleMove;
-    };
+    bool isDoublePawnMove(int startSq, int targetSq) { return isPawnMove(startSq) && (abs(startSq-targetSq) == 16); };
 
     void UpdateCastlingRightsFromKing() {
         if(isWhiteMove) {
@@ -1024,8 +979,9 @@ class U64Bitboard {
     };
 
     //making moves 
+    bool PossibleMoveIsACapture(int startSq, int targetSq) { return isCapture(targetSq) || isEnpassant(startSq, targetSq); };
+
     bool MakeMove(string move) {
-        //determine board and moves
         string startSquare = move.substr(0, 2);
         string targetSquare = move.substr(2, 2);
         int startIndex = StringtoIndex(startSquare);
@@ -1036,7 +992,6 @@ class U64Bitboard {
     };
 
     bool MakeMove(int startSq, int targetSq, char promoP = ' ') {
-        //determine board and moves
         U64 movesBoard = GetMovesByBoard(startSq);
         if(movesBoard == C64(0) || !TestBit(movesBoard, targetSq)) return false;
 
