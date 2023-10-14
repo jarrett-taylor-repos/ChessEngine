@@ -33,7 +33,35 @@ class U64Bitboard {
     U64Bitboard() { LoadFen(startFen); };
     U64Bitboard(string fen) { LoadFen(fen); };
 
-    void LoadFenHelper(vector<string> arguments) {
+    U64Bitboard(const U64Bitboard& other) {
+            // Copy the scalar members
+            this->halfMoveClock = other.halfMoveClock;
+            this->fullTurnNum = other.fullTurnNum;
+            this->enPassantTarget = other.enPassantTarget;
+            this->currFen = other.currFen;
+            this->isWhiteMove = other.isWhiteMove;
+            this->castlingRights = other.castlingRights;
+
+            // Copy the map members
+            this->hashFen = other.hashFen;
+
+            // Copy the U64 members
+            this->wPawn = other.wPawn;
+            this->wKnight = other.wKnight;
+            this->wBishop = other.wBishop;
+            this->wRook = other.wRook;
+            this->wQueen = other.wQueen;
+            this->wKing = other.wKing;
+
+            this->bPawn = other.bPawn;
+            this->bKnight = other.bKnight;
+            this->bBishop = other.bBishop;
+            this->bRook = other.bRook;
+            this->bQueen = other.bQueen;
+            this->bKing = other.bKing;
+        }
+    
+     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
         currFen = arguments[0];
         string moveColor = arguments[1];
@@ -127,6 +155,31 @@ class U64Bitboard {
         if(TestBit(bQueen, index)) return "q";
         if(TestBit(bKing, index)) return "k";
     };
+
+    int GetValueAtIndex(int index) {
+        if(TestBit(wPawn, index)) return 1;
+        if(TestBit(wKnight, index)) return 3;
+        if(TestBit(wBishop, index)) return 3;
+        if(TestBit(wRook, index)) return 5;
+        if(TestBit(wQueen, index)) return 9;
+        if(TestBit(wKing, index)) return 1000;
+
+        if(TestBit(bPawn, index)) return -1;
+        if(TestBit(bKnight, index)) return -3;
+        if(TestBit(bBishop, index)) return -3;
+        if(TestBit(bRook, index)) return -5;
+        if(TestBit(bQueen, index)) return -9;
+        if(TestBit(bKing, index)) return -1000;
+        return 0;
+    };
+
+    int GetMaterialValue() {
+        int sum = 0;
+        for (int i = 0; i<64; i++) {
+            sum += GetValueAtIndex(i);
+        };
+        return sum;
+    }
 
     void ClearBoard() {
         Reset(wPawn);

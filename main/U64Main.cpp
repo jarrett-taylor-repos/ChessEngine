@@ -37,15 +37,27 @@ int main () {
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get get stored moves: " + to_string(duration.count()) << endl;
 
+
+    start = high_resolution_clock::now();
+    U64Bitboard copy =  u64;
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Time to copy board: " + to_string(duration.count()) << endl;
+
+    start = high_resolution_clock::now();
+    int materialadv =  u64.GetMaterialValue();
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Time find material advantage of "<<materialadv<<": " + to_string(duration.count()) << endl;
+
+    //Print(mapmoves, "mapmoves");
+
+    // u64.PrintAllBoards();
         start = high_resolution_clock::now();
         movemade = u64.MakeMove("e8c8");//e8g8
         stop = high_resolution_clock::now();
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get make move: " + to_string(duration.count()) << endl;
-    */
-
-
-    /*
         string fen = u64.GetFen();
         cout << fen << endl;
 
