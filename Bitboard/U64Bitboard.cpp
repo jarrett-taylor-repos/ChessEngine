@@ -28,6 +28,8 @@ class U64Bitboard {
     map<char, bool> castlingRights;
     map<string, int> hashFen; //used to see 3 move repition of fen, will be used in the future
 
+    int materialValue;
+
 
     public:
     U64Bitboard() { LoadFen(startFen); };
@@ -210,7 +212,11 @@ class U64Bitboard {
     U64 GetbQueen() { return bQueen; };
     U64 GetbKing() { return bKing; };
 
-    bool GetMoveColor() { return isWhiteMove; };
+    bool IsWhiteMove() { return isWhiteMove; };
+    int GetMoveMultiplier() {
+        if(isWhiteMove) return 1;
+        return -1;
+    };
 
     //board functions
     U64 wBoard() { return wPawn | wKnight | wBishop | wRook | wQueen | wKing; };
