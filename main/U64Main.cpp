@@ -2,42 +2,48 @@
 
 int main () {
     U64Bitboard u64;
-
-    u64.LoadFen("r3k2r/pp1bqppp/2n1pn2/2pp2B1/1bPP4/2N1PN2/PP1QBPPP/R3K2R w KQkq - 5 9");//castling
-
-    auto start = high_resolution_clock::now();
-    U64 moves =  u64.GetMoves();
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
-
-    start = high_resolution_clock::now();
-    bool movemade = u64.MakeMove("e1c1");//e1g1
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "Time to get make move: " + to_string(duration.count()) << endl;
-
-    u64.PrintAllBoards();
-
-    string currfen = u64.GetFen();
-    cout << currfen << endl;
-
+    u64.LoadFen("1r2kbnr/p1p1pppp/p1p1b3/8/1n1q1P2/8/6PP/RNBQKBNR b KQk f3 0 12");
     multimap<int, pair<int, char>> mapmoves;
-    start = high_resolution_clock::now();
     u64.GetMapMoves(mapmoves);
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "Time to get get stored moves: " + to_string(duration.count()) << endl;
+    Print(mapmoves, "mapmoves");
 
-    start = high_resolution_clock::now();
-    movemade = u64.MakeMove("e8c8");//e8g8
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "Time to get make move: " + to_string(duration.count()) << endl;
+    //u64.PrintAllBoards();
 
-    //Print(mapmoves, "mapmoves");
 
-    u64.PrintAllBoards();
+    /*
+        u64.LoadFen("r3k2r/pp1bqppp/2n1pn2/2pp2B1/1bPP4/2N1PN2/PP1QBPPP/R3K2R w KQkq - 5 9");//castling
+
+        auto start = high_resolution_clock::now();
+        U64 moves =  u64.GetMoves();
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
+
+        start = high_resolution_clock::now();
+        bool movemade = u64.MakeMove("e1c1");//e1g1
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        cout << "Time to get make move: " + to_string(duration.count()) << endl;
+
+        u64.PrintAllBoards();
+
+        string currfen = u64.GetFen();
+        cout << currfen << endl;
+
+        multimap<int, pair<int, char>> mapmoves;
+        start = high_resolution_clock::now();
+        u64.GetMapMoves(mapmoves);
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        cout << "Time to get get stored moves: " + to_string(duration.count()) << endl;
+
+        start = high_resolution_clock::now();
+        movemade = u64.MakeMove("e8c8");//e8g8
+        stop = high_resolution_clock::now();
+        duration = duration_cast<microseconds>(stop - start);
+        cout << "Time to get make move: " + to_string(duration.count()) << endl;
+    */
+
 
     /*
         string fen = u64.GetFen();
