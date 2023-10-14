@@ -34,34 +34,34 @@ class U64Bitboard {
     U64Bitboard(string fen) { LoadFen(fen); };
 
     U64Bitboard(const U64Bitboard& other) {
-            // Copy the scalar members
-            this->halfMoveClock = other.halfMoveClock;
-            this->fullTurnNum = other.fullTurnNum;
-            this->enPassantTarget = other.enPassantTarget;
-            this->currFen = other.currFen;
-            this->isWhiteMove = other.isWhiteMove;
-            this->castlingRights = other.castlingRights;
+        // Copy the scalar members
+        this->halfMoveClock = other.halfMoveClock;
+        this->fullTurnNum = other.fullTurnNum;
+        this->enPassantTarget = other.enPassantTarget;
+        this->currFen = other.currFen;
+        this->isWhiteMove = other.isWhiteMove;
+        this->castlingRights = other.castlingRights;
 
-            // Copy the map members
-            this->hashFen = other.hashFen;
+        // Copy the map members
+        this->hashFen = other.hashFen;
 
-            // Copy the U64 members
-            this->wPawn = other.wPawn;
-            this->wKnight = other.wKnight;
-            this->wBishop = other.wBishop;
-            this->wRook = other.wRook;
-            this->wQueen = other.wQueen;
-            this->wKing = other.wKing;
+        // Copy the U64 members
+        this->wPawn = other.wPawn;
+        this->wKnight = other.wKnight;
+        this->wBishop = other.wBishop;
+        this->wRook = other.wRook;
+        this->wQueen = other.wQueen;
+        this->wKing = other.wKing;
 
-            this->bPawn = other.bPawn;
-            this->bKnight = other.bKnight;
-            this->bBishop = other.bBishop;
-            this->bRook = other.bRook;
-            this->bQueen = other.bQueen;
-            this->bKing = other.bKing;
-        }
+        this->bPawn = other.bPawn;
+        this->bKnight = other.bKnight;
+        this->bBishop = other.bBishop;
+        this->bRook = other.bRook;
+        this->bQueen = other.bQueen;
+        this->bKing = other.bKing;
+    }
     
-     void LoadFenHelper(vector<string> arguments) {
+    void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
         currFen = arguments[0];
         string moveColor = arguments[1];
@@ -210,10 +210,7 @@ class U64Bitboard {
     U64 GetbQueen() { return bQueen; };
     U64 GetbKing() { return bKing; };
 
-    int GetMoveColor() {
-        if(isWhiteMove) return 1;
-        return -1;
-    };
+    bool GetMoveColor() { return isWhiteMove; };
 
     //board functions
     U64 wBoard() { return wPawn | wKnight | wBishop | wRook | wQueen | wKing; };
