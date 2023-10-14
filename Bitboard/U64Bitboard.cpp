@@ -32,6 +32,7 @@ class U64Bitboard {
     public:
     U64Bitboard() { LoadFen(startFen); };
     U64Bitboard(string fen) { LoadFen(fen); };
+
     U64Bitboard(const U64Bitboard& other) {
             // Copy the scalar members
             this->halfMoveClock = other.halfMoveClock;
@@ -295,7 +296,7 @@ class U64Bitboard {
         U64 eastcaptures = (wpatt & bBoard()) | (wpatt & enpass);
         return eastcaptures;
     };
-    U64 wPawnAllCaptures(U64 b) { return wPawnEastCaptures(b) | wPawnWestCaptures(b); };
+    U64 wPawnAllCaptures(U64 b) { return (wPawnEastCaptures(b) | wPawnWestCaptures(b)) & NotwBoard(); };
     U64 bPawnWestCaptures(U64 b) { 
         U64 bpatt = bPawnWestAtt(b);
         U64 enpass = SingleBitBoard(enPassantTarget);
@@ -308,7 +309,7 @@ class U64Bitboard {
         U64 eastcaptures = (bpatt & wBoard()) | (bpatt & enpass);
         return eastcaptures;
     };
-    U64 bPawnAllCaptures(U64 b) { return bPawnEastCaptures(b) | bPawnWestCaptures(b); };
+    U64 bPawnAllCaptures(U64 b) { return (bPawnEastCaptures(b) | bPawnWestCaptures(b)) & NotwBoard(); };
 
     U64 wPawnMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
     U64 bPawnMoves(U64 b) { return bPawnAllCaptures(b) | bPawnPushes(b); };
@@ -567,8 +568,6 @@ class U64Bitboard {
         if(isWhiteMove) return TestBit(wPawn, sq);
         return TestBit(bPawn, sq);
     };
-
-    
     //all moves
     U64 wMoves() { return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves(); };
     U64 bMoves() { return bPawnMoves() | bKnightMoves() | bBishopMoves() | bRookMoves() | bQueenMoves() | bKingMoves(); };
@@ -1079,8 +1078,8 @@ class U64Bitboard {
         
         //move side, move num and half clock num 
         isMovePawn || isCaptureMove ? halfMoveClock = 0: halfMoveClock++;
-        if(isWhiteMove) { fullTurnNum++; }
         isWhiteMove = !isWhiteMove;
+        if(isWhiteMove) { fullTurnNum++; }
 
         return true;
     };
