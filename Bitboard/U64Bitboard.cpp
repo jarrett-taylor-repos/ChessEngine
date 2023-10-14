@@ -860,9 +860,9 @@ class U64Bitboard {
             } 
         } else {
             if(isCapture) {
-                GetbBoardandResetIndex(index); 
-            } else {
                 GetwBoardandResetIndex(index); 
+            } else {
+                GetbBoardandResetIndex(index); 
             }
         }
     };
