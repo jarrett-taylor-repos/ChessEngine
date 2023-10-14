@@ -301,7 +301,7 @@ class U64Bitboard {
         U64 eastcaptures = (wpatt & bBoard()) | (wpatt & enpass);
         return eastcaptures;
     };
-    U64 wPawnAllCaptures(U64 b) { return (wPawnEastCaptures(b) | wPawnWestCaptures(b)) & NotwBoard(); };
+    U64 wPawnAllCaptures(U64 b) { return (wPawnEastCaptures(b) | wPawnWestCaptures(b)) & bBoard(); };
     U64 bPawnWestCaptures(U64 b) { 
         U64 bpatt = bPawnWestAtt(b);
         U64 enpass = SingleBitBoard(enPassantTarget);
@@ -314,7 +314,7 @@ class U64Bitboard {
         U64 eastcaptures = (bpatt & wBoard()) | (bpatt & enpass);
         return eastcaptures;
     };
-    U64 bPawnAllCaptures(U64 b) { return (bPawnEastCaptures(b) | bPawnWestCaptures(b)) & NotwBoard(); };
+    U64 bPawnAllCaptures(U64 b) { return (bPawnEastCaptures(b) | bPawnWestCaptures(b)) & wBoard(); };
 
     U64 wPawnMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
     U64 bPawnMoves(U64 b) { return bPawnAllCaptures(b) | bPawnPushes(b); };
@@ -616,8 +616,7 @@ class U64Bitboard {
     void GetwMapPawnMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wPawn);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 pawnMoves = wPawnMoves(temp);
             U64ToMapMoves(moves, sq, pawnMoves, true, true);
         }
@@ -626,8 +625,7 @@ class U64Bitboard {
     void GetbMapPawnMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bPawn);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 pawnMoves = bPawnMoves(temp);
             U64ToMapMoves(moves, sq, pawnMoves, true, false);
         }
@@ -636,8 +634,7 @@ class U64Bitboard {
     void GetwMapKnightMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wKnight);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 watt = KnightAttacks(temp);
             U64 knightMoves = watt & NotwBoard();
             U64ToMapMoves(moves, sq, knightMoves);
@@ -647,8 +644,7 @@ class U64Bitboard {
     void GetbMapKnightMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bKnight);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 batt = KnightAttacks(temp);
             U64 knightMoves = batt & NotbBoard();
             U64ToMapMoves(moves, sq, knightMoves);
@@ -658,8 +654,7 @@ class U64Bitboard {
     void GetwMapBishopMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wBishop);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 watt = BishopAttacks(temp);
             U64 bMoves = watt & ~(watt & wBoard());
             U64ToMapMoves(moves, sq, bMoves);
@@ -669,8 +664,7 @@ class U64Bitboard {
     void GetbMapBishopMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bBishop);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 batt = BishopAttacks(temp);
             U64 bMoves = batt & ~(batt & bBoard());
             U64ToMapMoves(moves, sq, bMoves);
@@ -680,8 +674,7 @@ class U64Bitboard {
     void GetwMapRookMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wRook);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 watt = RookAttacks(temp);
             U64 rMoves = watt & ~(watt & wBoard());
             U64ToMapMoves(moves, sq, rMoves);
@@ -691,8 +684,7 @@ class U64Bitboard {
     void GetbMapRookMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bRook);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 batt = RookAttacks(temp);
             U64 rMoves = batt & ~(batt & bBoard());
             U64ToMapMoves(moves, sq, rMoves);

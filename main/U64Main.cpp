@@ -2,14 +2,14 @@
 
 int main () {
     U64Bitboard u64;
-    u64.LoadFen("r1bqkbnr/pPpppppp/8/8/1n6/8/2PPPPPP/RNBQKBNR b KQk - 0 5");
+    u64.LoadFen("1rbqkbnr/pPpppppp/8/P7/8/8/2PPPPPP/RNBQKBNR w KQk - 1 7");
     multimap<int, pair<int, char>> mapmoves;
     u64.GetMapMoves(mapmoves);
     Print(mapmoves, "mapmoves");
 
-    bool movemade = u64.MakeMove("c8b7");
+    //bool movemade = u64.MakeMove("c8b7");
 
-    u64.PrintAllBoards();
+    //u64.PrintAllBoards();
 
 
     /*
