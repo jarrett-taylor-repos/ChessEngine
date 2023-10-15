@@ -245,6 +245,7 @@ class U64Bitboard {
     U64 wBoard() { return wPawn | wKnight | wBishop | wRook | wQueen | wKing; };
     U64 bBoard() { return bPawn | bKnight | bBishop | bRook | bQueen | bKing; };
     U64 AllBoard() { return wBoard() | bBoard(); };
+    U64 AllKing() { return wKing | bKing; };
 
     U64 EmptyBoard() { return ~AllBoard(); };
     U64 NotbBoard() { return ~bBoard(); };
@@ -992,6 +993,7 @@ class U64Bitboard {
 
     bool isPromotionSquare(int sq) { if(isWhiteMove) return (sq < 8); return (sq > 55); };
     bool isCapture(int targetSq) { U64 allb = AllBoard(); return TestBit(allb, targetSq); };
+    bool isKingCapture(int targetSq) { U64 kingb = AllKing(); return TestBit(kingb, targetSq); };
     bool isEnpassant(int startSq, int targetSq) { return isPawnMove(startSq) && (targetSq == enPassantTarget); };
     bool isKingMove(int startSq) { U64 king = isWhiteMove ? wKing : bKing; return TestBit(king, startSq); };
     bool isCastle(int startSq, int targetSq) { bool isKing = isKingMove(startSq); bool isCastle = abs(startSq-targetSq) == 2; return isCastle && isKing; };
