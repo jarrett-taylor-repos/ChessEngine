@@ -42,6 +42,7 @@ class U64Bitboard {
         this->currFen = other.currFen;
         this->isWhiteMove = other.isWhiteMove;
         this->castlingRights = other.castlingRights;
+        this->materialValue = other.materialValue;
 
         // Copy the map members
         this->hashFen = other.hashFen;
@@ -125,6 +126,7 @@ class U64Bitboard {
     }
 
     void LoadFen(string fen) {
+        materialValue = 0;
         LoadFenHelper(Split(fen));
 
         int sq = 0;
@@ -532,6 +534,26 @@ class U64Bitboard {
         return moves;
     };
 
+    U64 QueenAttacks(U64 qBoard) {
+        U64 moves = 0;
+        vector<int> indexes = GetTrueBits(qBoard);
+        for(int sq : indexes) {
+            moves |= RookAttacksBySquare(sq);
+            moves |= BishopAttacksBySquare(sq);
+        }
+        return moves;
+    };
+
+    U64 QueenAttacks(U64 qBoard, U64 occ) {
+        U64 moves = 0;
+        vector<int> indexes = GetTrueBits(qBoard);
+        for(int sq : indexes) {
+            moves |= RookAttacksBySquare(qBoard, sq);
+            moves |= BishopAttacksBySquare(qBoard, sq);
+        }
+        return moves;
+    };
+
     //sliding moves
     U64 wBishopAttacks() { return BishopAttacks(wBishop); };
     U64 bBishopAttacks() { return BishopAttacks(bBishop); };
@@ -592,12 +614,49 @@ class U64Bitboard {
         return xrayattcks;
     };
 
+    U64 xRaywQueenAttacks() {
+        U64 wqueenmoves =  wQueenMoves();
+        U64 occ = AllBoard();
+        U64 blockers = wqueenmoves & occ;
+        blockers &= wqueenmoves;
+        U64 occAttacks = QueenAttacks(wQueen, occ ^ blockers);
+        U64 xrayattcks = (wqueenmoves ^ occAttacks) & bBoard();
+        return xrayattcks;
+    };
+
+    U64 xRaybQueenAttacks() {
+        U64 bqueenmoves =  bQueenMoves();
+        U64 occ = AllBoard();
+        U64 blockers = bqueenmoves & occ;
+        blockers &= bqueenmoves;
+        U64 occAttacks = QueenAttacks(bBishop, occ ^ blockers);
+        U64 xrayattcks = (bqueenmoves ^ occAttacks) & wBoard();
+        return xrayattcks;
+    };
+
+    U64 xRaywAttacks() { return xRaywRookAttacks() | xRaywBishopAttacks() | xRaywQueenAttacks(); };
+    U64 xRaybAttacks() { return xRaybRookAttacks() | xRaybBishopAttacks() | xRaybQueenAttacks(); };
+
+    U64 xRayAttacks() { 
+        if(isWhiteMove) return xRaybAttacks();
+        return xRaywAttacks();
+    };
+    
+
     //making moves helpers 
     bool isPawn(int sq) {
         if(isWhiteMove) return TestBit(wPawn, sq);
         return TestBit(bPawn, sq);
     };
+
+
     //all moves
+    U64 wMovesWithCheck() {
+        //if double check - move king to non occupied string  
+        //if single check - move king, capture piece or block
+        //else return all normal moves with pinned logic
+    }
+
     U64 wMoves() { return wPawnMoves() | wKnightMoves() | wBishopMoves() | wRookMoves() | wQueenMoves() | wKingMoves(); };
     U64 bMoves() { return bPawnMoves() | bKnightMoves() | bBishopMoves() | bRookMoves() | bQueenMoves() | bKingMoves(); };
 
@@ -718,8 +777,7 @@ class U64Bitboard {
     void GetwMapQueenMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wQueen);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 wbatt = BishopAttacks(temp);
             U64 wratt = RookAttacks(temp);
             U64 watt = wratt | wbatt;
@@ -731,8 +789,7 @@ class U64Bitboard {
     void GetbMapQueenMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bQueen);
         for(int sq : indexes) {
-            U64 temp = 0;
-            SetBit(temp, sq);
+            U64 temp = SingleBitBoard(sq);
             U64 bbatt = BishopAttacks(temp);
             U64 bratt = RookAttacks(temp);
             U64 batt = bratt | bbatt;
@@ -772,41 +829,34 @@ class U64Bitboard {
     };
 
     void GetMapMoves(multimap<int, pair<int, char>> &moves) {
-        if(isWhiteMove) {
-            GetwMapMoves(moves);
-        } else {
-            GetbMapMoves(moves);
-        }
+        if(isWhiteMove) return GetwMapMoves(moves);
+        return GetbMapMoves(moves);
     };
 
     multimap<int, pair<int, char>> GetMapMoves() {
         multimap<int, pair<int, char>> moves;
-        if(isWhiteMove) {
-            GetwMapMoves(moves);
-        } else {
-            GetbMapMoves(moves);
-        }
+        GetMapMoves(moves);
         return moves;
     };
 
 
     //make move helpers
     void GetwBoardandResetIndex(int index) {
-        if(TestBit(wPawn, index)) ResetBit(wPawn, index); RemoveMaterialValue('P');
-        if(TestBit(wKnight, index)) ResetBit(wKnight, index); RemoveMaterialValue('N');
-        if(TestBit(wBishop, index)) ResetBit(wBishop, index); RemoveMaterialValue('B');
-        if(TestBit(wRook, index)) ResetBit(wRook, index); RemoveMaterialValue('R');
-        if(TestBit(wQueen, index)) ResetBit(wQueen, index); RemoveMaterialValue('Q');
-        if(TestBit(wKing, index)) ResetBit(wKing, index); RemoveMaterialValue('K');
+        if(TestBit(wPawn, index)) { ResetBit(wPawn, index); RemoveMaterialValue('P'); }
+        if(TestBit(wKnight, index)) { ResetBit(wKnight, index); RemoveMaterialValue('N'); }
+        if(TestBit(wBishop, index)) { ResetBit(wBishop, index); RemoveMaterialValue('B'); } 
+        if(TestBit(wRook, index)) { ResetBit(wRook, index); RemoveMaterialValue('R'); }
+        if(TestBit(wQueen, index)) { ResetBit(wQueen, index); RemoveMaterialValue('Q'); }
+        if(TestBit(wKing, index)) { ResetBit(wKing, index); RemoveMaterialValue('K'); } 
     };
 
     void GetbBoardandResetIndex(int index) {
-        if(TestBit(bPawn, index))  ResetBit(bPawn, index); RemoveMaterialValue('p');
-        if(TestBit(bKnight, index))  ResetBit(bKnight, index); RemoveMaterialValue('n');
-        if(TestBit(bBishop, index))  ResetBit(bBishop, index); RemoveMaterialValue('b');
-        if(TestBit(bRook, index))  ResetBit(bRook, index); RemoveMaterialValue('r');
-        if(TestBit(bQueen, index))  ResetBit(bQueen, index); RemoveMaterialValue('q');
-        if(TestBit(bKing, index))  ResetBit(bKing, index); RemoveMaterialValue('k');
+        if(TestBit(bPawn, index))  { ResetBit(bPawn, index); RemoveMaterialValue('p'); } 
+        if(TestBit(bKnight, index))  { ResetBit(bKnight, index); RemoveMaterialValue('n'); } 
+        if(TestBit(bBishop, index))  { ResetBit(bBishop, index); RemoveMaterialValue('b'); } 
+        if(TestBit(bRook, index))  { ResetBit(bRook, index); RemoveMaterialValue('r'); } 
+        if(TestBit(bQueen, index))  { ResetBit(bQueen, index); RemoveMaterialValue('q'); } 
+        if(TestBit(bKing, index))  { ResetBit(bKing, index); RemoveMaterialValue('k'); } 
     };
 
     void GetwBoardResetStartandSetTarget(int start, int target) {
@@ -846,19 +896,11 @@ class U64Bitboard {
     };
 
     void GetBoardandResetIndex(int index, bool isCapture) {
-        if(isWhiteMove) {
-            if(isCapture)  {
-                GetbBoardandResetIndex(index); 
-            } else {
-                GetwBoardandResetIndex(index); 
-            } 
-        } else {
-            if(isCapture) {
-                GetwBoardandResetIndex(index); 
-            } else {
-                GetbBoardandResetIndex(index); 
-            }
-        }
+        if(isWhiteMove && isCapture) return GetbBoardandResetIndex(index);
+        if(isWhiteMove && !isCapture) return GetwBoardandResetIndex(index);
+
+        if(!isWhiteMove && isCapture) return GetwBoardandResetIndex(index);
+        if(!isWhiteMove && !isCapture) return GetbBoardandResetIndex(index);
     };
 
     void GetBoardandSetPromoIndex(int index, char promoP) {
@@ -895,37 +937,33 @@ class U64Bitboard {
         GetBoardandResetIndex(startIndex, false);
         GetBoardandSetPromoIndex(targetIndex, promoP);
     };
+
+    void PromotionUpdate(bool isCap, int startIndex, int targetIndex, char promoP) {
+        if(isCap) return CapturePromoUpdate(startIndex, targetIndex, promoP);
+        QuietPromoUpdate(startIndex, targetIndex, promoP);
+    };
     
     void CastleUpdateHelper(U64 &b, int start, int end) { ResetBit(b, start); SetBit(b, end); };
     void wCastleLongUpdate() { CastleUpdateHelper(wRook, 56, 59); CastleUpdateHelper(wKing, 60, 58); };
     void wCastleShortUpdate() { CastleUpdateHelper(wRook, 63, 61); CastleUpdateHelper(wKing, 60, 62); };
 
     void wCastleUpdate(int targetMinusStart) {
-        if(targetMinusStart > 0) {
-            wCastleShortUpdate();
-        } else {
-            wCastleLongUpdate();
-        }
+        if(targetMinusStart > 0) return wCastleShortUpdate();
+        return wCastleLongUpdate();
     };
 
     void bCastleLongUpdate() { CastleUpdateHelper(bRook, 0, 3); CastleUpdateHelper(bKing, 4, 2); };
     void bCastleShortUpdate() { CastleUpdateHelper(bRook, 7, 5); CastleUpdateHelper(bKing, 4, 2); };
 
     void bCastleUpdate(int targetMinusStart) {
-        if(targetMinusStart > 0) {
-            bCastleShortUpdate();
-        } else {
-            bCastleLongUpdate();
-        }
+        if(targetMinusStart > 0) return bCastleShortUpdate();
+        return bCastleLongUpdate();
     };
 
     void CastleUpdate(int targetMinusStart) {
-        if(isWhiteMove) {
-            wCastleUpdate(targetMinusStart);
-        } else {
-            bCastleUpdate(targetMinusStart);
-        }
-    }
+        if(isWhiteMove) return wCastleUpdate(targetMinusStart);
+        return bCastleUpdate(targetMinusStart);
+    };
 
     U64 GetwBoardMoves(int index) {
         if(TestBit(wPawn, index)) return wPawnMoves(); 
@@ -1004,24 +1042,19 @@ class U64Bitboard {
         bool isDoublePawn = isDoublePawnMove(startSq, targetSq);
         bool isEnpassantMove = isEnpassant(startSq, targetSq);
 
-
-        if(isPromotion) { //test if promotion
-            if(isCaptureMove) {
-                CapturePromoUpdate(startSq, targetSq, promoP);
-            } else {
-                QuietPromoUpdate(startSq, targetSq, promoP);
-            }
-        } else if (isCastleMove) { //test if castle
+        //board updates 
+        if(isPromotion) {
+            PromotionUpdate(isCaptureMove, startSq, targetSq, promoP);
+        } else if (isCastleMove) {
             CastleUpdate(targetSq - startSq);
-        } else if(isEnpassantMove) { //test if enpassant 
+        } else if(isEnpassantMove) {
             int offsetSq = isWhiteMove ? enPassantTarget + 8 : enPassantTarget - 8; 
             EnpassantMoveUpdate(startSq, targetSq, offsetSq);
-        } else if(isCaptureMove) { //test if capture
+        } else if(isCaptureMove) {
             CaptureMoveUpdate(startSq, targetSq); 
         } else {
             QuietMoveUpdate(startSq, targetSq);
         }
-
 
         //castling right update
         isMoveKing ? UpdateCastlingRightsFromKing() : UpdateCastlingRightsFromRook(startSq, targetSq);
@@ -1038,9 +1071,6 @@ class U64Bitboard {
 
         return true;
     };
-
-
-
 
     //misc
     void PrintAllBoards() {

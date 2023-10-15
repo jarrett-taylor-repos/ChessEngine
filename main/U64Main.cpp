@@ -2,10 +2,33 @@
 
 int main () {
     U64Bitboard u64;
-    u64.LoadFen("1rbqkbnr/pPpppppp/8/P7/8/8/2PPPPPP/RNBQKBNR w KQk - 1 7");
+    u64.MakeMove("e2e4");
+    u64.MakeMove("d7d5");
+    u64.MakeMove("e4d5");
+    cout << u64.GetMaterialValue();
+
+
+    u64.LoadFen("rnb1k1n1/pppppppp/8/4r3/1b5q/4N3/PPPP1PPP/RNBQKB1R w KQq - 0 1");
+
+    U64 xrayatt = u64.xRayAttacks();
+
+    U64 brookmoves = u64.bRookMoves();
+    U64 occ = u64.AllBoard();
+    U64 blockers = brookmoves & occ;
+    blockers &= brookmoves;
+    U64 occAttacks = u64.RookAttacks(u64.GetbRook(), occ ^ blockers);
+    U64 xrayattcks = (brookmoves ^ occAttacks) & u64.wBoard();
+    //Print(occ, "occ");
+    //Print(brookmoves, "brookmoves");
+    //Print(blockers, "blockers");
+    //Print(occAttacks, "occAttacks");
+    //Print(xrayattcks, "xrayattcks");
+    //Print(xrayatt, "xrayatt");
+
+
     multimap<int, pair<int, char>> mapmoves;
     u64.GetMapMoves(mapmoves);
-    Print(mapmoves, "mapmoves");
+    //Print(mapmoves, "mapmoves");
 
     //bool movemade = u64.MakeMove("c8b7");
 
