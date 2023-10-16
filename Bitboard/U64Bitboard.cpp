@@ -423,7 +423,7 @@ class U64Bitboard {
     };
 
     bool ValidTravel(U64 occ, U64 overlap, int offset) { 
-        U64 notocc = !occ;
+        U64 notocc = ~occ;
         return InBounds(offset) && TestBit(overlap, offset) && TestBit(notocc, offset); 
     };
     bool ValidTravelAtt(U64 occ, U64 overlap, int offset) { return InBounds(offset) && TestBit(overlap, offset) && TestBit(occ, offset); };
@@ -574,65 +574,42 @@ class U64Bitboard {
     U64 wAttacks() { return wPawnAllAtt() | wKingAtt() | wKnightAtt() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
     U64 bAttacks() { return bPawnAllAtt() | bKingAtt() | bKnightAtt() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
 
-    U64 xRaywRookAttacks() {
-        U64 wrookmoves = wRookMoves();
+    U64 xRayBishopAttacks(U64 moves, U64 pieceBoard, U64 colorBoard) {
         U64 occ = AllBoard();
-        U64 blockers = wrookmoves & occ;
-        blockers &= wrookmoves;
-        U64 occAttacks = RookAttacks(wRook, occ ^ blockers);
-        U64 xrayattcks = (wrookmoves ^ occAttacks) & bBoard();
+        U64 blockers = moves & occ;
+        U64 occAttacks = BishopAttacks(pieceBoard, occ ^ blockers);
+        U64 movesXORoccatt = moves ^ occAttacks;
+        U64 xrayattcks = (movesXORoccatt) & colorBoard;
         return xrayattcks;
     };
 
-    U64 xRaybRookAttacks() {
-        U64 brookmoves = bRookMoves();
+    U64 xRayRookAttacks(U64 moves, U64 pieceBoard, U64 colorBoard) {
         U64 occ = AllBoard();
-        U64 blockers = brookmoves & occ;
-        blockers &= brookmoves;
-        U64 occAttacks = RookAttacks(bRook, occ ^ blockers);
-        U64 xrayattcks = (brookmoves ^ occAttacks) & wBoard();
+        U64 blockers = moves & occ;
+        U64 occAttacks = RookAttacks(pieceBoard, occ ^ blockers);
+        U64 movesXORoccatt = moves ^ occAttacks;
+        U64 xrayattcks = (movesXORoccatt) & colorBoard;
         return xrayattcks;
     };
-
-    U64 xRaywBishopAttacks() {
-        U64 wbishopmoves =  wBishopMoves();
-        U64 occ = AllBoard();
-        U64 blockers = wbishopmoves & occ;
-        blockers &= wbishopmoves;
-        U64 occAttacks = BishopAttacks(wBishop, occ ^ blockers);
-        U64 xrayattcks = (wbishopmoves ^ occAttacks) & bBoard();
-        return xrayattcks;
-    };
-
-    U64 xRaybBishopAttacks() {
-        U64 bbishopmoves =  bBishopMoves();
-        U64 occ = AllBoard();
-        U64 blockers = bbishopmoves & occ;
-        blockers &= bbishopmoves;
-        U64 occAttacks = BishopAttacks(bBishop, occ ^ blockers);
-        U64 xrayattcks = (bbishopmoves ^ occAttacks) & wBoard();
-        return xrayattcks;
-    };
+    
+    U64 xRaywRookAttacks() { return xRayRookAttacks(wRookMoves(), wRook, bBoard()); };
+    U64 xRaybRookAttacks() { return xRayRookAttacks(bRookMoves(), bRook, wBoard()); };
+    U64 xRaywBishopAttacks() { return xRayBishopAttacks(wBishopMoves(), wBishop, bBoard()); };
+    U64 xRaybBishopAttacks() { return xRayBishopAttacks(bBishopMoves(), bBishop, wBoard()); };
 
     U64 xRaywQueenAttacks() {
         U64 wqueenmoves =  wQueenMoves();
-        U64 occ = AllBoard();
-        U64 blockers = wqueenmoves & occ;
-        blockers &= wqueenmoves;
-        U64 occAttacks = QueenAttacks(wQueen, occ ^ blockers);
-        U64 xrayattcks = (wqueenmoves ^ occAttacks) & bBoard();
-        return xrayattcks;
+        U64 queenXrayBishopatt = xRayBishopAttacks(wqueenmoves, wQueen, bBoard());
+        U64 queenXrayRookatt = xRayRookAttacks(wqueenmoves, wQueen, bBoard());
+        return (queenXrayBishopatt ^ queenXrayRookatt) & ~wqueenmoves;
     };
 
     U64 xRaybQueenAttacks() {
         U64 bqueenmoves =  bQueenMoves();
-        U64 occ = AllBoard();
-        U64 blockers = bqueenmoves & occ;
-        blockers &= bqueenmoves;
-        U64 occAttacks = QueenAttacks(bBishop, occ ^ blockers);
-        U64 xrayattcks = (bqueenmoves ^ occAttacks) & wBoard();
-        return xrayattcks;
-    };
+        U64 queenXrayBishopatt = xRayBishopAttacks(bqueenmoves, bQueen, wBoard());
+        U64 queenXrayRookatt = xRayRookAttacks(bqueenmoves, bQueen, wBoard());
+        return (queenXrayBishopatt ^ queenXrayRookatt) & ~bqueenmoves;
+    }; 
 
     U64 xRaywAttacks() { return xRaywRookAttacks() | xRaywBishopAttacks() | xRaywQueenAttacks(); };
     U64 xRaybAttacks() { return xRaybRookAttacks() | xRaybBishopAttacks() | xRaybQueenAttacks(); };

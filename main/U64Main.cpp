@@ -2,38 +2,48 @@
 
 int main () {
     U64Bitboard u64;
-    u64.MakeMove("e2e4");
-    u64.MakeMove("d7d5");
-    u64.MakeMove("e4d5");
-    cout << u64.GetMaterialValue();
-
-
     u64.LoadFen("rnb1k1n1/pppppppp/8/4r3/1b5q/4N3/PPPP1PPP/RNBQKB1R w KQq - 0 1");
 
+    U64 xrayrookatt = u64.xRaybRookAttacks();
+    Print(xrayrookatt, "xrayrookatt");
+
+    U64 xraybishopatt = u64.xRaybBishopAttacks();
+    Print(xraybishopatt, "xraybishopatt");
+
+    U64 xrayqueenatt = u64.xRaybQueenAttacks();
+    Print(xrayqueenatt, "xrayqueenatt");
+
     U64 xrayatt = u64.xRayAttacks();
+    Print(xrayatt, "xrayatt");
 
-    U64 brookmoves = u64.bRookMoves();
-    U64 occ = u64.AllBoard();
-    U64 blockers = brookmoves & occ;
-    blockers &= brookmoves;
-    U64 occAttacks = u64.RookAttacks(u64.GetbRook(), occ ^ blockers);
-    U64 xrayattcks = (brookmoves ^ occAttacks) & u64.wBoard();
-    //Print(occ, "occ");
-    //Print(brookmoves, "brookmoves");
-    //Print(blockers, "blockers");
-    //Print(occAttacks, "occAttacks");
-    //Print(xrayattcks, "xrayattcks");
-    //Print(xrayatt, "xrayatt");
-
-
+    //u64.LoadFen("rnb2r2/1pNqbppp/p2pp2n/8/8/PP1PP3/2P1QPPP/R1B1KBNR b KQ - 0 9");
     multimap<int, pair<int, char>> mapmoves;
     u64.GetMapMoves(mapmoves);
     //Print(mapmoves, "mapmoves");
 
-    //bool movemade = u64.MakeMove("c8b7");
+    //bool movemade = u64.MakeMove("c8c7");
 
     //u64.PrintAllBoards();
 
+
+    /* XRAY ROOK
+        u64.LoadFen("rnb1kbnr/ppppqppp/8/8/4R3/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1"); //x ray rook
+        U64 wrookmoves = u64.wRookMoves();
+        U64 occ = u64.bBoard();
+        U64 blockers = wrookmoves & occ;
+        U64 occXORblockers = occ ^ blockers;
+        //blockers &= wrookatt;
+        Print(blockers, "blockers");
+        Print(occXORblockers, "occ ^ blockers");
+        U64 occAttacks = u64.RookAttacks(u64.GetwRook(), occXORblockers);
+        U64 xrayattcks = (wrookmoves ^ occAttacks) & u64.bBoard();
+
+        Print(occAttacks, "occAttacks");
+        Print(xrayattcks, "xrayattcks");
+
+        U64 xrayrookatt = u64.xRaywRookAttacks();
+        Print(xrayrookatt, "xrayrookatt");
+    */
 
     /*
         u64.LoadFen("r3k2r/pp1bqppp/2n1pn2/2pp2B1/1bPP4/2N1PN2/PP1QBPPP/R3K2R w KQkq - 5 9");//castling
