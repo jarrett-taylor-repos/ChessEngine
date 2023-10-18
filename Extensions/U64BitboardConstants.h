@@ -13,6 +13,13 @@ typedef unsigned long long U64;
 #define C64(constantU64) constantU64##ULL
 
 namespace U64BitboardConstants {
+    const string const_pawn = "PAWN";
+    const string const_knight = "KNIGHT";
+    const string const_bishop = "BISHOP";
+    const string const_rook = "ROOK";
+    const string const_queen = "QUEEN";
+    const string const_king = "KING";
+
     pair<char, int> wKingCastle = pair<char, int> ('K', false);
     pair<char, int> wQueenCastle = pair<char, int> ('Q', false);
     pair<char, int> bKingCastle = pair<char, int> ('k', false);
@@ -56,6 +63,8 @@ namespace U64BitboardConstants {
     const U64 notRank6 = 0xFFFFFFFFFF00FFFF;
     const U64 notRank7 = 0xFFFFFFFFFFFF00FF;
     const U64 notRank8 = 0xFFFFFFFFFFFFFF00;
+
+    const U64 Universe = 0xFFFFFFFFFFFFFFFF;
 
 
     enum enumSquare {

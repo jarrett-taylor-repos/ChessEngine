@@ -3,28 +3,44 @@
 int main () {
     U64Bitboard u64;
     u64.LoadFen("rnb1k1n1/pppppppp/8/4r3/1b5q/4N3/PPPP1PPP/RNBQKB1R w KQq - 0 1");
+    //u64.PrintAllBoards();
+    map<int, U64> pins = u64.GetBlockerPinnedToKingMovesMap();
+    Print(pins, "pins");
 
-    U64 xrayrookatt = u64.xRaybRookAttacks();
-    Print(xrayrookatt, "xrayrookatt");
-
-    U64 xraybishopatt = u64.xRaybBishopAttacks();
-    Print(xraybishopatt, "xraybishopatt");
-
-    U64 xrayqueenatt = u64.xRaybQueenAttacks();
-    Print(xrayqueenatt, "xrayqueenatt");
-
-    U64 xrayatt = u64.xRayAttacks();
-    Print(xrayatt, "xrayatt");
-
-    //u64.LoadFen("rnb2r2/1pNqbppp/p2pp2n/8/8/PP1PP3/2P1QPPP/R1B1KBNR b KQ - 0 9");
     multimap<int, pair<int, char>> mapmoves;
     u64.GetMapMoves(mapmoves);
-    //Print(mapmoves, "mapmoves");
+    Print(mapmoves, "mapmoves");
 
     //bool movemade = u64.MakeMove("c8c7");
 
     //u64.PrintAllBoards();
 
+    /* 
+        U64 moves = u64.bRookMoves();
+        U64 pieceBoard = u64.GetbRook();
+        U64 colorBoard = u64.wBoard();
+        U64 pieceColorBoard = u64.bBoard();
+
+        U64 occ = u64.AllBoard();
+        U64 blockers = moves & occ;
+        Print(occ, "occ");
+        Print(blockers, "blockers");
+        U64 occAttacks = u64.RookAttacks(pieceBoard, occ ^ blockers);
+        U64 movesXORoccatt = moves ^ occAttacks;
+        Print(occAttacks, "occAttacks");
+        Print(movesXORoccatt, "movesXORoccatt");
+        Print(colorBoard, "colorBoard");
+        U64 xrayattcks = (movesXORoccatt) & colorBoard;
+
+        U64 test = occAttacks & ~occ;
+        Print(test, "test");
+        U64 pinnedToKingPotentialMoves = (( C64(0)) |(movesXORoccatt & ~pieceColorBoard) )^ xrayattcks;
+        Print(pinnedToKingPotentialMoves, "pinnedToKingPotentialMoves");
+        return xrayattcks;
+
+        U64 xrayatt = u64.xRayAttacks();
+        Print(xrayatt, "xrayatt");
+    */
 
     /* XRAY ROOK
         u64.LoadFen("rnb1kbnr/ppppqppp/8/8/4R3/8/PPPPPPPP/1NBQKBNR w Kkq - 0 1"); //x ray rook
@@ -127,7 +143,6 @@ int main () {
         duration = duration_cast<microseconds>(stop - start);
         cout << "Time to get make a move moves: " + to_string(duration.count()) << endl;
     */
-
 
     /* 
         U64 allmoves = u64.GetMoves();

@@ -56,6 +56,16 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    void Print(map<int, U64> m, string name = "") {
+        if(name.length() != 0) { cout << name << endl;}
+
+        for(map<int, U64>::const_iterator it = m.begin(); it != m.end(); ++it){
+            string pinnedMovesStr = "Pinned moves for " + to_string(it->first);
+            Print(it->second, pinnedMovesStr);
+        }
+        cout << endl << endl;
+    }
+
     string CastlingRightsString(map<char, bool> m) {
         string temp = "";
         for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
@@ -114,6 +124,24 @@ namespace U64Extensions {
     string EnpassantTargetToString(int index) { 
         if(index == 0) return "-";
         return IndexToSquare(index);
+    }
+
+    void InsertPin(map<int, U64> &m, int blockerSq, U64 pinnedMoves) {
+        pair<int, U64> pinnedToKing = pair<int, U64> (blockerSq, pinnedMoves); 
+        m.insert(pinnedToKing);
+    }
+
+    U64 GetPinnedMoves(map<int, U64> &m, int key) {
+        if (m.find(key) != m.end()) {
+            return m[key];
+        }
+        return Universe;
+    }
+
+    bool FindMoveInMap(multimap<int, pair<int, char>> m, int key) {
+        multimap<int, pair<int, char>>::const_iterator pos = m.find(key);
+        if (pos == m.end()) return true;
+        return false;
     }
 
     void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {

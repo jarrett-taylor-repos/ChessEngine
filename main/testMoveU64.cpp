@@ -1,6 +1,4 @@
 #include "..\Bitboard\U64Bitboard.cpp"
-#include <chrono>
-using namespace chrono;
 
 int moveGenerationTest(U64Bitboard b, int depth) {
     if(depth == 0) return 1;
@@ -44,7 +42,7 @@ int main() {
     // 8	84,998,978,956
     // 9	2,439,530,234,167
     // 10	69,352,859,712,417
-    int depth = 10;
+    int depth = 4;
     int nummoves = 0;
     clock_t tStart = clock();
     cout << "Depth - num" << endl;
