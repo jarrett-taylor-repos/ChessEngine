@@ -24,9 +24,9 @@ int moveGenerationTest(U64Bitboard b, int depth) {
 int main() {
     string testPos = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
     // 1 - 44
-    // 2 - 1486
-    // 3 - 62379
-    // 4 - 2103487
+    // 2 - 1,486
+    // 3 - 62,379
+    // 4 - 2,103,487
     // 5 - 89,941,194
     U64Bitboard b;
     //b.LoadFen(testPos);
