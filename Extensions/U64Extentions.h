@@ -84,6 +84,10 @@ namespace U64Extensions {
         return m;
     }
 
+    bool IsIntInVector(vector<int> v, int key) {
+        return count(v.begin(), v.end(), key) > 0;
+    }
+
     void SetCastlingRightsFalse(map<char, bool> &m, char c) {
         auto it = m.find(c);
         it->second = false;
@@ -129,6 +133,24 @@ namespace U64Extensions {
     void InsertPin(map<int, U64> &m, int blockerSq, U64 pinnedMoves) {
         pair<int, U64> pinnedToKing = pair<int, U64> (blockerSq, pinnedMoves); 
         m.insert(pinnedToKing);
+    }
+    
+    void InsertCheck(map<int, vector<int>> &m, int key, vector<int> blocks) {
+        pair<int, vector<int>> blocksForKing = pair<int, vector<int>> (key, blocks); 
+        m.insert(blocksForKing);
+    }
+
+    void InsertMove(multimap<int, pair<int, char>> &m, int start, int target, char promo) {
+        pair<int, char> helper = pair<int, char>(target, promo);
+        pair<int, pair<int, char>> temp = pair<int, pair<int, char>>(start, helper); 
+        m.insert(temp);
+    }
+
+    vector<int> GetBlocksFromChecks(map<int, vector<int>> &m, int key) {
+        if (m.find(key) != m.end()) {
+            return m[key];
+        }
+        return vector<int>{-1};
     }
 
     U64 GetPinnedMoves(map<int, U64> &m, int key) {

@@ -20,6 +20,9 @@ class U64Bitboard {
     U64 bQueen;
     U64 bKing;
 
+    U64 wAttacks;
+    U64 bAttacks;
+
     int halfMoveClock;
     int fullTurnNum;
     int enPassantTarget;
@@ -31,6 +34,7 @@ class U64Bitboard {
     int materialValue;
 
     map<int, U64> blockerToPinnnedMoves;
+    map<int, vector<int>> checkToBlockSquares;
 
 
     public:
@@ -228,7 +232,7 @@ class U64Bitboard {
         Reset(wPawn); Reset(wKnight); Reset(wBishop); Reset(wRook); Reset(wQueen); Reset(wKing);
         Reset(bPawn); Reset(bKnight); Reset(bBishop); Reset(bRook); Reset(bQueen); Reset(bKing);
 
-        blockerToPinnnedMoves.clear();
+        ClearAttacks();
     };
 
     U64 GetwPawn() { return wPawn; };
@@ -428,10 +432,8 @@ class U64Bitboard {
 
     U64 bKingCastle() { return bKingCastleShort() | bKingCastleLong(); };
 
-    U64 wKingPsuedoMoves() { return (OneInAllDirection(wKing) | wKingCastle() ) & NotwBoard(); };
-    U64 bKingPsuedoMoves() { return (OneInAllDirection(bKing) | bKingCastle() ) & NotbBoard(); };
-
-    U64 KingMoves() { return isWhiteMove ? wKingPsuedoMoves() : bKingPsuedoMoves(); };
+    U64 wKingPsuedoMoves() { return (OneInAllDirection(wKing) | wKingCastle() ) & NotwBoard() & ~bAttacks; };
+    U64 bKingPsuedoMoves() { return (OneInAllDirection(bKing) | bKingCastle() ) & NotbBoard() & ~wAttacks; };
 
     U64 wKingAtt() { return OneInAllDirection(wKing); };
     U64 bKingAtt() { return OneInAllDirection(bKing); };
@@ -609,12 +611,68 @@ class U64Bitboard {
     U64 bQueenPsuedoMoves() { U64 bqatt = bQueenAttacks(); return bqatt & ~(bqatt & bBoard()); };
 
     //attacks
-    U64 wAttacks() { return wPawnAllAtt() | wKingAtt() | wKnightAtt() | wQueenAttacks() | wBishopAttacks() | wRookAttacks(); };
-    U64 bAttacks() { return bPawnAllAtt() | bKingAtt() | bKnightAtt() | bQueenAttacks() | bBishopAttacks() | bRookAttacks(); };
+    void SetwPawnAttacks() {
+        vector<int> indexes = GetTrueBits(wPawn);
+        for(int sq : indexes) {
+            U64 pawn = SingleBitBoard(sq);
+            U64 pawnAttacks = wPawnAllAtt(pawn);
+            U64 givesCheck = pawnAttacks & bKing;
+
+            if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
+
+            wAttacks |= pawnAttacks;
+        }
+    };
+
+    void SetbPawnAttacks() {
+        vector<int> indexes = GetTrueBits(bPawn);
+        for(int sq : indexes) {
+            U64 pawn = SingleBitBoard(sq);
+            U64 pawnAttacks = wPawnAllAtt(pawn);
+            U64 givesCheck = pawnAttacks & wKing;
+
+            if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
+
+            wAttacks |= pawnAttacks;
+        }
+    };
+
+    void SetwKnightAttacks() {
+        vector<int> indexes = GetTrueBits(wKnight);
+        for(int sq : indexes) {
+            U64 knight = SingleBitBoard(sq);
+            U64 knightAtt = KnightAttacks(knight);
+            U64 givesCheck = knightAtt & bKing;
+
+            if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
+
+            wAttacks |= knightAtt;
+        }
+    };
+
+    void SetbKnightAttacks() {
+        vector<int> indexes = GetTrueBits(bKnight);
+        for(int sq : indexes) {
+            U64 knight = SingleBitBoard(sq);
+            U64 knightAtt = KnightAttacks(knight);
+            U64 givesCheck = knightAtt & wKing;
+
+            if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
+
+            wAttacks |= knightAtt;
+        }
+    };
 
     void SetxRaySlidingAttacks(U64 moves, U64 occ, U64 pieceBoard, U64 colorBoard, U64 oppBoard, int direction, int sq) {
         U64 blocker = moves & occ & ~oppBoard;
         if(blocker == C64(0)) return;
+        U64 king = GetKing();
+        if(blocker == king) {
+            U64 blocks = (moves ^ blocker) ^ pieceBoard; 
+            vector<int> blockAndCap = GetTrueBits(blocks);
+            InsertCheck(checkToBlockSquares, sq, blockAndCap);
+            return;
+        }
 
         int blockerSq = GetTrueBits(blocker)[0];
         U64 occAttacks = SlidingAttacksByDirectionAndSquare(sq, occ ^ blocker, direction);
@@ -622,13 +680,14 @@ class U64Bitboard {
         U64 xrayattcks = (movesXORoccatt) & colorBoard;
         if(xrayattcks == C64(0)) return;
 
-        if(xrayattcks == GetKing()) {
+        if(xrayattcks == king) {
             U64 pinnedMoves = (occAttacks ^ xrayattcks) | pieceBoard;
             InsertPin(blockerToPinnnedMoves, blockerSq, pinnedMoves);
         }
     };
 
-    void SetxRayRookAttacks(U64 rook, U64 colorBoard, U64 oppBoard) {
+    U64 SetxRayRookAttacks(U64 rook, U64 colorBoard, U64 oppBoard) {
+        U64 attacks;
         U64 occ = AllBoard();
         vector<int> indexes = GetTrueBits(rook);
         for(int sq : indexes) {
@@ -636,127 +695,81 @@ class U64Bitboard {
             //travle north
             U64 northmoves = SlidingAttacks(occ, ~rank1, sq, -8);
             SetxRaySlidingAttacks(northmoves, occ, rookSq, colorBoard, oppBoard, -8, sq);
+            attacks |= northmoves;
+
             //travel east
             U64 eastmoves  = SlidingAttacks(occ, ~aFile, sq, 1);
             SetxRaySlidingAttacks(eastmoves, occ, rookSq, colorBoard, oppBoard, 1, sq);
+            attacks |= eastmoves;
+
             //travel west
             U64 westmoves  = SlidingAttacks(occ, ~hFile, sq, -1);
             SetxRaySlidingAttacks(westmoves, occ, rookSq, colorBoard, oppBoard, -1, sq);
+            attacks |= westmoves;
+
             //travle south
             U64 southmoves  = SlidingAttacks(occ, ~rank8, sq, 8);
             SetxRaySlidingAttacks(southmoves, occ, rookSq, colorBoard, oppBoard, 8, sq);
+            attacks |= southmoves;;
         }
+        return attacks;
     };
 
-    void SetxRayBishopAttacks(U64 bishop, U64 colorBoard, U64 oppBoard) {
+    U64 SetxRayBishopAttacks(U64 bishop, U64 colorBoard, U64 oppBoard) {
+        U64 attacks;
         U64 occ = AllBoard();
         vector<int> indexes = GetTrueBits(bishop);
         for(int sq : indexes) {
             U64 bishopSq = SingleBitBoard(sq);
             //travel northEast
             U64 northeast = SlidingAttacks(occ, ~aFile, sq, -7);
+            attacks |= northeast;
             SetxRaySlidingAttacks(northeast, occ, bishopSq, colorBoard, oppBoard, -7, sq);
+
             //travel northWest
             U64 northwest = SlidingAttacks(occ, ~hFile, sq, -9);
+            attacks |= northwest;
             SetxRaySlidingAttacks(northwest, occ, bishopSq, colorBoard, oppBoard, -9, sq);
+
             //travel southEast
             U64 southeast = SlidingAttacks(occ, ~aFile, sq, 9);
             SetxRaySlidingAttacks(southeast, occ, bishopSq, colorBoard, oppBoard, 9, sq);
+            attacks |= southeast;
+
             //travle southWest
             U64 southwest = SlidingAttacks(occ, ~hFile, sq, 7);
             SetxRaySlidingAttacks(southwest, occ, bishopSq, colorBoard, oppBoard, 7, sq);
+            attacks |= southwest;
         }
+        return attacks;
     };
     
-    void SetxRaywRookAttacks() { return SetxRayRookAttacks(wRook, bBoard(), wBoard()); };
-    void SetxRaybRookAttacks() { return SetxRayRookAttacks(bRook, wBoard(), bBoard()); };
-    void SetxRaywBishopAttacks() { return SetxRayBishopAttacks(wBishop, bBoard(), wBoard()); };
-    void SetxRaybBishopAttacks() { return SetxRayBishopAttacks(bBishop, wBoard(), bBoard()); };
-    void SetxRaywQueenAttacks() { SetxRayBishopAttacks(wQueen, bBoard(), wBoard()); SetxRayRookAttacks(wQueen, bBoard(), wBoard()); };
-    void SetxRaybQueenAttacks() { SetxRayBishopAttacks(bQueen, wBoard(), bBoard()); SetxRayRookAttacks(bQueen, wBoard(), bBoard()); }; 
+    void SetxRaywRookAttacks() { U64 attacks = SetxRayRookAttacks(wRook, bBoard(), wBoard()); wAttacks |= attacks; };
+    void SetxRaybRookAttacks() { U64 attacks = SetxRayRookAttacks(bRook, wBoard(), bBoard()); bAttacks |= attacks; };
+    void SetxRaywBishopAttacks() { U64 attacks = SetxRayBishopAttacks(wBishop, bBoard(), wBoard()); wAttacks |= attacks; };
+    void SetxRaybBishopAttacks() { U64 attacks = SetxRayBishopAttacks(bBishop, wBoard(), bBoard()); bAttacks |= attacks; };
+    void SetxRaywQueenAttacks() { U64 batt = SetxRayBishopAttacks(wQueen, bBoard(), wBoard()); U64 ratt = SetxRayRookAttacks(wQueen, bBoard(), wBoard()); wAttacks |= ratt; wAttacks |= batt; };
+    void SetxRaybQueenAttacks() { U64 batt = SetxRayBishopAttacks(bQueen, wBoard(), bBoard()); U64 ratt = SetxRayRookAttacks(bQueen, wBoard(), bBoard()); bAttacks |= ratt; bAttacks |= batt; }; 
 
-    void SetwXRayAttacks() { SetxRaywRookAttacks(); SetxRaywBishopAttacks(); SetxRaywQueenAttacks(); };
-    void SetbXRayAttacks() { SetxRaybRookAttacks(); SetxRaybBishopAttacks(); SetxRaybQueenAttacks(); };
+    void SetwSlidingAttacks() { SetxRaywRookAttacks(); SetxRaywBishopAttacks(); SetxRaywQueenAttacks(); };
+    void SetbSlidingAttacks() { SetxRaybRookAttacks(); SetxRaybBishopAttacks(); SetxRaybQueenAttacks(); };
 
-    void SetxRayAttacks() { return isWhiteMove ? SetbXRayAttacks() : SetwXRayAttacks(); };
-    
+    void SetwStandardAttacks() { SetwPawnAttacks(); SetwKnightAttacks(); };
+    void SetbStandardAttacks() { SetbPawnAttacks(); SetbKnightAttacks();};
 
-    //pinning and check and attacked square
-    bool isSquareAttacked(int sq) {
-        if(isWhiteMove) {
-            U64 att = bAttacks(); return TestBit(att, sq);
-        }
-        U64 att = wAttacks(); return TestBit(att, sq);
-    }
+    void SetwAttacks() { SetwSlidingAttacks(); SetwStandardAttacks(); };
+    void SetbAttacks() { SetbSlidingAttacks(); SetbStandardAttacks(); };
 
-    int numOfTimesSquareIsAttacked(int sq) {
-        if(isWhiteMove) {
-            int numAtt = 0;
-            U64 pawnAtt = wPawnAllAtt();
-            U64 kingAtt = wKingAtt();
-            U64 knightAtt = wKnightAtt();
-            U64 queenAtt = wQueenAttacks();
-            U64 bishopAtt = wBishopAttacks();
-            U64 rookAtt = wRookAttacks();
-            numAtt += TestBit(pawnAtt, sq);
-            numAtt += TestBit(kingAtt, sq);
-            numAtt += TestBit(knightAtt, sq);
-            numAtt += TestBit(queenAtt, sq);
-            numAtt += TestBit(bishopAtt, sq);
-            numAtt += TestBit(rookAtt, sq);
-            return numAtt;
+    void SetAttacks() { return isWhiteMove ? SetbAttacks() : SetwAttacks(); };
+    void ClearAttacks() { Reset(wAttacks); Reset(bAttacks); blockerToPinnnedMoves.clear(); checkToBlockSquares.clear(); }
 
-        }
-        int numAtt = 0;
-        U64 pawnAtt = bPawnAllAtt();
-        U64 kingAtt = bKingAtt();
-        U64 knightAtt = bKnightAtt();
-        U64 queenAtt = bQueenAttacks();
-        U64 bishopAtt = bBishopAttacks();
-        U64 rookAtt = bRookAttacks();
-        numAtt += TestBit(pawnAtt, sq);
-        numAtt += TestBit(kingAtt, sq);
-        numAtt += TestBit(knightAtt, sq);
-        numAtt += TestBit(queenAtt, sq);
-        numAtt += TestBit(bishopAtt, sq);
-        numAtt += TestBit(rookAtt, sq);
-        return numAtt;
-    }
 
     //making moves helpers 
-    bool isPawn(int sq) {
-        if(isWhiteMove) return TestBit(wPawn, sq);
-        return TestBit(bPawn, sq);
-    };
-
-    bool isPiecePinnedToKing(int sq) {
-        if(isWhiteMove) {
-            
-        } 
-
-    }
+    bool isPawn(int sq) { return isWhiteMove ? TestBit(wPawn, sq): TestBit(bPawn, sq); };
+    bool isSquareAttacked(int sq) { return isWhiteMove ? TestBit(bAttacks, sq) : TestBit(wAttacks, sq); };
 
 
-    //all moves
-    U64 wMovesWithCheck() {
-        U64 king = isWhiteMove ? wKing : bKing;
-        int kingSq = GetTrueBits(king)[0];
-        int numOfChecks = numOfTimesSquareIsAttacked(kingSq);
-        if(kingSq == 2) {//if double check - move king to non occupied string 
-            return KingMoves();
-        } else if (kingSq == 1) {//if single check - move king, capture piece or block
-            U64 movesWithPins = 0;
-            U64 captures = 0; //need to get sq of attacker 
-            U64 blockes = 0; //need inbetween function
-            U64 moves = movesWithPins & blockes | movesWithPins & captures;
-            return KingMoves();
-        }
-        //else return all normal moves with pinned to king logic
-        //knights cant move at all if pinned 
-        U64 movesWithPins = 0;
-        return movesWithPins | KingMoves();
-    }
-
+    //Psuedomoves
     U64 wPsuedoMoves() { return wPawnPsuedoMoves() | wKnightPsuedoMoves() | wBishopPsuedoMoves() | wRookPsuedoMoves() | wQueenPsuedoMoves() | wKingPsuedoMoves(); };
     U64 bPsuedoMoves() { return bPawnPsuedoMoves() | bKnightPsuedoMoves() | bBishopPsuedoMoves() | bRookPsuedoMoves() | bQueenPsuedoMoves() | bKingPsuedoMoves(); };
 
@@ -916,36 +929,83 @@ class U64Bitboard {
     };
     multimap<int, pair<int, char>> GetbKingMapMoves() { multimap<int, pair<int, char>> moves; GetbKingMapMoves(moves); return moves; };
 
-    void GetwMapMoves(multimap<int, pair<int, char>> &moves) {
-        GetwPawnMapMoves(moves);
-        GetwKnightMapMoves(moves);
-        GetwBishopMapMoves(moves);
-        GetwRookMapMoves(moves);
-        GetwQueenMapMoves(moves);
-        GetwKingMapMoves(moves);
+    void GetwPinnedMapMoves(multimap<int, pair<int, char>> &moves) {
+        GetwPawnMapMoves(moves);GetwKnightMapMoves(moves);GetwBishopMapMoves(moves);GetwRookMapMoves(moves);GetwQueenMapMoves(moves);
     };
-    multimap<int, pair<int, char>> GetwMapMoves() { multimap<int, pair<int, char>> moves; GetwMapMoves(moves); return moves; };
+    multimap<int, pair<int, char>> GetwPinnedMapMoves() { multimap<int, pair<int, char>> moves; GetwPinnedMapMoves(moves); return moves; };
 
-    void GetbMapMoves(multimap<int, pair<int, char>> &moves) {
-        GetbPawnMapMoves(moves);
-        GetbKnightMapMoves(moves);
-        GetbBishopMapMoves(moves);
-        GetbRookMapMoves(moves);
-        GetbQueenMapMoves(moves);
-        GetbKingMapMoves(moves);
+    void GetbPinnedMapMoves(multimap<int, pair<int, char>> &moves) {
+        GetbPawnMapMoves(moves);GetbKnightMapMoves(moves);GetbBishopMapMoves(moves);GetbRookMapMoves(moves);GetbQueenMapMoves(moves);
     };
-    multimap<int, pair<int, char>> GetbMapMoves() { multimap<int, pair<int, char>> moves; GetbMapMoves(moves); return moves; };
+    multimap<int, pair<int, char>> GetbPinnedMapMoves() { multimap<int, pair<int, char>> moves; GetbPinnedMapMoves(moves); return moves; };
 
-    void GetMapMoves(multimap<int, pair<int, char>> &moves) {
-        if(isWhiteMove) return GetwMapMoves(moves);
-        return GetbMapMoves(moves);
+    void GetwPinnedMapMovesNoCheck(multimap<int, pair<int, char>> &moves) {
+        GetwPawnMapMoves(moves);GetwKnightMapMoves(moves);GetwBishopMapMoves(moves);GetwRookMapMoves(moves);GetwQueenMapMoves(moves);GetwKingMapMoves(moves);
+    };
+    multimap<int, pair<int, char>> GetwPinnedMapMovesNoCheck() { multimap<int, pair<int, char>> moves; GetwPinnedMapMovesNoCheck(moves); return moves; };
+
+    void GetbPinnedMapMovesNoCheck(multimap<int, pair<int, char>> &moves) {
+        GetbPawnMapMoves(moves);GetbKnightMapMoves(moves);GetbBishopMapMoves(moves);GetbRookMapMoves(moves);GetbQueenMapMoves(moves);GetbKingMapMoves(moves);
+    };
+    multimap<int, pair<int, char>> GetbPinnedMapMovesNoCheck() { multimap<int, pair<int, char>> moves; GetbPinnedMapMovesNoCheck(moves); return moves; };
+
+    void GetPinnedMapMovesNoCheck(multimap<int, pair<int, char>> &moves) {
+        if(isWhiteMove) return GetwPinnedMapMovesNoCheck(moves);
+        return GetbPinnedMapMovesNoCheck(moves);
     };
 
-    multimap<int, pair<int, char>> GetMapMoves() {
+    multimap<int, pair<int, char>> GetPinnedMapMovesNoCheck() {
         multimap<int, pair<int, char>> moves;
-        GetMapMoves(moves);
+        GetPinnedMapMovesNoCheck(moves);
         return moves;
     };
+
+    void GetwMapMoves(multimap<int, pair<int, char>> &moves) {
+        if(checkToBlockSquares.size() > 1) {//if double check - move king to non occupied string 
+            return GetwKingMapMoves(moves);
+        } else if (checkToBlockSquares.size() == 1) {//if single check - move king, capture piece or block
+            multimap<int, pair<int, char>> pinnedMoves = GetwPinnedMapMoves();
+            vector<int> blocksAndCaptures = checkToBlockSquares.begin()->second;
+
+            for(multimap<int, pair<int, char>>::const_iterator it = pinnedMoves.begin(); it != pinnedMoves.end(); ++it){
+                int targetSq = it->second.first;
+                if(IsIntInVector(blocksAndCaptures, targetSq)) InsertMove(moves, it->first, it->second.first, it->second.second);
+            }
+        
+            multimap<int, pair<int, char>> kingMoves = GetwKingMapMoves();
+            for(multimap<int, pair<int, char>>::const_iterator it = kingMoves.begin(); it != kingMoves.end(); ++it){
+                InsertMove(moves, it->first, it->second.first, it->second.second);
+            }
+            return;
+        }//else return all normal moves with pinned to king logic
+        return GetwPinnedMapMovesNoCheck(moves);
+    }
+
+    void GetbMapMoves(multimap<int, pair<int, char>> &moves) {
+        if(checkToBlockSquares.size() > 1) {//if double check - move king to non occupied string 
+            return GetbKingMapMoves(moves);
+        } else if (checkToBlockSquares.size() == 1) {//if single check - move king, capture piece or block
+            multimap<int, pair<int, char>> pinnedMoves = GetbPinnedMapMoves();
+            vector<int> blocksAndCaptures = checkToBlockSquares.begin()->second;
+
+            for(multimap<int, pair<int, char>>::const_iterator it = pinnedMoves.begin(); it != pinnedMoves.end(); ++it){
+                int targetSq = it->second.first;
+                if(IsIntInVector(blocksAndCaptures, targetSq)) InsertMove(moves, it->first, it->second.first, it->second.second);
+            }
+        
+            multimap<int, pair<int, char>> kingMoves = GetbKingMapMoves();
+            for(multimap<int, pair<int, char>>::const_iterator it = kingMoves.begin(); it != kingMoves.end(); ++it){
+                InsertMove(moves, it->first, it->second.first, it->second.second);
+            }
+            return;
+        }//else return all normal moves with pinned to king logic
+        return GetwPinnedMapMovesNoCheck(moves);
+    }
+
+    void GetMapMoves(multimap<int, pair<int, char>> &moves) { return isWhiteMove ? GetwMapMoves(moves) : GetbMapMoves(moves); };
+    multimap<int, pair<int, char>> GetMapMoves() { multimap<int, pair<int, char>> moves; GetMapMoves(moves); return moves; };
+
+
 
     map<int, U64> GetBlockerPinnedToKingMovesMap() { return blockerToPinnnedMoves; };
 
@@ -1128,7 +1188,8 @@ class U64Bitboard {
 
     //making moves 
     void SetMoveData() { 
-        SetxRayAttacks(); 
+        ClearAttacks();
+        SetAttacks(); 
     }
 
     bool PossibleMoveIsACapture(int startSq, int targetSq) { return isCapture(targetSq) || isEnpassant(startSq, targetSq); };

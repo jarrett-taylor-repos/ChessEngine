@@ -7,6 +7,7 @@
 #include <map>
 #include <sstream>
 #include <vector>
+#include <list>
 using namespace std;
 
 typedef unsigned long long U64; 
