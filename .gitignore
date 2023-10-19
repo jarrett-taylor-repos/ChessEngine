@@ -56,3 +56,5 @@ Bitboard/*.app
 tests/*.exe
 tests/*.out
 tests/*.app
+
+AI/logs/*
