@@ -437,8 +437,8 @@ class U64Bitboard {
 
     U64 bKingCastle() { return bKingCastleShort() | bKingCastleLong(); };
 
-    U64 wKingPsuedoMoves() { return (OneInAllDirection(wKing) | wKingCastle() ) & NotwBoard() & ~bAttacks; };
-    U64 bKingPsuedoMoves() { return (OneInAllDirection(bKing) | bKingCastle() ) & NotbBoard() & ~wAttacks; };
+    U64 wKingPsuedoMoves() { return (OneInAllDirection(wKing) | wKingCastle() ) & (NotwBoard() & ~bAttacks); };
+    U64 bKingPsuedoMoves() { return (OneInAllDirection(bKing) | bKingCastle() ) & (NotbBoard() & ~wAttacks); };
 
     U64 wKingAtt() { return OneInAllDirection(wKing); };
     U64 bKingAtt() { return OneInAllDirection(bKing); };
@@ -692,7 +692,7 @@ class U64Bitboard {
     };
 
     U64 SetxRayRookAttacks(U64 rook, U64 colorBoard, U64 oppBoard) {
-        U64 attacks;
+        U64 attacks = 0;
         U64 occ = AllBoard();
         vector<int> indexes = GetTrueBits(rook);
         for(int sq : indexes) {
@@ -721,7 +721,7 @@ class U64Bitboard {
     };
 
     U64 SetxRayBishopAttacks(U64 bishop, U64 colorBoard, U64 oppBoard) {
-        U64 attacks;
+        U64 attacks = 0;
         U64 occ = AllBoard();
         vector<int> indexes = GetTrueBits(bishop);
         for(int sq : indexes) {

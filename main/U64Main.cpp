@@ -1,10 +1,23 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard u64;
-    u64.MakeMove("e2e4");
-    multimap<int, pair<int, char>> whitemoves = u64.GetMapMoves();
-    Print(whitemoves, "mapmoves");
+    U64Bitboard u64("3r1bnr/1Np1ppp1/2p1b2p/4k3/Ppn1Q1P1/4P2P/3P1P2/R1B1K1NR b K - 5 19");
+    multimap<int, pair<int, char>> moves = u64.GetMapMoves();
+    Print(moves, "moves");
+
+
+    /* opther 
+        //r3k1nr/p1pppppp/1p2qbb1/8/5n2/3B1N2/PPPPKPPP/RNBQ1R2 w q - 0 1
+        u64.LoadFen("r3k1nr/p1pppppp/1p2qbb1/8/5n2/3B1N2/PPPPKPPP/RNBQ1R2 w q - 0 1");//r3k1nr/p1pppppp/1p2qbb1/8/8/2Q2n2/PPPP1PPP/RNB1KBNR w q - 0 1")
+        multimap<int, pair<int, char>> moves = u64.GetMapMoves();
+        Print(moves, "moves");
+    */
+
+    /* SINGLE CHECK - king moves back across diagonal 
+        u64.LoadFen("rn2k1nr/p1pppppp/1p2qbb1/8/3K4/8/PPPPPPPP/RNBQ1BNR w q - 0 1");
+        multimap<int, pair<int, char>> moves = u64.GetMapMoves();
+        Print(moves, "moves");
+    */
 
     /* SINGLE CHECK 
         u64.LoadFen("rnbqkbnr/ppppp1pp/5p2/7Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2"); //check
