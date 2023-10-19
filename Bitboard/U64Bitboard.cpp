@@ -1004,7 +1004,7 @@ class U64Bitboard {
             }
             return;
         }//else return all normal moves with pinned to king logic
-        return GetwPinnedMapMovesNoCheck(moves);
+        return GetbPinnedMapMovesNoCheck(moves);
     }
 
     void GetMapMoves(multimap<int, pair<int, char>> &moves) { return isWhiteMove ? GetwMapMoves(moves) : GetbMapMoves(moves); };

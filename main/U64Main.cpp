@@ -2,11 +2,17 @@
 
 int main () {
     U64Bitboard u64;
-    u64.LoadFen("rnbqkbnr/ppppp1pp/5p2/7Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2"); //check
+    u64.MakeMove("e2e4");
+    multimap<int, pair<int, char>> whitemoves = u64.GetMapMoves();
+    Print(whitemoves, "mapmoves");
 
-    multimap<int, pair<int, char>> mapmoves;
-    u64.GetMapMoves(mapmoves);
-    Print(mapmoves, "mapmoves");
+    /* SINGLE CHECK 
+        u64.LoadFen("rnbqkbnr/ppppp1pp/5p2/7Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2"); //check
+
+        multimap<int, pair<int, char>> mapmoves;
+        u64.GetMapMoves(mapmoves);
+        Print(mapmoves, "mapmoves");
+    */
 
     /* Pinned pieces moves - no checks
         u64.LoadFen("rnb1k1n1/pppppppp/8/4r3/1b5q/4N3/PPPP1PPP/RNBQKB1R w KQq - 0 1");
