@@ -161,8 +161,7 @@ namespace U64Extensions {
     }
 
     bool FindMoveInMap(multimap<int, pair<int, char>> m, int key) {
-        multimap<int, pair<int, char>>::const_iterator pos = m.find(key);
-        if (pos == m.end()) return true;
+        if (m.find(key) != m.end()) return true;
         return false;
     }
 

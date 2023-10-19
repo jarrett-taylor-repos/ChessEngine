@@ -52,6 +52,8 @@ class U64Bitboard {
 
         // Copy the map members
         this->hashFen = other.hashFen;
+        this->blockerToPinnnedMoves = other.blockerToPinnnedMoves;
+        this->checkToBlockSquares = other.checkToBlockSquares;
 
         // Copy the U64 members
         this->wPawn = other.wPawn;
@@ -67,6 +69,9 @@ class U64Bitboard {
         this->bRook = other.bRook;
         this->bQueen = other.bQueen;
         this->bKing = other.bKing;
+
+        this->wAttacks = other.wAttacks;
+        this->bAttacks = other.bAttacks;
     };
     
     void LoadFenHelper(vector<string> arguments) {
@@ -1187,10 +1192,7 @@ class U64Bitboard {
     };
 
     //making moves 
-    void SetMoveData() { 
-        ClearAttacks();
-        SetAttacks(); 
-    }
+    void SetMoveData() { ClearAttacks(); SetAttacks(); };
 
     bool PossibleMoveIsACapture(int startSq, int targetSq) { return isCapture(targetSq) || isEnpassant(startSq, targetSq); };
 

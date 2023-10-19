@@ -7,12 +7,11 @@ int moveGenerationTest(U64Bitboard b, int depth) {
     string fen = b.GetFen();
     multimap<int, pair<int, char>> m = b.GetMapMoves();
     for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-        cout << it->first << " " << it->second.first << " " << it->second.second << endl;
+        //cout << it->first << " " << it->second.first << " " << it->second.second << endl;
         int sq = it->first;
         int end = it->second.first;
         char promo = it->second.second;
-        U64Bitboard temp;
-        temp.LoadFen(fen);
+        U64Bitboard temp = b;
         bool mademove = temp.MakeMove(sq, end, promo);
         if(mademove) {
             numPos += moveGenerationTest(temp, depth-1);
@@ -42,7 +41,7 @@ int main() {
     // 8	84,998,978,956
     // 9	2,439,530,234,167
     // 10	69,352,859,712,417
-    int depth = 1;
+    int depth = 3;
     int nummoves = 0;
     clock_t tStart = clock();
     cout << "Depth - num" << endl;
