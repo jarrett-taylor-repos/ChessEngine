@@ -8,6 +8,7 @@ with open('AI/simgames.txt') as f:
   movenum = 0
   for line in f:
     if line.strip()=="":
+      print(game)
       print(game, file=pgnf)
       game = chess.pgn.Game()
       movenum = 0
@@ -18,7 +19,10 @@ with open('AI/simgames.txt') as f:
         movenum=1
       else:
         node = node.add_variation(chess.Move.from_uci(line.strip()))
-    except:
+    except Exception as error:
       print(game, file=pgnf)
-      print("ERROR: trying move ", line, " for position ", game.board().fen())
+      print(game)
+      # print("ERROR: trying move ", line, " for position ", game.board().fen())
+      print(error)
   print(game, file=pgnf)
+  print(game)
