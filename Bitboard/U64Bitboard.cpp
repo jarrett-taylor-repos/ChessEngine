@@ -853,7 +853,7 @@ class U64Bitboard {
             U64 bMoves = batt & ~(batt & bBoard());
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & bMoves;
-            U64ToMapMoves(moves, sq, bMoves);
+            U64ToMapMoves(moves, sq, legal);
         }
     };
     multimap<int, pair<int, char>> GetbBishopMapMoves() { multimap<int, pair<int, char>> moves; GetbBishopMapMoves(moves); return moves; };
