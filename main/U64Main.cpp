@@ -1,24 +1,32 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard b;
-    b.MakeMove("e2e4");
-    b.MakeMove("e7e5");
-    b.MakeMove("e1e2");
-    b.MakeMove("e8e7");
-    b.MakeMove("e2e1");
-    b.MakeMove("e7e8");
-    b.MakeMove("e1e2");
-    b.MakeMove("e8e7");
-    b.MakeMove("e2e1");
-    b.MakeMove("e7e8");
-    b.MakeMove("e1e2");
-    b.MakeMove("e8e7");
-    b.MakeMove("e2e1");
-    b.MakeMove("e7e8");
+    U64Bitboard b("rnbqkbnr/1ppp1ppp/p7/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 3");
+    multimap<int, pair<int, char>> mapmoves = b.GetMapMoves();
+    //Print(mapmoves, "mapmoves");
+    vector<string> uci = MapMovesToUCI(mapmoves);
+    Print(uci, "uci");
 
-    map<string, int> hashfen = b.GetFenHash();
-    Print(hashfen, "hashfen");
+
+    /* Move reptiition and hash 
+        b.MakeMove("e2e4");
+        b.MakeMove("e7e5");
+        b.MakeMove("e1e2");
+        b.MakeMove("e8e7");
+        b.MakeMove("e2e1");
+        b.MakeMove("e7e8");
+        b.MakeMove("e1e2");
+        b.MakeMove("e8e7");
+        b.MakeMove("e2e1");
+        b.MakeMove("e7e8");
+        b.MakeMove("e1e2");
+        b.MakeMove("e8e7");
+        b.MakeMove("e2e1");
+        b.MakeMove("e7e8");
+
+        map<string, int> hashfen = b.GetFenHash();
+        Print(hashfen, "hashfen");
+    */
 
     /* double check 
         /r3k1nr/p1pppppp/1p2qbb1/8/8/2Q2n2/PPPP1PPP/RNB1KBNR w q - 0 1")
