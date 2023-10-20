@@ -1,10 +1,18 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard u64("r3k1nr/p1pppppp/1p2qbb1/8/8/2Q2n2/PPPP1PPP/RNB1KBNR w q - 0 1");//r3k1nr/p1pppppp/1p2qbb1/8/8/2Q2n2/PPPP1PPP/RNB1KBNR w q - 0 1")
-    multimap<int, pair<int, char>> moves = u64.GetMapMoves();
-    Print(moves, "moves");
+    U64Bitboard b;
+    b.MakeMove("e2e4");
+    b.MakeMove("c7c5");
+    b.MakeMove("g1f3");
+    b.MakeMove("e7e6");
+    b.MakeMove("d2d4");
+    b.MakeMove("c5d4");
+    b.MakeMove("f3d4");
+    b.MakeMove("a7a6");
 
+    map<string, int> hashfen = b.GetFenHash();
+    Print(hashfen, "hashfen");
 
     /* double check 
         /r3k1nr/p1pppppp/1p2qbb1/8/8/2Q2n2/PPPP1PPP/RNB1KBNR w q - 0 1")

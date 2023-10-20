@@ -83,6 +83,7 @@ class U64Bitboard {
         enPassantTarget = (arguments[3] == "-") ? 0 : StringtoIndex(arguments[3]);
         fullTurnNum = stoi(arguments[4]);
         halfMoveClock = stoi(arguments[5]);
+        UpdateFenMapAndFind3Move(hashFen, currFen + CastlingRightsString(castlingRights));
     };
 
     void SetBoard(char c, int sq) {
@@ -159,7 +160,7 @@ class U64Bitboard {
         SetMoveData();
     };
 
-    string GetFen() {
+    string GetFenHelper() {
         U64 allb = AllBoard();
         string fen = "";
         int temp = 0;
@@ -182,13 +183,16 @@ class U64Bitboard {
                 temp++;
             }
         }
+        return fen;
+    }
 
+    string GetFen() {
         string moveColor = isWhiteMove ? " w" : " b";
-        string fenOthers = moveColor +" "+ CastlingRightsString(castlingRights) +" "+ EnpassantTargetToString(enPassantTarget) +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
-        fen += fenOthers;
-
+        string fen = GetFenHelper() + moveColor +" "+ CastlingRightsString(castlingRights) +" "+ EnpassantTargetToString(enPassantTarget) +" "+ to_string(halfMoveClock) +" "+ to_string(fullTurnNum);
         return fen;
     };
+
+    map<string, int> GetFenHash() { return hashFen; };
 
     string GetPieceAtIndex(int index) {
         if(TestBit(wPawn, index)) return "P";
@@ -1204,8 +1208,6 @@ class U64Bitboard {
         return moveGivesCheck;
     };
 
-
-
     bool isCheckMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
     bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
     bool is50MoveRule() { return halfMoveClock > 50; };
@@ -1267,6 +1269,7 @@ class U64Bitboard {
         isWhiteMove = !isWhiteMove;
         if(isWhiteMove) { fullTurnNum++; }
 
+        UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + CastlingRightsString(castlingRights));
         SetMoveData();
         return true;
     };

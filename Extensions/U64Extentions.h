@@ -66,6 +66,15 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    void Print(map<string, int> m, string name = "") {
+        if(name.length() != 0) { cout << name << endl;}
+
+        for(map<string, int>::const_iterator it = m.begin(); it != m.end(); ++it){
+            cout << it->first << " - " << to_string(it->second) << endl;
+        }
+        cout << endl << endl;
+    }
+
     string CastlingRightsString(map<char, bool> m) {
         string temp = "";
         for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
@@ -162,6 +171,16 @@ namespace U64Extensions {
 
     bool FindMoveInMap(multimap<int, pair<int, char>> m, int key) {
         if (m.find(key) != m.end()) return true;
+        return false;
+    }
+
+    bool UpdateFenMapAndFind3Move(map<string, int> &hash, string fen) {
+        if (hash.find(fen) != hash.end()) {
+            hash[fen]++;
+            if(hash[fen] == 3) return true;
+            return false;
+        }
+        hash.insert(pair<string, int>(fen, 1));
         return false;
     }
 
