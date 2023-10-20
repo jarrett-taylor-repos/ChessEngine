@@ -30,6 +30,7 @@ class U64Bitboard {
     bool isWhiteMove;
     map<char, bool> castlingRights;
     map<string, int> hashFen; //used to see 3 move repition of fen, will be used in the future
+    bool isMoveRepition;
 
     int materialValue;
 
@@ -76,6 +77,7 @@ class U64Bitboard {
     
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
+        isMoveRepition = false;
         currFen = arguments[0];
         string moveColor = arguments[1];
         isWhiteMove = moveColor == "w";
@@ -1211,7 +1213,7 @@ class U64Bitboard {
     bool isCheckMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
     bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
     bool is50MoveRule() { return halfMoveClock > 50; };
-    bool is3FoldRepition() { return false; };
+    bool is3FoldRepition() { return isMoveRepition; };
     bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() ); };
     bool isGameOver() { return isCheckMate() || isDraw(); };
 
@@ -1269,7 +1271,7 @@ class U64Bitboard {
         isWhiteMove = !isWhiteMove;
         if(isWhiteMove) { fullTurnNum++; }
 
-        UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + " " + CastlingRightsString(castlingRights));
+        isMoveRepition = UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + " " + CastlingRightsString(castlingRights));
         SetMoveData();
         return true;
     };

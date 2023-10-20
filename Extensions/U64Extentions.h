@@ -175,12 +175,13 @@ namespace U64Extensions {
     }
 
     bool UpdateFenMapAndFind3Move(map<string, int> &hash, string fen) {
-        if (hash.find(fen) != hash.end()) {
-            hash[fen]++;
-            if(hash[fen] == 3) return true;
-            return false;
+        map<string, int>::iterator it = hash.find(fen);
+        if (it != hash.end()) {
+            it->second++;
+            if(it->second == 3) return true;
+        } else {
+            hash.insert(make_pair(fen, 1));
         }
-        hash.insert(pair<string, int>(fen, 1));
         return false;
     }
 

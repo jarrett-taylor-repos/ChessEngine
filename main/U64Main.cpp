@@ -3,13 +3,19 @@
 int main () {
     U64Bitboard b;
     b.MakeMove("e2e4");
-    b.MakeMove("c7c5");
-    b.MakeMove("g1f3");
-    b.MakeMove("e7e6");
-    b.MakeMove("d2d4");
-    b.MakeMove("c5d4");
-    b.MakeMove("f3d4");
-    b.MakeMove("a7a6");
+    b.MakeMove("e7e5");
+    b.MakeMove("e1e2");
+    b.MakeMove("e8e7");
+    b.MakeMove("e2e1");
+    b.MakeMove("e7e8");
+    b.MakeMove("e1e2");
+    b.MakeMove("e8e7");
+    b.MakeMove("e2e1");
+    b.MakeMove("e7e8");
+    b.MakeMove("e1e2");
+    b.MakeMove("e8e7");
+    b.MakeMove("e2e1");
+    b.MakeMove("e7e8");
 
     map<string, int> hashfen = b.GetFenHash();
     Print(hashfen, "hashfen");
