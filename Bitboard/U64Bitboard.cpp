@@ -83,7 +83,7 @@ class U64Bitboard {
         enPassantTarget = (arguments[3] == "-") ? 0 : StringtoIndex(arguments[3]);
         fullTurnNum = stoi(arguments[4]);
         halfMoveClock = stoi(arguments[5]);
-        UpdateFenMapAndFind3Move(hashFen, currFen + CastlingRightsString(castlingRights));
+        UpdateFenMapAndFind3Move(hashFen, currFen + " " + CastlingRightsString(castlingRights));
     };
 
     void SetBoard(char c, int sq) {
@@ -1269,7 +1269,7 @@ class U64Bitboard {
         isWhiteMove = !isWhiteMove;
         if(isWhiteMove) { fullTurnNum++; }
 
-        UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + CastlingRightsString(castlingRights));
+        UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + " " + CastlingRightsString(castlingRights));
         SetMoveData();
         return true;
     };
