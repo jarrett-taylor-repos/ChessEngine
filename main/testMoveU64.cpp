@@ -16,6 +16,7 @@ int moveGenerationTest(U64Bitboard b, int depth) {
         if(mademove) {
             numPos += moveGenerationTest(temp, depth-1);
         }
+
     }
     return numPos;
 }
@@ -41,7 +42,7 @@ int main() {
     // 8	84,998,978,956
     // 9	2,439,530,234,167
     // 10	69,352,859,712,417
-    int depth = 5;
+    int depth = 4;
     int nummoves = 0;
     clock_t tStart = clock();
     cout << "Depth - num" << endl;

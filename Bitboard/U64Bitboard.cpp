@@ -231,6 +231,7 @@ class U64Bitboard {
     };
 
     int GetMaterialValue() { return materialValue; };
+    string GetCastlingRights() { return CastlingRightsString(castlingRights); };
 
     void ClearBoard() {
         Reset(wPawn); Reset(wKnight); Reset(wBishop); Reset(wRook); Reset(wQueen); Reset(wKing);
@@ -672,7 +673,6 @@ class U64Bitboard {
             if(TestBit(occ, kingSq + direction)) return;
             SetBit(attacks, kingSq + direction);
         }
-
         int blockerSq = GetTrueBits(blocker)[0];
         U64 occAttacks = SlidingAttacksByDirectionAndSquare(sq, occ ^ blocker, direction);
         U64 movesXORoccatt = moves ^ occAttacks;
@@ -909,7 +909,7 @@ class U64Bitboard {
             U64 qMoves = batt & ~(batt & bBoard());
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & qMoves;
-            U64ToMapMoves(moves, sq, qMoves);
+            U64ToMapMoves(moves, sq, legal);
         }
     };
     multimap<int, pair<int, char>> GetbQueenMapMoves() { multimap<int, pair<int, char>> moves; GetbQueenMapMoves(moves); return moves; };
