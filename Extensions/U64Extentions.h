@@ -184,4 +184,13 @@ namespace U64Extensions {
             }
         }
     }
+
+    vector<string> MapMovesToUCI(multimap<int, pair<int, char>> m) {
+        vector<string> uci;
+        for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
+            string move = to_string(it->first) + to_string(it->second.first) + to_string(it->second.second);
+            uci.push_back(move);
+        }
+        return uci;
+    }
 }

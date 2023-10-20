@@ -393,6 +393,7 @@ class U64Bitboard {
 
     //king moves, castling needs to include possible castle through check 
     U64 wKingCastleShort() {
+        if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'K');
         if(!canCastle) return C64(0);
         U64 allb = AllBoard();
@@ -404,6 +405,7 @@ class U64Bitboard {
     };
 
     U64 wKingCastleLong() {
+        if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'Q');
         if(!canCastle) return C64(0);
         U64 allb = AllBoard();
@@ -417,6 +419,7 @@ class U64Bitboard {
     U64 wKingCastle() { return wKingCastleShort() | wKingCastleLong(); };
 
     U64 bKingCastleShort() {
+        if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'k');
         if(!canCastle) return C64(0);
         U64 allb = AllBoard();
@@ -428,6 +431,7 @@ class U64Bitboard {
     };
 
     U64 bKingCastleLong() {
+        if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'q');
         if(!canCastle) return C64(0);
         U64 allb = AllBoard();
@@ -1182,6 +1186,35 @@ class U64Bitboard {
     void SetMoveData() { ClearAttacks(); SetAttacks(); };
 
     bool PossibleMoveIsACapture(int startSq, int targetSq) { return isCapture(targetSq) || isEnpassant(startSq, targetSq); };
+    bool isInCheck() { return checkToBlockSquares.size() > 0; };
+
+    bool isMoveCheck(string move) {
+        string fen = GetFen();
+        bool moveMade = MakeMove(move);
+        bool moveGivesCheck = isInCheck();
+        LoadFen(fen);
+        return moveGivesCheck;
+    };
+
+    bool isMoveCheck(int startSq, int targetSq, char promoP = ' ') {
+        string fen = GetFen();
+        bool moveMade = MakeMove(startSq, targetSq, promoP);
+        bool moveGivesCheck = isInCheck();
+        LoadFen(fen);
+        return moveGivesCheck;
+    };
+
+
+
+    bool isCheckMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
+    bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
+    bool is50MoveRule() { return halfMoveClock > 50; };
+    bool is3FoldRepition() { return false; };
+    bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() ); };
+    bool isGameOver() { return isCheckMate() || isDraw(); };
+
+    bool isWhiteWin() { return !isWhiteMove && isCheckMate(); };
+    bool isBlackWin() { return isWhiteMove && isCheckMate(); };
 
     bool MakeMove(string move) {
         string startSquare = move.substr(0, 2);
