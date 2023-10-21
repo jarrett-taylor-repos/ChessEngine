@@ -29,8 +29,6 @@ class U64Bitboard {
     string currFen;
     bool isWhiteMove;
     map<char, bool> castlingRights;
-    map<string, int> hashFen; //used to see 3 move repition of fen, will be used in the future
-    bool isMoveRepition;
 
     int materialValue;
 
@@ -52,7 +50,6 @@ class U64Bitboard {
         this->materialValue = other.materialValue;
 
         // Copy the map members
-        this->hashFen = other.hashFen;
         this->blockerToPinnnedMoves = other.blockerToPinnnedMoves;
         this->checkToBlockSquares = other.checkToBlockSquares;
 
@@ -77,7 +74,6 @@ class U64Bitboard {
     
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
-        isMoveRepition = false;
         currFen = arguments[0];
         string moveColor = arguments[1];
         isWhiteMove = moveColor == "w";
@@ -85,7 +81,6 @@ class U64Bitboard {
         enPassantTarget = (arguments[3] == "-") ? 0 : StringtoIndex(arguments[3]);
         fullTurnNum = stoi(arguments[4]);
         halfMoveClock = stoi(arguments[5]);
-        UpdateFenMapAndFind3Move(hashFen, currFen + " " + CastlingRightsString(castlingRights));
     };
 
     void SetBoard(char c, int sq) {
@@ -194,8 +189,6 @@ class U64Bitboard {
         return fen;
     };
 
-    map<string, int> GetFenHash() { return hashFen; };
-
     string GetPieceAtIndex(int index) {
         if(TestBit(wPawn, index)) return "P";
         if(TestBit(wKnight, index)) return "N";
@@ -238,6 +231,7 @@ class U64Bitboard {
     };
 
     int GetMaterialValue() { return materialValue; };
+    string GetCastlingRights() { return CastlingRightsString(castlingRights); };
 
     void ClearBoard() {
         Reset(wPawn); Reset(wKnight); Reset(wBishop); Reset(wRook); Reset(wQueen); Reset(wKing);
@@ -349,32 +343,12 @@ class U64Bitboard {
     U64 bPawnWestAtt(U64 b) { return (b << 9) & notAFile; };
     U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
     U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
-    U64 wPawnWestCaptures(U64 b) { 
-        U64 wpatt = wPawnWestAtt(b);
-        U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 westcaptures = (wpatt & bBoard()) | (wpatt & enpass);
-        return westcaptures;
-    };
-    U64 wPawnEastCaptures(U64 b) { 
-        U64 wpatt = wPawnEastAtt(b);
-        U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 eastcaptures = (wpatt & bBoard()) | (wpatt & enpass);
-        return eastcaptures;
-    };
-    U64 wPawnAllCaptures(U64 b) { return (wPawnEastCaptures(b) | wPawnWestCaptures(b)) & bBoard(); };
-    U64 bPawnWestCaptures(U64 b) { 
-        U64 bpatt = bPawnWestAtt(b);
-        U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 westcaptures = (bpatt & wBoard()) | (bpatt & enpass);
-        return westcaptures;
-    };
-    U64 bPawnEastCaptures(U64 b) { 
-        U64 bpatt = bPawnEastAtt(b);
-        U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 eastcaptures = (bpatt & wBoard()) | (bpatt & enpass);
-        return eastcaptures;
-    };
-    U64 bPawnAllCaptures(U64 b) { return (bPawnEastCaptures(b) | bPawnWestCaptures(b)) & wBoard(); };
+    U64 wPawnWestCaptures(U64 b) { return wPawnWestAtt(b) & (bBoard() | SingleBitBoard(enPassantTarget)); };
+    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & (bBoard() | SingleBitBoard(enPassantTarget)); };
+    U64 wPawnAllCaptures(U64 b) { return wPawnEastCaptures(b) | wPawnWestCaptures(b); };
+    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & (wBoard() | SingleBitBoard(enPassantTarget)); };
+    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & (wBoard() | SingleBitBoard(enPassantTarget)); };
+    U64 bPawnAllCaptures(U64 b) { return bPawnEastCaptures(b) | bPawnWestCaptures(b); };
 
     U64 wPawnPsuedoMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
     U64 bPawnPsuedoMoves(U64 b) { return bPawnAllCaptures(b) | bPawnPushes(b); };
@@ -699,7 +673,6 @@ class U64Bitboard {
             if(TestBit(occ, kingSq + direction)) return;
             SetBit(attacks, kingSq + direction);
         }
-
         int blockerSq = GetTrueBits(blocker)[0];
         U64 occAttacks = SlidingAttacksByDirectionAndSquare(sq, occ ^ blocker, direction);
         U64 movesXORoccatt = moves ^ occAttacks;
@@ -880,7 +853,7 @@ class U64Bitboard {
             U64 bMoves = batt & ~(batt & bBoard());
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & bMoves;
-            U64ToMapMoves(moves, sq, bMoves);
+            U64ToMapMoves(moves, sq, legal);
         }
     };
     multimap<int, pair<int, char>> GetbBishopMapMoves() { multimap<int, pair<int, char>> moves; GetbBishopMapMoves(moves); return moves; };
@@ -936,7 +909,7 @@ class U64Bitboard {
             U64 qMoves = batt & ~(batt & bBoard());
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & qMoves;
-            U64ToMapMoves(moves, sq, qMoves);
+            U64ToMapMoves(moves, sq, legal);
         }
     };
     multimap<int, pair<int, char>> GetbQueenMapMoves() { multimap<int, pair<int, char>> moves; GetbQueenMapMoves(moves); return moves; };
@@ -1110,32 +1083,19 @@ class U64Bitboard {
         GetBoardandSetPromoIndex(targetIndex, promoP);
     };
 
-    void PromotionUpdate(bool isCap, int startIndex, int targetIndex, char promoP) {
-        if(isCap) return CapturePromoUpdate(startIndex, targetIndex, promoP);
-        QuietPromoUpdate(startIndex, targetIndex, promoP);
-    };
+    void PromotionUpdate(bool isCap, int startIndex, int targetIndex, char promoP) { return isCap ? CapturePromoUpdate(startIndex, targetIndex, promoP) : QuietPromoUpdate(startIndex, targetIndex, promoP); };
     
     void CastleUpdateHelper(U64 &b, int start, int end) { ResetBit(b, start); SetBit(b, end); };
     void wCastleLongUpdate() { CastleUpdateHelper(wRook, 56, 59); CastleUpdateHelper(wKing, 60, 58); };
     void wCastleShortUpdate() { CastleUpdateHelper(wRook, 63, 61); CastleUpdateHelper(wKing, 60, 62); };
 
-    void wCastleUpdate(int targetMinusStart) {
-        if(targetMinusStart > 0) return wCastleShortUpdate();
-        return wCastleLongUpdate();
-    };
+    void wCastleUpdate(int targetMinusStart) { return (targetMinusStart > 0) ? wCastleShortUpdate() : wCastleLongUpdate(); };
 
     void bCastleLongUpdate() { CastleUpdateHelper(bRook, 0, 3); CastleUpdateHelper(bKing, 4, 2); };
     void bCastleShortUpdate() { CastleUpdateHelper(bRook, 7, 5); CastleUpdateHelper(bKing, 4, 2); };
 
-    void bCastleUpdate(int targetMinusStart) {
-        if(targetMinusStart > 0) return bCastleShortUpdate();
-        return bCastleLongUpdate();
-    };
-
-    void CastleUpdate(int targetMinusStart) {
-        if(isWhiteMove) return wCastleUpdate(targetMinusStart);
-        return bCastleUpdate(targetMinusStart);
-    };
+    void bCastleUpdate(int targetMinusStart) { return (targetMinusStart > 0) ? bCastleShortUpdate() : bCastleLongUpdate(); };
+    void CastleUpdate(int targetMinusStart) { return (isWhiteMove) ? wCastleUpdate(targetMinusStart) : bCastleUpdate(targetMinusStart); };
 
     multimap<int, pair<int, char>> GetwBoardMoves(int index) {
         if(TestBit(wPawn, index)) return GetwPawnMapMoves(); 
@@ -1168,6 +1128,7 @@ class U64Bitboard {
     bool isKingMove(int startSq) { U64 king = isWhiteMove ? wKing : bKing; return TestBit(king, startSq); };
     bool isCastle(int startSq, int targetSq) { bool isKing = isKingMove(startSq); bool isCastle = abs(startSq-targetSq) == 2; return isCastle && isKing; };
     bool isPawnMove(int startSq) { U64 pawn = isWhiteMove ? wPawn : bPawn; return TestBit(pawn, startSq); };
+    int enPassantOffset(int enPassantTarget) { return isWhiteMove ? enPassantTarget + 8 : enPassantTarget - 8; };
 
     bool isDoublePawnMove(int startSq, int targetSq) { return isPawnMove(startSq) && (abs(startSq-targetSq) == 16); };
 
@@ -1212,13 +1173,22 @@ class U64Bitboard {
 
     bool isCheckMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
     bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
-    bool is50MoveRule() { return halfMoveClock > 50; };
-    bool is3FoldRepition() { return isMoveRepition; };
+    bool is50MoveRule() { return halfMoveClock > 100; };
+    bool is3FoldRepition() { return false; };
     bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() ); };
     bool isGameOver() { return isCheckMate() || isDraw(); };
 
     bool isWhiteWin() { return !isWhiteMove && isCheckMate(); };
     bool isBlackWin() { return isWhiteMove && isCheckMate(); };
+
+
+    bool MakeMove(vector<string> listmoves) {
+        bool movesMade = true;
+        for(string move : listmoves) {
+            movesMade &= MakeMove(move);
+        }
+        return movesMade;
+    };
 
     bool MakeMove(string move) {
         string startSquare = move.substr(0, 2);
@@ -1245,18 +1215,11 @@ class U64Bitboard {
         bool isEnpassantMove = isEnpassant(startSq, targetSq);
 
         //board updates 
-        if(isPromotion) {
-            PromotionUpdate(isCaptureMove, startSq, targetSq, promoP);
-        } else if (isCastleMove) {
-            CastleUpdate(targetSq - startSq);
-        } else if(isEnpassantMove) {
-            int offsetSq = isWhiteMove ? enPassantTarget + 8 : enPassantTarget - 8; 
-            EnpassantMoveUpdate(startSq, targetSq, offsetSq);
-        } else if(isCaptureMove) {
-            CaptureMoveUpdate(startSq, targetSq); 
-        } else {
-            QuietMoveUpdate(startSq, targetSq);
-        }
+        if(isPromotion) PromotionUpdate(isCaptureMove, startSq, targetSq, promoP);
+        if(isCastleMove) CastleUpdate(targetSq - startSq);
+        if(isEnpassantMove) EnpassantMoveUpdate(startSq, targetSq, enPassantOffset(enPassantTarget));
+        if(isCaptureMove) CaptureMoveUpdate(startSq, targetSq); 
+        if(!isCaptureMove) QuietMoveUpdate(startSq, targetSq); 
 
         //castling right update
         isMoveKing ? UpdateCastlingRightsFromKing() : UpdateCastlingRightsFromRook(startSq, targetSq);
@@ -1271,7 +1234,7 @@ class U64Bitboard {
         isWhiteMove = !isWhiteMove;
         if(isWhiteMove) { fullTurnNum++; }
 
-        isMoveRepition = UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + " " + CastlingRightsString(castlingRights));
+        //isMoveRepition = UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + " " + CastlingRightsString(castlingRights));
         SetMoveData();
         return true;
     };

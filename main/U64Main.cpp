@@ -1,24 +1,55 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard b;
-    b.MakeMove("e2e4");
-    b.MakeMove("e7e5");
-    b.MakeMove("e1e2");
-    b.MakeMove("e8e7");
-    b.MakeMove("e2e1");
-    b.MakeMove("e7e8");
-    b.MakeMove("e1e2");
-    b.MakeMove("e8e7");
-    b.MakeMove("e2e1");
-    b.MakeMove("e7e8");
-    b.MakeMove("e1e2");
-    b.MakeMove("e8e7");
-    b.MakeMove("e2e1");
-    b.MakeMove("e7e8");
+    U64Bitboard b("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+    b.MakeMove("d7c8q");
+    vector<string> uci = MapMovesToUCI(b.GetMapMoves());
+    Print(uci, "uci");
 
-    map<string, int> hashfen = b.GetFenHash();
-    Print(hashfen, "hashfen");
+
+
+    /* CASTLING
+        U64Bitboard b("rn1qk1nr/pppppppp/8/8/2P5/1N1P2P1/PPb1PPbP/R3K2R b KQkq - 0 1");
+        //castle both sides - "r3k2r/1ppbqppp/p1nbpn2/8/8/2NBPN2/PPPBQPPP/R3K2R b KQkq - 4 9" ,  b.MakeMove("e8c8"); - PASS 
+        //castle but in check - "rnbqk1nr/pppppppp/8/8/1bP5/1N1P4/PP2PPPP/R3K2R w KQkq - 0 1" - PASS
+        //castle but squares attacked - "rn1qk1nr/pppppppp/8/8/2P5/1N1P2P1/PPb1PPbP/R3K2R w KQkq - 0 1" - PASS
+        //caste but after rook is captured = "rn1qk1nr/pppppppp/8/8/2P5/1N1P2P1/PPb1PPbP/R3K2R b KQkq - 0 1" b.MakeMove("g2h1"); - PASS
+        string castling = b.GetCastlingRights();
+        cout << castling << endl;
+        b.MakeMove("g2h1");
+        castling = b.GetCastlingRights();
+        cout << castling << endl;
+        vector<string> uci = MapMovesToUCI(b.GetMapMoves());
+        Print(uci, "uci");
+    */
+
+    /* en passant
+        U64Bitboard b("rnbqkbnr/1ppp1ppp/p7/3Pp3/8/8/PPP1PPPP/RNBQKBNR w KQkq e6 0 3");
+        multimap<int, pair<int, char>> mapmoves = b.GetMapMoves();
+        //Print(mapmoves, "mapmoves");
+        vector<string> uci = MapMovesToUCI(mapmoves);
+        Print(uci, "uci");
+    */
+
+    /* Move reptiition and hash 
+        b.MakeMove("e2e4");
+        b.MakeMove("e7e5");
+        b.MakeMove("e1e2");
+        b.MakeMove("e8e7");
+        b.MakeMove("e2e1");
+        b.MakeMove("e7e8");
+        b.MakeMove("e1e2");
+        b.MakeMove("e8e7");
+        b.MakeMove("e2e1");
+        b.MakeMove("e7e8");
+        b.MakeMove("e1e2");
+        b.MakeMove("e8e7");
+        b.MakeMove("e2e1");
+        b.MakeMove("e7e8");
+
+        map<string, int> hashfen = b.GetFenHash();
+        Print(hashfen, "hashfen");
+    */
 
     /* double check 
         /r3k1nr/p1pppppp/1p2qbb1/8/8/2Q2n2/PPPP1PPP/RNB1KBNR w q - 0 1")

@@ -75,6 +75,15 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    void Print(vector<string> uci, string name = "") {
+        if(name.length() != 0) { cout << name << endl;}
+        
+        for(string move : uci) {
+            cout << move << endl;
+        }
+        cout << endl << endl;
+    }
+
     string CastlingRightsString(map<char, bool> m) {
         string temp = "";
         for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
@@ -174,17 +183,6 @@ namespace U64Extensions {
         return false;
     }
 
-    bool UpdateFenMapAndFind3Move(map<string, int> &hash, string fen) {
-        map<string, int>::iterator it = hash.find(fen);
-        if (it != hash.end()) {
-            it->second++;
-            if(it->second == 3) return true;
-        } else {
-            hash.insert(make_pair(fen, 1));
-        }
-        return false;
-    }
-
     void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {
         //Print(b, "U64ToMapMoves");
         vector<int> end = GetTrueBits(b);
@@ -208,7 +206,7 @@ namespace U64Extensions {
     vector<string> MapMovesToUCI(multimap<int, pair<int, char>> m) {
         vector<string> uci;
         for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-            string move = to_string(it->first) + to_string(it->second.first) + to_string(it->second.second);
+            string move = IndexToSquare(it->first) + IndexToSquare(it->second.first) + it->second.second;
             uci.push_back(move);
         }
         return uci;
