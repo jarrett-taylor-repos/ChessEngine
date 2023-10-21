@@ -20,6 +20,10 @@ class U64Bitboard {
     U64 bQueen;
     U64 bKing;
 
+    U64 bBoard;
+    U64 wBoard;
+    U64 occBoard;
+
     U64 wAttacks;
     U64 bAttacks;
 
@@ -68,6 +72,10 @@ class U64Bitboard {
         this->bQueen = other.bQueen;
         this->bKing = other.bKing;
 
+        this->wBoard = other.wBoard;
+        this->bBoard = other.bBoard;
+        this->occBoard = other.occBoard;
+
         this->wAttacks = other.wAttacks;
         this->bAttacks = other.bAttacks;
     };
@@ -84,19 +92,20 @@ class U64Bitboard {
     };
 
     void SetBoard(char c, int sq) {
+        SetBit(occBoard, sq);
         switch(c) {
-            case 'p': SetBit(bPawn, sq); AddMaterialValue(c); return;
-            case 'b': SetBit(bBishop, sq); AddMaterialValue(c); return;
-            case 'n': SetBit(bKnight, sq); AddMaterialValue(c); return;
-            case 'r': SetBit(bRook, sq); AddMaterialValue(c); return;
-            case 'q': SetBit(bQueen, sq); AddMaterialValue(c); return;
-            case 'k': SetBit(bKing, sq); AddMaterialValue(c); return;
-            case 'P': SetBit(wPawn, sq); AddMaterialValue(c); return;
-            case 'B': SetBit(wBishop, sq); AddMaterialValue(c); return;
-            case 'N': SetBit(wKnight, sq); AddMaterialValue(c); return;
-            case 'R': SetBit(wRook, sq); AddMaterialValue(c); return;
-            case 'Q': SetBit(wQueen, sq); AddMaterialValue(c); return;
-            case 'K': SetBit(wKing, sq); AddMaterialValue(c); return;
+            case 'p': SetBit(bPawn, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
+            case 'b': SetBit(bBishop, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
+            case 'n': SetBit(bKnight, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
+            case 'r': SetBit(bRook, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
+            case 'q': SetBit(bQueen, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
+            case 'k': SetBit(bKing, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
+            case 'P': SetBit(wPawn, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
+            case 'B': SetBit(wBishop, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
+            case 'N': SetBit(wKnight, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
+            case 'R': SetBit(wRook, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
+            case 'Q': SetBit(wQueen, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
+            case 'K': SetBit(wKing, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
         }
     }
 
@@ -158,7 +167,6 @@ class U64Bitboard {
     };
 
     string GetFenHelper() {
-        U64 allb = AllBoard();
         string fen = "";
         int temp = 0;
         for(int i = 0; i < 64; i++) {
@@ -170,7 +178,7 @@ class U64Bitboard {
                 fen += "/";  
             }
 
-            if(TestBit(allb, i)) {
+            if(TestBit(occBoard, i)) {
                 if(temp != 0) {
                     fen += to_string(temp);
                 }
@@ -237,6 +245,7 @@ class U64Bitboard {
         Reset(wPawn); Reset(wKnight); Reset(wBishop); Reset(wRook); Reset(wQueen); Reset(wKing);
         Reset(bPawn); Reset(bKnight); Reset(bBishop); Reset(bRook); Reset(bQueen); Reset(bKing);
 
+        Reset(wBoard); Reset(bBoard); Reset(occBoard);
         ClearAttacks();
     };
 
@@ -255,6 +264,16 @@ class U64Bitboard {
     U64 GetwAttacks() { return wAttacks; };
     U64 GetbAttacks() { return bAttacks; };
 
+    U64 GetwBoard() { return wBoard; };
+    U64 GetbBoard() { return bBoard; };
+    U64 GetOccBoard() { return occBoard; };
+
+    U64 EmptyBoard() { return ~occBoard; };
+    U64 NotbBoard() { return ~bBoard; };
+    U64 NotwBoard() { return ~wBoard; };
+
+    U64 GetOpponentBoard() {return isWhiteMove ? bBoard : wBoard; };
+
     bool IsWhiteMove() { return isWhiteMove; };
     int GetMoveMultiplier() { return (isWhiteMove) ? 1 : -1; };
 
@@ -267,16 +286,7 @@ class U64Bitboard {
     U64 GetAttacks() { return (isWhiteMove) ? bAttacks : wAttacks; };
 
     //board functions
-    U64 wBoard() { return wPawn | wKnight | wBishop | wRook | wQueen | wKing; };
-    U64 bBoard() { return bPawn | bKnight | bBishop | bRook | bQueen | bKing; };
-    U64 AllBoard() { return wBoard() | bBoard(); };
     U64 AllKing() { return wKing | bKing; };
-
-    U64 EmptyBoard() { return ~AllBoard(); };
-    U64 NotbBoard() { return ~bBoard(); };
-    U64 NotwBoard() { return ~wBoard(); };
-
-    U64 GetOpponentBoard() {return isWhiteMove ? bBoard() : wBoard(); };
 
     //generic movement 
     U64 OneInAllDirection(U64 b) { return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)); };
@@ -310,26 +320,26 @@ class U64Bitboard {
     U64 wPawnWestCaptures() { 
         U64 wpatt = wPawnWestAtt();
         U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 westcaptures = (wpatt & bBoard()) | (wpatt & enpass);
+        U64 westcaptures = (wpatt & bBoard) | (wpatt & enpass);
         return westcaptures;
     };
     U64 wPawnEastCaptures() { 
         U64 wpatt = wPawnEastAtt();
         U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 eastcaptures = (wpatt & bBoard()) | (wpatt & enpass);
+        U64 eastcaptures = (wpatt & bBoard) | (wpatt & enpass);
         return eastcaptures;
     };
     U64 wPawnAllCaptures() { return wPawnEastCaptures() | wPawnWestCaptures(); };
     U64 bPawnWestCaptures() { 
         U64 bpatt = bPawnWestAtt();
         U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 westcaptures = (bpatt & wBoard()) | (bpatt & enpass);
+        U64 westcaptures = (bpatt & wBoard) | (bpatt & enpass);
         return westcaptures;
     };
     U64 bPawnEastCaptures() { 
         U64 bpatt = bPawnEastAtt();
         U64 enpass = SingleBitBoard(enPassantTarget);
-        U64 eastcaptures = (bpatt & wBoard()) | (bpatt & enpass);
+        U64 eastcaptures = (bpatt & wBoard) | (bpatt & enpass);
         return eastcaptures;
     };
     U64 bPawnAllCaptures() { return bPawnEastCaptures() | bPawnWestCaptures(); };
@@ -343,11 +353,14 @@ class U64Bitboard {
     U64 bPawnWestAtt(U64 b) { return (b << 9) & notAFile; };
     U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
     U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
-    U64 wPawnWestCaptures(U64 b) { return wPawnWestAtt(b) & (bBoard() | SingleBitBoard(enPassantTarget)); };
-    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & (bBoard() | SingleBitBoard(enPassantTarget)); };
+    U64 wPawnWestCaptures(U64 b) { 
+        U64 enpassantBoard = SingleBitBoard(enPassantTarget);
+        return wPawnWestAtt(b) & (bBoard | SingleBitBoard(enPassantTarget)); 
+    };
+    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & (bBoard | SingleBitBoard(enPassantTarget)); };
     U64 wPawnAllCaptures(U64 b) { return wPawnEastCaptures(b) | wPawnWestCaptures(b); };
-    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & (wBoard() | SingleBitBoard(enPassantTarget)); };
-    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & (wBoard() | SingleBitBoard(enPassantTarget)); };
+    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & (wBoard | SingleBitBoard(enPassantTarget)); };
+    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & (wBoard | SingleBitBoard(enPassantTarget)); };
     U64 bPawnAllCaptures(U64 b) { return bPawnEastCaptures(b) | bPawnWestCaptures(b); };
 
     U64 wPawnPsuedoMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
@@ -376,8 +389,7 @@ class U64Bitboard {
         if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'K');
         if(!canCastle) return C64(0);
-        U64 allb = AllBoard();
-        bool hasBlocker = TestBit(allb, 61) || TestBit(allb, 62);
+        bool hasBlocker = TestBit(occBoard, 61) || TestBit(occBoard, 62);
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(61) || isSquareAttacked(62);
         if(isAttacked) return C64(0);
@@ -388,8 +400,7 @@ class U64Bitboard {
         if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'Q');
         if(!canCastle) return C64(0);
-        U64 allb = AllBoard();
-        bool hasBlocker = TestBit(allb, 57) || TestBit(allb, 58) || TestBit(allb, 59);
+        bool hasBlocker = TestBit(occBoard, 57) || TestBit(occBoard, 58) || TestBit(occBoard, 59);
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(57) || isSquareAttacked(58)|| isSquareAttacked(59);
         if(isAttacked) return C64(0);
@@ -402,8 +413,7 @@ class U64Bitboard {
         if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'k');
         if(!canCastle) return C64(0);
-        U64 allb = AllBoard();
-        bool hasBlocker = TestBit(allb, 5) || TestBit(allb, 6);
+        bool hasBlocker = TestBit(occBoard, 5) || TestBit(occBoard, 6);
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(5) || isSquareAttacked(6);
         if(isAttacked) return C64(0);
@@ -414,8 +424,7 @@ class U64Bitboard {
         if(checkToBlockSquares.size() > 0) return C64(0);
         bool canCastle = GetCastlingRightsValueByChar(castlingRights, 'q');
         if(!canCastle) return C64(0);
-        U64 allb = AllBoard();
-        bool hasBlocker = TestBit(allb, 1) || TestBit(allb, 2) || TestBit(allb, 3);
+        bool hasBlocker = TestBit(occBoard, 1) || TestBit(occBoard, 2) || TestBit(occBoard, 3);
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(1) || isSquareAttacked(2) || isSquareAttacked(3);
         if(isAttacked) return C64(0);
@@ -432,12 +441,11 @@ class U64Bitboard {
 
     //sliding moves helper
     bool ValidTravel(U64 overlap, int offset) { 
-        U64 notallb = ~AllBoard();
-        return InBounds(offset) && TestBit(overlap, offset) && TestBit(notallb, offset); 
+        U64 empty = EmptyBoard();
+        return InBounds(offset) && TestBit(overlap, offset) && TestBit(empty, offset); 
     };
-    bool ValidTravelAtt(U64 overlap, int offset) { 
-        U64 allb = AllBoard();
-        return InBounds(offset) && TestBit(overlap, offset) && TestBit(allb, offset); 
+    bool ValidTravelAtt(U64 overlap, int offset) {
+        return InBounds(offset) && TestBit(overlap, offset) && TestBit(occBoard, offset); 
     };
 
     bool ValidTravel(U64 occ, U64 overlap, int offset) { 
@@ -589,18 +597,18 @@ class U64Bitboard {
     //sliding moves
     U64 wBishopAttacks() { return BishopAttacks(wBishop); };
     U64 bBishopAttacks() { return BishopAttacks(bBishop); };
-    U64 wBishopPsuedoMoves() { U64 wbatt = wBishopAttacks(); return wbatt & ~(wbatt & wBoard()); };
-    U64 bBishopPsuedoMoves() { U64 bbatt = bBishopAttacks(); return bbatt & ~(bbatt & bBoard()); };
+    U64 wBishopPsuedoMoves() { U64 wbatt = wBishopAttacks(); return wbatt & ~(wbatt & wBoard); };
+    U64 bBishopPsuedoMoves() { U64 bbatt = bBishopAttacks(); return bbatt & ~(bbatt & bBoard); };
 
     U64 wRookAttacks() { return RookAttacks(wRook); };
     U64 bRookAttacks() { return RookAttacks(bRook); };
-    U64 wRookPsuedoMoves() { U64 wratt = wRookAttacks(); return wratt & ~(wratt & wBoard()); };
-    U64 bRookPsuedoMoves() { U64 bratt = bRookAttacks(); return bratt & ~(bratt & bBoard()); };
+    U64 wRookPsuedoMoves() { U64 wratt = wRookAttacks(); return wratt & ~(wratt & wBoard); };
+    U64 bRookPsuedoMoves() { U64 bratt = bRookAttacks(); return bratt & ~(bratt & bBoard); };
 
     U64 wQueenAttacks() { return RookAttacks(wQueen) | BishopAttacks(wQueen); };
     U64 bQueenAttacks() { return RookAttacks(bQueen) | BishopAttacks(bQueen); };
-    U64 wQueenPsuedoMoves() { U64 wqatt = wQueenAttacks(); return wqatt & ~(wqatt & wBoard()); };
-    U64 bQueenPsuedoMoves() { U64 bqatt = bQueenAttacks(); return bqatt & ~(bqatt & bBoard()); };
+    U64 wQueenPsuedoMoves() { U64 wqatt = wQueenAttacks(); return wqatt & ~(wqatt & wBoard); };
+    U64 bQueenPsuedoMoves() { U64 bqatt = bQueenAttacks(); return bqatt & ~(bqatt & bBoard); };
 
     //attacks
     void SetwPawnAttacks() {
@@ -687,68 +695,66 @@ class U64Bitboard {
 
     U64 SetxRayRookAttacks(U64 rook, U64 colorBoard, U64 oppBoard) {
         U64 attacks = 0;
-        U64 occ = AllBoard();
         vector<int> indexes = GetTrueBits(rook);
         for(int sq : indexes) {
             U64 rookSq = SingleBitBoard(sq);
             //travle north
-            U64 northmoves = SlidingAttacks(occ, ~rank1, sq, -8);
-            SetxRaySlidingAttacks(northmoves, occ, rookSq, colorBoard, oppBoard, -8, sq, attacks);
+            U64 northmoves = SlidingAttacks(occBoard, ~rank1, sq, -8);
+            SetxRaySlidingAttacks(northmoves, occBoard, rookSq, colorBoard, oppBoard, -8, sq, attacks);
             attacks |= northmoves;
 
             //travel east
-            U64 eastmoves  = SlidingAttacks(occ, ~aFile, sq, 1);
-            SetxRaySlidingAttacks(eastmoves, occ, rookSq, colorBoard, oppBoard, 1, sq, attacks);
+            U64 eastmoves  = SlidingAttacks(occBoard, ~aFile, sq, 1);
+            SetxRaySlidingAttacks(eastmoves, occBoard, rookSq, colorBoard, oppBoard, 1, sq, attacks);
             attacks |= eastmoves;
 
             //travel west
-            U64 westmoves  = SlidingAttacks(occ, ~hFile, sq, -1);
-            SetxRaySlidingAttacks(westmoves, occ, rookSq, colorBoard, oppBoard, -1, sq, attacks);
+            U64 westmoves  = SlidingAttacks(occBoard, ~hFile, sq, -1);
+            SetxRaySlidingAttacks(westmoves, occBoard, rookSq, colorBoard, oppBoard, -1, sq, attacks);
             attacks |= westmoves;
 
             //travle south
-            U64 southmoves  = SlidingAttacks(occ, ~rank8, sq, 8);
-            SetxRaySlidingAttacks(southmoves, occ, rookSq, colorBoard, oppBoard, 8, sq, attacks);
-            attacks |= southmoves;;
+            U64 southmoves  = SlidingAttacks(occBoard, ~rank8, sq, 8);
+            SetxRaySlidingAttacks(southmoves, occBoard, rookSq, colorBoard, oppBoard, 8, sq, attacks);
+            attacks |= southmoves;
         }
         return attacks;
     };
 
     U64 SetxRayBishopAttacks(U64 bishop, U64 colorBoard, U64 oppBoard) {
         U64 attacks = 0;
-        U64 occ = AllBoard();
         vector<int> indexes = GetTrueBits(bishop);
         for(int sq : indexes) {
             U64 bishopSq = SingleBitBoard(sq);
             //travel northEast
-            U64 northeast = SlidingAttacks(occ, ~aFile, sq, -7);
+            U64 northeast = SlidingAttacks(occBoard, ~aFile, sq, -7);
             attacks |= northeast;
-            SetxRaySlidingAttacks(northeast, occ, bishopSq, colorBoard, oppBoard, -7, sq, attacks);
+            SetxRaySlidingAttacks(northeast, occBoard, bishopSq, colorBoard, oppBoard, -7, sq, attacks);
 
             //travel northWest
-            U64 northwest = SlidingAttacks(occ, ~hFile, sq, -9);
+            U64 northwest = SlidingAttacks(occBoard, ~hFile, sq, -9);
             attacks |= northwest;
-            SetxRaySlidingAttacks(northwest, occ, bishopSq, colorBoard, oppBoard, -9, sq, attacks);
+            SetxRaySlidingAttacks(northwest, occBoard, bishopSq, colorBoard, oppBoard, -9, sq, attacks);
 
             //travel southEast
-            U64 southeast = SlidingAttacks(occ, ~aFile, sq, 9);
-            SetxRaySlidingAttacks(southeast, occ, bishopSq, colorBoard, oppBoard, 9, sq, attacks);
+            U64 southeast = SlidingAttacks(occBoard, ~aFile, sq, 9);
+            SetxRaySlidingAttacks(southeast, occBoard, bishopSq, colorBoard, oppBoard, 9, sq, attacks);
             attacks |= southeast;
 
             //travle southWest
-            U64 southwest = SlidingAttacks(occ, ~hFile, sq, 7);
-            SetxRaySlidingAttacks(southwest, occ, bishopSq, colorBoard, oppBoard, 7, sq, attacks);
+            U64 southwest = SlidingAttacks(occBoard, ~hFile, sq, 7);
+            SetxRaySlidingAttacks(southwest, occBoard, bishopSq, colorBoard, oppBoard, 7, sq, attacks);
             attacks |= southwest;
         }
         return attacks;
     };
     
-    void SetxRaywRookAttacks() { U64 attacks = SetxRayRookAttacks(wRook, bBoard(), wBoard()); wAttacks |= attacks; };
-    void SetxRaybRookAttacks() { U64 attacks = SetxRayRookAttacks(bRook, wBoard(), bBoard()); bAttacks |= attacks; };
-    void SetxRaywBishopAttacks() { U64 attacks = SetxRayBishopAttacks(wBishop, bBoard(), wBoard()); wAttacks |= attacks; };
-    void SetxRaybBishopAttacks() { U64 attacks = SetxRayBishopAttacks(bBishop, wBoard(), bBoard()); bAttacks |= attacks; };
-    void SetxRaywQueenAttacks() { U64 batt = SetxRayBishopAttacks(wQueen, bBoard(), wBoard()); U64 ratt = SetxRayRookAttacks(wQueen, bBoard(), wBoard()); wAttacks |= ratt; wAttacks |= batt; };
-    void SetxRaybQueenAttacks() { U64 batt = SetxRayBishopAttacks(bQueen, wBoard(), bBoard()); U64 ratt = SetxRayRookAttacks(bQueen, wBoard(), bBoard()); bAttacks |= ratt; bAttacks |= batt; }; 
+    void SetxRaywRookAttacks() { U64 attacks = SetxRayRookAttacks(wRook, bBoard, wBoard); wAttacks |= attacks; };
+    void SetxRaybRookAttacks() { U64 attacks = SetxRayRookAttacks(bRook, wBoard, bBoard); bAttacks |= attacks; };
+    void SetxRaywBishopAttacks() { U64 attacks = SetxRayBishopAttacks(wBishop, bBoard, wBoard); wAttacks |= attacks; };
+    void SetxRaybBishopAttacks() { U64 attacks = SetxRayBishopAttacks(bBishop, wBoard, bBoard); bAttacks |= attacks; };
+    void SetxRaywQueenAttacks() { U64 batt = SetxRayBishopAttacks(wQueen, bBoard, wBoard); U64 ratt = SetxRayRookAttacks(wQueen, bBoard, wBoard); wAttacks |= ratt; wAttacks |= batt; };
+    void SetxRaybQueenAttacks() { U64 batt = SetxRayBishopAttacks(bQueen, wBoard, bBoard); U64 ratt = SetxRayRookAttacks(bQueen, wBoard, bBoard); bAttacks |= ratt; bAttacks |= batt; }; 
 
     void SetwSlidingAttacks() { SetxRaywRookAttacks(); SetxRaywBishopAttacks(); SetxRaywQueenAttacks(); };
     void SetbSlidingAttacks() { SetxRaybRookAttacks(); SetxRaybBishopAttacks(); SetxRaybQueenAttacks(); };
@@ -837,7 +843,7 @@ class U64Bitboard {
         for(int sq : indexes) {
             U64 temp = SingleBitBoard(sq);
             U64 watt = BishopAttacks(temp);
-            U64 bMoves = watt & ~(watt & wBoard());
+            U64 bMoves = watt & ~(watt & wBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & bMoves;
             U64ToMapMoves(moves, sq, legal);
@@ -850,7 +856,7 @@ class U64Bitboard {
         for(int sq : indexes) {
             U64 temp = SingleBitBoard(sq);
             U64 batt = BishopAttacks(temp);
-            U64 bMoves = batt & ~(batt & bBoard());
+            U64 bMoves = batt & ~(batt & bBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & bMoves;
             U64ToMapMoves(moves, sq, legal);
@@ -863,7 +869,7 @@ class U64Bitboard {
         for(int sq : indexes) {
             U64 temp = SingleBitBoard(sq);
             U64 watt = RookAttacks(temp);
-            U64 rMoves = watt & ~(watt & wBoard());
+            U64 rMoves = watt & ~(watt & wBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & rMoves;
             U64ToMapMoves(moves, sq, legal);
@@ -876,7 +882,7 @@ class U64Bitboard {
         for(int sq : indexes) {
             U64 temp = SingleBitBoard(sq);
             U64 batt = RookAttacks(temp);
-            U64 rMoves = batt & ~(batt & bBoard());
+            U64 rMoves = batt & ~(batt & bBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & rMoves;
             U64ToMapMoves(moves, sq, legal);
@@ -891,7 +897,7 @@ class U64Bitboard {
             U64 wbatt = BishopAttacks(temp);
             U64 wratt = RookAttacks(temp);
             U64 watt = wratt | wbatt;
-            U64 qMoves = watt & ~(watt & wBoard());
+            U64 qMoves = watt & ~(watt & wBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & qMoves;
             U64ToMapMoves(moves, sq, legal);
@@ -906,7 +912,7 @@ class U64Bitboard {
             U64 bbatt = BishopAttacks(temp);
             U64 bratt = RookAttacks(temp);
             U64 batt = bratt | bbatt;
-            U64 qMoves = batt & ~(batt & bBoard());
+            U64 qMoves = batt & ~(batt & bBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & qMoves;
             U64ToMapMoves(moves, sq, legal);
@@ -980,13 +986,12 @@ class U64Bitboard {
     void GetMapMoves(multimap<int, pair<int, char>> &moves) { return isWhiteMove ? GetwMapMoves(moves) : GetbMapMoves(moves); };
     multimap<int, pair<int, char>> GetMapMoves() { multimap<int, pair<int, char>> moves; GetMapMoves(moves); return moves; };
 
-
-
     map<int, U64> GetBlockerPinnedToKingMovesMap() { return blockerToPinnnedMoves; };
 
 
     //make move helpers
     void GetwBoardandResetIndex(int index) {
+        ResetBit(wBoard, index); ResetBit(occBoard, index);
         if(TestBit(wPawn, index)) { ResetBit(wPawn, index); RemoveMaterialValue('P'); }
         if(TestBit(wKnight, index)) { ResetBit(wKnight, index); RemoveMaterialValue('N'); }
         if(TestBit(wBishop, index)) { ResetBit(wBishop, index); RemoveMaterialValue('B'); } 
@@ -996,6 +1001,7 @@ class U64Bitboard {
     };
 
     void GetbBoardandResetIndex(int index) {
+        ResetBit(bBoard, index); ResetBit(occBoard, index);
         if(TestBit(bPawn, index))  { ResetBit(bPawn, index); RemoveMaterialValue('p'); } 
         if(TestBit(bKnight, index))  { ResetBit(bKnight, index); RemoveMaterialValue('n'); } 
         if(TestBit(bBishop, index))  { ResetBit(bBishop, index); RemoveMaterialValue('b'); } 
@@ -1005,6 +1011,8 @@ class U64Bitboard {
     };
 
     void GetwBoardResetStartandSetTarget(int start, int target) {
+        ResetBit(wBoard, start); SetBit(wBoard, target);
+        ResetBit(occBoard, start); SetBit(occBoard, target);
         if(TestBit(wPawn, start))  { ResetBit(wPawn, start); SetBit(wPawn, target);}
         if(TestBit(wKnight, start)) { ResetBit(wKnight, start); SetBit(wKnight, target);}
         if(TestBit(wBishop, start)) { ResetBit(wBishop, start); SetBit(wBishop, target);}
@@ -1014,6 +1022,8 @@ class U64Bitboard {
     };
 
     void GetbBoardResetStartandSetTarget(int start, int target) {
+        ResetBit(bBoard, start); SetBit(bBoard, target);
+        ResetBit(occBoard, start); SetBit(occBoard, target);
         if(TestBit(bPawn, start)) { ResetBit(bPawn, start); SetBit(bPawn, target); }
         if(TestBit(bKnight, start)) { ResetBit(bKnight, start); SetBit(bKnight, target);}
         if(TestBit(bBishop, start)) { ResetBit(bBishop, start); SetBit(bBishop, target);}
@@ -1023,6 +1033,7 @@ class U64Bitboard {
     };
 
     void GetwBoardandSetPromoIndex(int index, char promoP) {
+        SetBit(wBoard, index); SetBit(occBoard, index);
         switch(promoP){
             case 'q': SetBit(wQueen, index); AddMaterialValue('Q'); return;
             case 'r': SetBit(wRook, index); AddMaterialValue('R'); return;
@@ -1032,6 +1043,7 @@ class U64Bitboard {
     };
 
     void GetbBoardandSetPromoIndex(int index, char promoP) {
+        SetBit(bBoard, index); SetBit(occBoard, index);
         switch(promoP){
             case 'q': SetBit(bQueen, index); AddMaterialValue('q'); return;
             case 'r': SetBit(bRook, index); AddMaterialValue('r'); return;
@@ -1048,15 +1060,8 @@ class U64Bitboard {
         if(!isWhiteMove && !isCapture) return GetbBoardandResetIndex(index);
     };
 
-    void GetBoardandSetPromoIndex(int index, char promoP) {
-        if(isWhiteMove) return GetwBoardandSetPromoIndex(index, promoP); 
-        return GetbBoardandSetPromoIndex(index, promoP); 
-    };
-
-    void GetBoardResetStartandSetTarget(int start, int target) {
-        if(isWhiteMove) return GetwBoardResetStartandSetTarget(start, target); 
-        return GetbBoardResetStartandSetTarget(start, target); 
-    };
+    void GetBoardandSetPromoIndex(int index, char promoP) { return isWhiteMove ? GetwBoardandSetPromoIndex(index, promoP) : GetbBoardandSetPromoIndex(index, promoP); };
+    void GetBoardResetStartandSetTarget(int start, int target) { return isWhiteMove ? GetwBoardResetStartandSetTarget(start, target) : GetbBoardResetStartandSetTarget(start, target); };
 
     void EnpassantMoveUpdate(int startIndex, int targetIndex, int enpassantPawnIndex) {
         GetBoardandResetIndex(enpassantPawnIndex, true);
@@ -1085,14 +1090,14 @@ class U64Bitboard {
 
     void PromotionUpdate(bool isCap, int startIndex, int targetIndex, char promoP) { return isCap ? CapturePromoUpdate(startIndex, targetIndex, promoP) : QuietPromoUpdate(startIndex, targetIndex, promoP); };
     
-    void CastleUpdateHelper(U64 &b, int start, int end) { ResetBit(b, start); SetBit(b, end); };
-    void wCastleLongUpdate() { CastleUpdateHelper(wRook, 56, 59); CastleUpdateHelper(wKing, 60, 58); };
-    void wCastleShortUpdate() { CastleUpdateHelper(wRook, 63, 61); CastleUpdateHelper(wKing, 60, 62); };
+    void CastleUpdateHelper(U64 &color, U64 &b, int start, int end) { ResetBit(color, start); SetBit(color, end); ResetBit(b, start); SetBit(b, end); ResetBit(occBoard, start); SetBit(occBoard, end); };
+    void wCastleLongUpdate() { CastleUpdateHelper(wBoard, wRook, 56, 59); CastleUpdateHelper(wBoard, wKing, 60, 58); };
+    void wCastleShortUpdate() { CastleUpdateHelper(wBoard, wRook, 63, 61); CastleUpdateHelper(wBoard, wKing, 60, 62); };
 
     void wCastleUpdate(int targetMinusStart) { return (targetMinusStart > 0) ? wCastleShortUpdate() : wCastleLongUpdate(); };
 
-    void bCastleLongUpdate() { CastleUpdateHelper(bRook, 0, 3); CastleUpdateHelper(bKing, 4, 2); };
-    void bCastleShortUpdate() { CastleUpdateHelper(bRook, 7, 5); CastleUpdateHelper(bKing, 4, 2); };
+    void bCastleLongUpdate() { CastleUpdateHelper(bBoard, bRook, 0, 3); CastleUpdateHelper(bBoard, bKing, 4, 2); };
+    void bCastleShortUpdate() { CastleUpdateHelper(bBoard, bRook, 7, 5); CastleUpdateHelper(bBoard, bKing, 4, 6); };
 
     void bCastleUpdate(int targetMinusStart) { return (targetMinusStart > 0) ? bCastleShortUpdate() : bCastleLongUpdate(); };
     void CastleUpdate(int targetMinusStart) { return (isWhiteMove) ? wCastleUpdate(targetMinusStart) : bCastleUpdate(targetMinusStart); };
@@ -1104,8 +1109,6 @@ class U64Bitboard {
         if(TestBit(wRook, index)) return GetwRookMapMoves();
         if(TestBit(wQueen, index)) return GetwQueenMapMoves();
         if(TestBit(wKing, index)) return GetwKingMapMoves();
-        multimap<int, pair<int, char>> m;
-        return m;
     };
 
     multimap<int, pair<int, char>> GetbBoardMoves(int index) {
@@ -1115,14 +1118,12 @@ class U64Bitboard {
         if(TestBit(bRook, index)) return GetbRookMapMoves();
         if(TestBit(bQueen, index)) return GetbQueenMapMoves();
         if(TestBit(bKing, index)) return GetbKingMapMoves();
-        multimap<int, pair<int, char>> m;
-        return m;
     };
 
     multimap<int, pair<int, char>> GetMovesByBoard(int index) { return isWhiteMove ? GetwBoardMoves(index): GetbBoardMoves(index); };
 
     bool isPromotionSquare(int sq) { if(isWhiteMove) return (sq < 8); return (sq > 55); };
-    bool isCapture(int targetSq) { U64 allb = AllBoard(); return TestBit(allb, targetSq); };
+    bool isCapture(int targetSq) { return TestBit(occBoard, targetSq); };
     bool isKingCapture(int targetSq) { U64 kingb = AllKing(); return TestBit(kingb, targetSq); };
     bool isEnpassant(int startSq, int targetSq) { return isPawnMove(startSq) && (targetSq == enPassantTarget); };
     bool isKingMove(int startSq) { U64 king = isWhiteMove ? wKing : bKing; return TestBit(king, startSq); };
@@ -1175,7 +1176,7 @@ class U64Bitboard {
     bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
     bool is50MoveRule() { return halfMoveClock > 100; };
     bool is3FoldRepition() { return false; };
-    bool inSufficientMaterial() { return GetTrueBits(AllBoard()).size() < 3;}
+    bool inSufficientMaterial() { return GetTrueBits(occBoard).size() < 3;}
     bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() || inSufficientMaterial() ); };
     bool isGameOver() { return isCheckMate() || isDraw(); };
 
