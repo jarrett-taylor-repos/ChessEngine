@@ -1175,7 +1175,8 @@ class U64Bitboard {
     bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
     bool is50MoveRule() { return halfMoveClock > 100; };
     bool is3FoldRepition() { return false; };
-    bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() ); };
+    bool inSufficientMaterial() { return GetTrueBits(AllBoard()).size() < 3;}
+    bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() || inSufficientMaterial() ); };
     bool isGameOver() { return isCheckMate() || isDraw(); };
 
     bool isWhiteWin() { return !isWhiteMove && isCheckMate(); };
