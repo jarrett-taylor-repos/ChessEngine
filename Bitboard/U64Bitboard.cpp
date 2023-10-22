@@ -27,6 +27,9 @@ class U64Bitboard {
     U64 wAttacks;
     U64 bAttacks;
 
+    int wKingSq;
+    int bKingSq;
+
     U64 zobrist;
     map<U64, int> zobristFenHash;
 
@@ -62,6 +65,10 @@ class U64Bitboard {
         this->blockerToPinnnedMoves = other.blockerToPinnnedMoves;
         this->checkToBlockSquares = other.checkToBlockSquares;
         this->zobristFenHash = other.zobristFenHash;
+
+        // Copy King squarea
+        this->wKingSq = other.wKingSq;
+        this->bKingSq = other.bKingSq;
 
         // Copy the U64 members
         this->wPawn = other.wPawn;
@@ -113,13 +120,13 @@ class U64Bitboard {
             case 'n': SetBit(bKnight, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
             case 'r': SetBit(bRook, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
             case 'q': SetBit(bQueen, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
-            case 'k': SetBit(bKing, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
+            case 'k': SetBit(bKing, sq); SetBit(bBoard, sq); AddMaterialValue(c); bKingSq = sq; return;
             case 'P': SetBit(wPawn, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'B': SetBit(wBishop, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'N': SetBit(wKnight, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'R': SetBit(wRook, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'Q': SetBit(wQueen, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
-            case 'K': SetBit(wKing, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
+            case 'K': SetBit(wKing, sq); SetBit(wBoard, sq); AddMaterialValue(c); wKingSq = sq; return;
         }
     }
 
@@ -271,6 +278,7 @@ class U64Bitboard {
         Reset(wBoard); Reset(bBoard); Reset(occBoard); 
 
         Reset(zobrist); zobristFenHash.clear();
+        wKingSq = -1; bKingSq = -1;
         ClearAttacks();
     };
 
@@ -455,11 +463,11 @@ class U64Bitboard {
 
     U64 bKingCastle() { return bKingCastleShort() | bKingCastleLong(); };
 
-    U64 wKingPsuedoMoves() { return (precomputtedKings[GetTrueBits(wKing)[0]] | wKingCastle()) & (NotwBoard() & ~bAttacks); };
-    U64 bKingPsuedoMoves() { return (precomputtedKings[GetTrueBits(bKing)[0]] | bKingCastle()) & (NotbBoard() & ~wAttacks); };
+    U64 wKingPsuedoMoves() { return (precomputtedKings[wKingSq] | wKingCastle()) & (NotwBoard() & ~bAttacks); };
+    U64 bKingPsuedoMoves() { return (precomputtedKings[bKingSq] | bKingCastle()) & (NotbBoard() & ~wAttacks); };
 
-    U64 wKingAtt() { return OneInAllDirection(wKing); };
-    U64 bKingAtt() { return OneInAllDirection(bKing); };
+    U64 wKingAtt() { return precomputtedKings[wKingSq]; };
+    U64 bKingAtt() { return precomputtedKings[bKingSq]; };
 
     //sliding moves helper
     bool ValidTravel(U64 overlap, int offset) { 
@@ -683,8 +691,8 @@ class U64Bitboard {
         }
     };
 
-    void SetwKingAttacks() { int sq = GetTrueBits(wKing)[0]; U64 king = precomputtedSingleBit[sq]; U64 kingatt = OneInAllDirection(king); wAttacks |= kingatt; };
-    void SetbKingAttacks() { int sq = GetTrueBits(bKing)[0]; U64 king = precomputtedSingleBit[sq]; U64 kingatt = OneInAllDirection(king); bAttacks |= kingatt; };
+    void SetwKingAttacks() { wAttacks |= precomputtedKings[wKingSq]; };
+    void SetbKingAttacks() { bAttacks |= precomputtedKings[bKingSq]; };
 
     void SetxRaySlidingAttacks(U64 moves, U64 occ, U64 pieceBoard, U64 colorBoard, U64 oppBoard, int direction, int sq, U64 &attacks) {
         U64 blocker = moves & occ & ~oppBoard;
@@ -1242,6 +1250,10 @@ class U64Bitboard {
 
         //castling right update
         isMoveKing ? UpdateCastlingRightsFromKing() : UpdateCastlingRightsFromRook(startSq, targetSq);
+
+        //update kign sq
+        if(isMoveKing && isWhiteMove) wKingSq = targetSq;
+        if(isMoveKing && !isWhiteMove) bKingSq = targetSq;
     
         //enpassant target 
         SetZobristHash(zobrist, enPassantTarget);
