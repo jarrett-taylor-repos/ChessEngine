@@ -1,9 +1,42 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard b("7Q/3k2p1/1p3n2/8/8/8/3bKq2/1N5R w  - 0 19");
-    multimap<int, pair<int, char>> mapmoves = b.GetMapMoves();
-    Print(mapmoves, "mapmoves");
+    U64Bitboard b;
+    b.MakeMove("a2a4");
+    bool gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("b8a6");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("a4a5");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("a8b8");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("b2b4");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("b8a8");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("b4b5");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("a8b8");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
+
+    b.MakeMove("b5b6");
+    gamedone = b.isGameOver();
+    cout << gamedone << endl;
 
     /*  SINGLE check - king moves back and captures a piece 
         U64Bitboard b("7Q/3k2p1/1p3n2/8/8/8/3bKq2/1N5R w  - 0 19");

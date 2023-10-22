@@ -20,14 +20,14 @@ class U64Bitboard {
     U64 bQueen;
     U64 bKing;
 
-    map<char, vector<int>> pieceToIndexes;
-
     U64 bBoard;
     U64 wBoard;
     U64 occBoard;
 
     U64 wAttacks;
     U64 bAttacks;
+
+    map<char, vector<int>> pieceToBoardIndexes;
 
     U64 zobrist;
     map<U64, int> zobristFenHash;
@@ -58,6 +58,7 @@ class U64Bitboard {
         this->isWhiteMove = other.isWhiteMove;
         this->castlingRights = other.castlingRights;
         this->materialValue = other.materialValue;
+        this->isMoveRepition = other.isMoveRepition;
 
         // Copy the map members
         this->blockerToPinnnedMoves = other.blockerToPinnnedMoves;
@@ -1202,16 +1203,16 @@ class U64Bitboard {
         return moveGivesCheck;
     };
 
-    bool isCheckMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
-    bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
+    bool isCheckMate(multimap<int, pair<int, char>> moves) { return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
+    bool isStaleMate(multimap<int, pair<int, char>> moves) { return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
     bool is50MoveRule() { return halfMoveClock > 100; };
     bool is3FoldRepition() { return isMoveRepition; };
     bool inSufficientMaterial() { return GetTrueBits(occBoard).size() < 3;}
-    bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() || inSufficientMaterial() ); };
-    bool isGameOver() { return isCheckMate() || isDraw(); };
+    bool isDraw(multimap<int, pair<int, char>> moves) { return ( isStaleMate(moves) || is50MoveRule() || is3FoldRepition() || inSufficientMaterial() ); };
+    bool isGameOver() { multimap<int, pair<int, char>> moves = GetMapMoves(); return isCheckMate(moves) || isDraw(moves); };
 
-    bool isWhiteWin() { return !isWhiteMove && isCheckMate(); };
-    bool isBlackWin() { return isWhiteMove && isCheckMate(); };
+    bool isWhiteWin() { multimap<int, pair<int, char>> moves = GetMapMoves(); return !isWhiteMove && isCheckMate(moves); };
+    bool isBlackWin() { multimap<int, pair<int, char>> moves = GetMapMoves(); return isWhiteMove && isCheckMate(moves); };
 
 
     bool MakeMove(vector<string> listmoves) {
