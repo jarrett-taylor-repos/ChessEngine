@@ -258,6 +258,7 @@ namespace U64Extensions {
             case 'R': return 9;
             case 'Q': return 10;
             case 'K': return 11;
+            default: return -1;
         }
     }
 

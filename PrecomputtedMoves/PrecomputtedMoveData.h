@@ -17,6 +17,16 @@ namespace PrecomputtedMoveData {
     U64 noNoWe(U64 b) {return (b >> 17) & notHFile; };
     U64 KnightAttacks(U64 b) { return noNoEa(b) | noEaEa(b) | soEaEa(b) | soSoEa(b) | noNoWe(b) | noWeWe(b) | soWeWe(b) | soSoWe(b); };
 
+    void GenerateSingleBitBoards(ofstream &of) {
+        of << "{";
+        for(int i = 0; i < 64; i++) {
+            U64 single = SingleBitBoard(i);
+            of << single;
+            if(i !=63) of << ", ";
+        }
+        of << "}" << endl << endl;
+    }
+
     void GeneratePrecomputtedKnights(ofstream &of) {
         of << "{";
         for(int i = 0; i < 64; i++) {
@@ -29,8 +39,8 @@ namespace PrecomputtedMoveData {
 
     void GeneratePrecomputted() {
         ofstream of("PrecomputtedMoveData.txt");
+        GenerateSingleBitBoards(of);
         GeneratePrecomputtedKnights(of);
-
         of.close();
     }
 }

@@ -355,26 +355,26 @@ class U64Bitboard {
     U64 bPawnAllAtt() { return bPawnEastAtt() | bPawnWestAtt(); };
     U64 wPawnWestCaptures() { 
         U64 wpatt = wPawnWestAtt();
-        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 enpass = precomputtedSingleBit[enPassantTarget];
         U64 westcaptures = (wpatt & bBoard) | (wpatt & enpass);
         return westcaptures;
     };
     U64 wPawnEastCaptures() { 
         U64 wpatt = wPawnEastAtt();
-        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 enpass = precomputtedSingleBit[enPassantTarget];
         U64 eastcaptures = (wpatt & bBoard) | (wpatt & enpass);
         return eastcaptures;
     };
     U64 wPawnAllCaptures() { return wPawnEastCaptures() | wPawnWestCaptures(); };
     U64 bPawnWestCaptures() { 
         U64 bpatt = bPawnWestAtt();
-        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 enpass = precomputtedSingleBit[enPassantTarget];
         U64 westcaptures = (bpatt & wBoard) | (bpatt & enpass);
         return westcaptures;
     };
     U64 bPawnEastCaptures() { 
         U64 bpatt = bPawnEastAtt();
-        U64 enpass = SingleBitBoard(enPassantTarget);
+        U64 enpass = precomputtedSingleBit[enPassantTarget];
         U64 eastcaptures = (bpatt & wBoard) | (bpatt & enpass);
         return eastcaptures;
     };
@@ -389,14 +389,11 @@ class U64Bitboard {
     U64 bPawnWestAtt(U64 b) { return (b << 9) & notAFile; };
     U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
     U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
-    U64 wPawnWestCaptures(U64 b) { 
-        U64 enpassantBoard = SingleBitBoard(enPassantTarget);
-        return wPawnWestAtt(b) & (bBoard | SingleBitBoard(enPassantTarget)); 
-    };
-    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & (bBoard | SingleBitBoard(enPassantTarget)); };
+    U64 wPawnWestCaptures(U64 b) { return wPawnWestAtt(b) & (bBoard | precomputtedSingleBit[enPassantTarget]); };
+    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & (bBoard | precomputtedSingleBit[enPassantTarget]); };
     U64 wPawnAllCaptures(U64 b) { return wPawnEastCaptures(b) | wPawnWestCaptures(b); };
-    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & (wBoard | SingleBitBoard(enPassantTarget)); };
-    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & (wBoard | SingleBitBoard(enPassantTarget)); };
+    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & (wBoard | precomputtedSingleBit[enPassantTarget]); };
+    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & (wBoard | precomputtedSingleBit[enPassantTarget]); };
     U64 bPawnAllCaptures(U64 b) { return bPawnEastCaptures(b) | bPawnWestCaptures(b); };
 
     U64 wPawnPsuedoMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
@@ -428,7 +425,7 @@ class U64Bitboard {
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(61) || isSquareAttacked(62);
         if(isAttacked) return C64(0);
-        return SingleBitBoard(62);
+        return precomputtedSingleBit[62];
     };
 
     U64 wKingCastleLong() {
@@ -439,7 +436,7 @@ class U64Bitboard {
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(57) || isSquareAttacked(58)|| isSquareAttacked(59);
         if(isAttacked) return C64(0);
-        return SingleBitBoard(58);
+        return precomputtedSingleBit[58];
     };
 
     U64 wKingCastle() { return wKingCastleShort() | wKingCastleLong(); };
@@ -452,7 +449,7 @@ class U64Bitboard {
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(5) || isSquareAttacked(6);
         if(isAttacked) return C64(0);
-        return SingleBitBoard(6);
+        return precomputtedSingleBit[6];
     };
 
     U64 bKingCastleLong() {
@@ -463,7 +460,7 @@ class U64Bitboard {
         if(hasBlocker) return C64(0);
         bool isAttacked = isSquareAttacked(1) || isSquareAttacked(2) || isSquareAttacked(3);
         if(isAttacked) return C64(0);
-        return SingleBitBoard(2);
+        return precomputtedSingleBit[2];
     };
 
     U64 bKingCastle() { return bKingCastleShort() | bKingCastleLong(); };
@@ -649,7 +646,7 @@ class U64Bitboard {
     void SetwPawnAttacks() {
         vector<int> indexes = GetTrueBits(wPawn);
         for(int sq : indexes) {
-            U64 pawn = SingleBitBoard(sq);
+            U64 pawn = precomputtedSingleBit[sq];
             U64 pawnAttacks = wPawnAllAtt(pawn);
             U64 givesCheck = pawnAttacks & bKing;
 
@@ -662,7 +659,7 @@ class U64Bitboard {
     void SetbPawnAttacks() {
         vector<int> indexes = GetTrueBits(bPawn);
         for(int sq : indexes) {
-            U64 pawn = SingleBitBoard(sq);
+            U64 pawn = precomputtedSingleBit[sq];
             U64 pawnAttacks = bPawnAllAtt(pawn);
             U64 givesCheck = pawnAttacks & wKing;
 
@@ -696,8 +693,8 @@ class U64Bitboard {
         }
     };
 
-    void SetwKingAttacks() { int sq = GetTrueBits(wKing)[0]; U64 king = SingleBitBoard(sq); U64 kingatt = OneInAllDirection(king); wAttacks |= kingatt; };
-    void SetbKingAttacks() { int sq = GetTrueBits(bKing)[0]; U64 king = SingleBitBoard(sq); U64 kingatt = OneInAllDirection(king); bAttacks |= kingatt; };
+    void SetwKingAttacks() { int sq = GetTrueBits(wKing)[0]; U64 king = precomputtedSingleBit[sq]; U64 kingatt = OneInAllDirection(king); wAttacks |= kingatt; };
+    void SetbKingAttacks() { int sq = GetTrueBits(bKing)[0]; U64 king = precomputtedSingleBit[sq]; U64 kingatt = OneInAllDirection(king); bAttacks |= kingatt; };
 
     void SetxRaySlidingAttacks(U64 moves, U64 occ, U64 pieceBoard, U64 colorBoard, U64 oppBoard, int direction, int sq, U64 &attacks) {
         U64 blocker = moves & occ & ~oppBoard;
@@ -729,7 +726,7 @@ class U64Bitboard {
         U64 attacks = 0;
         vector<int> indexes = GetTrueBits(rook);
         for(int sq : indexes) {
-            U64 rookSq = SingleBitBoard(sq);
+            U64 rookSq = precomputtedSingleBit[sq];
             //travle north
             U64 northmoves = SlidingAttacks(occBoard, ~rank1, sq, -8);
             SetxRaySlidingAttacks(northmoves, occBoard, rookSq, colorBoard, oppBoard, -8, sq, attacks);
@@ -757,7 +754,7 @@ class U64Bitboard {
         U64 attacks = 0;
         vector<int> indexes = GetTrueBits(bishop);
         for(int sq : indexes) {
-            U64 bishopSq = SingleBitBoard(sq);
+            U64 bishopSq = precomputtedSingleBit[sq];
             //travel northEast
             U64 northeast = SlidingAttacks(occBoard, ~aFile, sq, -7);
             attacks |= northeast;
@@ -823,7 +820,7 @@ class U64Bitboard {
     void GetwPawnMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wPawn);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 pawnMoves = wPawnPsuedoMoves(temp);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & pawnMoves;
@@ -835,7 +832,7 @@ class U64Bitboard {
     void GetbPawnMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bPawn);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 pawnMoves = bPawnPsuedoMoves(temp);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             U64 legal = pinned & pawnMoves;
@@ -871,7 +868,7 @@ class U64Bitboard {
     void GetwBishopMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wBishop);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 watt = BishopAttacks(temp);
             U64 bMoves = watt & ~(watt & wBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
@@ -884,7 +881,7 @@ class U64Bitboard {
     void GetbBishopMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bBishop);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 batt = BishopAttacks(temp);
             U64 bMoves = batt & ~(batt & bBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
@@ -897,7 +894,7 @@ class U64Bitboard {
     void GetwRookMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wRook);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 watt = RookAttacks(temp);
             U64 rMoves = watt & ~(watt & wBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
@@ -910,7 +907,7 @@ class U64Bitboard {
     void GetbRookMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bRook);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 batt = RookAttacks(temp);
             U64 rMoves = batt & ~(batt & bBoard);
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
@@ -923,7 +920,7 @@ class U64Bitboard {
     void GetwQueenMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wQueen);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 wbatt = BishopAttacks(temp);
             U64 wratt = RookAttacks(temp);
             U64 watt = wratt | wbatt;
@@ -938,7 +935,7 @@ class U64Bitboard {
     void GetbQueenMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bQueen);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
+            U64 temp = precomputtedSingleBit[sq];
             U64 bbatt = BishopAttacks(temp);
             U64 bratt = RookAttacks(temp);
             U64 batt = bratt | bbatt;

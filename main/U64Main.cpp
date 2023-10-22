@@ -1,9 +1,20 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard b("r1b1k2r/ppppqpbp/8/P5P1/3P4/1n2K3/8/RNBQ1BNR w k - 0 21");
-    vector<string> uci = MapMovesToUCI(b.GetMapMoves());
-    Print(uci, "uci");
+    U64Bitboard b;
+
+    auto start = high_resolution_clock::now();
+    
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<nanoseconds>(stop - start);
+    cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
+
+
+    start = high_resolution_clock::now();
+
+    stop = high_resolution_clock::now();
+    duration = duration_cast<nanoseconds>(stop - start);
+    cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
 
 
     /* Knight indexes speed update 
