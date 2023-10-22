@@ -243,7 +243,7 @@ class U64Bitboard {
         return 0;
     };
 
-        int GetAbsValueAtIndex(int index) {
+    int GetAbsValueAtIndex(int index) {
         if(TestBit(wPawn, index)) return 1;
         if(TestBit(wKnight, index)) return 3;
         if(TestBit(wBishop, index)) return 3;
