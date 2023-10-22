@@ -1,28 +1,24 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard b;
-    auto start = high_resolution_clock::now();
-    vector<int> indexes = GetTrueBits(b.GetwKnight());
-    indexes = GetTrueBits(b.GetwKnight());
-    indexes = GetTrueBits(b.GetwKnight());
-    indexes = GetTrueBits(b.GetwKnight());
-    indexes = GetTrueBits(b.GetwKnight());
-    indexes = GetTrueBits(b.GetwKnight());
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Time to get GetTrueBits: " + to_string(duration.count()) << endl;
+    U64Bitboard b("r1b1k2r/ppppqpbp/8/P5P1/3P4/1n2K3/8/RNBQ1BNR w k - 0 21");
+    vector<string> uci = MapMovesToUCI(b.GetMapMoves());
+    Print(uci, "uci");
 
-    start = high_resolution_clock::now();
-    vector<int> windexes = b.GetwKnightIndexes();
-    windexes = b.GetwKnightIndexes();
-    windexes = b.GetwKnightIndexes();
-    windexes = b.GetwKnightIndexes();
-    windexes = b.GetwKnightIndexes();
-    windexes = b.GetwKnightIndexes();
-    stop = high_resolution_clock::now();
-    duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
+
+    /* Knight indexes speed update 
+        auto start = high_resolution_clock::now();
+        vector<int> indexes = GetTrueBits(b.GetwKnight());
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<nanoseconds>(stop - start);
+        cout << "Time to get GetTrueBits: " + to_string(duration.count()) << endl;
+
+        start = high_resolution_clock::now();
+        vector<int> windexes = b.GetwKnightIndexes();
+        stop = high_resolution_clock::now();
+        duration = duration_cast<nanoseconds>(stop - start);
+        cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
+    */
 
     /*  SINGLE check - king moves back and captures a piece 
         U64Bitboard b("7Q/3k2p1/1p3n2/8/8/8/3bKq2/1N5R w  - 0 19");

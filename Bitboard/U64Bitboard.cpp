@@ -711,8 +711,7 @@ class U64Bitboard {
             InsertCheck(checkToBlockSquares, sq, blockAndCap);
 
             //add attacker thorugh king 
-            if(!ValidTravelAtt(occ, kingSq + direction)) return;
-            SetBit(attacks, kingSq + direction);
+            if(ValidTravelAtt(occ, kingSq + direction) || !TestBit(occ, kingSq + direction)) SetBit(attacks, kingSq + direction);
         }
         int blockerSq = GetTrueBits(blocker)[0];
         U64 occAttacks = SlidingAttacksByDirectionAndSquare(sq, occ ^ blocker, direction);
