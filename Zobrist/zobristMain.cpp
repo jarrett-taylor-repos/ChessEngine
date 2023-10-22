@@ -6,7 +6,4 @@ using namespace ZobristHashing;
 int main() {
     //need to run once to generate text file 
     //GenerateZobristNumbers();
-
-
-    LoadZobrist();
 }

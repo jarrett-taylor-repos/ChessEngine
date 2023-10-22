@@ -1,10 +1,14 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard b("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
-    b.MakeMove("d7c8q");
-    vector<string> uci = MapMovesToUCI(b.GetMapMoves());
-    Print(uci, "uci");
+    U64Bitboard b;
+    b.MakeMove("e2e4");
+    U64 zobrist = b.GetZobrist();
+    cout << zobrist << endl;
+
+    U64Bitboard test("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+    U64 zobristtest = test.GetZobrist();
+    cout << zobristtest << endl;
 
 
 

@@ -92,12 +92,24 @@ namespace U64Extensions {
         return temp;
     }
 
-    map<char, bool> SetCastlingRights(string str) {
+    int CastlingRightsToZobristIndex(char c) {
+        switch(c) {
+            case 'K': return 0;
+            case 'Q': return 1;
+            case 'k': return 2;
+            case 'q': return 3;
+        }
+        return -1;
+    }
+
+    map<char, bool> SetCastlingRights(string str, U64 &zobrist) {
         map<char, bool> m = castlingRightsDefault;
 
         for(char c : str) {
             auto it = m.find(c);
             it->second = true;
+            int index = CastlingRightsToZobristIndex(c);
+            zobrist ^= castlingNumbers[index];
         }
         return m;
     }
@@ -106,9 +118,11 @@ namespace U64Extensions {
         return count(v.begin(), v.end(), key) > 0;
     }
 
-    void SetCastlingRightsFalse(map<char, bool> &m, char c) {
+    void SetCastlingRightsFalse(map<char, bool> &m, char c, U64 &zobrist) {
         auto it = m.find(c);
         it->second = false;
+        int index = CastlingRightsToZobristIndex(c);
+        zobrist ^= castlingNumbers[index];
     }
 
     bool GetCastlingRightsValueByChar(map<char, bool> m, char c) {
@@ -210,5 +224,61 @@ namespace U64Extensions {
             uci.push_back(move);
         }
         return uci;
+    }
+
+    //zobrist 
+    int PieceToZobristIndex(char c) {
+        switch(c) {
+            case 'p': return 0;
+            case 'b': return 1;
+            case 'n': return 2;
+            case 'r': return 3;
+            case 'q': return 4;
+            case 'k': return 5;
+            case 'P': return 6;
+            case 'B': return 7;
+            case 'N': return 8;
+            case 'R': return 9;
+            case 'Q': return 10;
+            case 'K': return 11;
+        }
+    }
+
+    int EnpassantZobristIndex(int enPassantTarget) {
+        switch(enPassantTarget) {
+            case 16: return 0;
+            case 17: return 1;
+            case 18: return 2;
+            case 19: return 3;
+            case 20: return 4;
+            case 21: return 5;
+            case 22: return 6;
+            case 23: return 7;
+            case 40: return 8;
+            case 41: return 9;
+            case 42: return 10;
+            case 43: return 11;
+            case 44: return 12;
+            case 45: return 13;
+            case 46: return 14;
+            case 47: return 15;
+            default: return -1;
+        }
+    }
+
+    void SetZobristHash(U64 &zobrist, int boardSq, char c) {
+        int pieceNum = PieceToZobristIndex(c);
+        zobrist ^= pieceNumbers[boardSq][pieceNum];
+    }
+
+    void SetZobristHash(U64 &zobrist, int enpassantTarget) {
+        int index = EnpassantZobristIndex(enpassantTarget);
+        if(index == -1) return;
+        zobrist ^= enpassantNumbers[index];
+    }
+
+    void SetZobristHash(U64 &zobrist, bool isWhiteMove) {
+        if(isWhiteMove) return;
+        zobrist ^= whiteMoveNumber;
     }
 }
