@@ -206,8 +206,12 @@ namespace U64Extensions {
         return false;
     }
 
-    void InsertIndex(map<char, vector<int>> &m, char c, int index) {
-        
+    void InsertIndex(vector<int> &m, int value) {
+        m.push_back(value);
+    }
+
+    void RemoveIndex(vector<int> &m, int value) {
+        m.erase(remove(m.begin(), m.end(), value), m.end());
     }
 
     void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {
