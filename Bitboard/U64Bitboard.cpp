@@ -243,6 +243,23 @@ class U64Bitboard {
         return 0;
     };
 
+    int GetAbsValueAtIndex(int index) {
+        if(TestBit(wPawn, index)) return 1;
+        if(TestBit(wKnight, index)) return 3;
+        if(TestBit(wBishop, index)) return 3;
+        if(TestBit(wRook, index)) return 5;
+        if(TestBit(wQueen, index)) return 9;
+        if(TestBit(wKing, index)) return 1000;
+
+        if(TestBit(bPawn, index)) return 1;
+        if(TestBit(bKnight, index)) return 3;
+        if(TestBit(bBishop, index)) return 3;
+        if(TestBit(bRook, index)) return 5;
+        if(TestBit(bQueen, index)) return 9;
+        if(TestBit(bKing, index)) return 1000;
+        return 0;
+    };
+
     int GetMaterialValueOld() {
         int sum = 0;
         for (int i = 0; i<64; i++) {
