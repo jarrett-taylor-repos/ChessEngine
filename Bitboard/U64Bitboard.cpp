@@ -27,9 +27,6 @@ class U64Bitboard {
     U64 wAttacks;
     U64 bAttacks;
 
-    vector<int> wKnightIndexes;
-    vector<int> bKnightIndexes;
-
     U64 zobrist;
     map<U64, int> zobristFenHash;
 
@@ -65,10 +62,6 @@ class U64Bitboard {
         this->blockerToPinnnedMoves = other.blockerToPinnnedMoves;
         this->checkToBlockSquares = other.checkToBlockSquares;
         this->zobristFenHash = other.zobristFenHash;
-
-        // Copy the vector indexes 
-        this->wKnightIndexes = other.wKnightIndexes;
-        this->bKnightIndexes = other.bKnightIndexes;
 
         // Copy the U64 members
         this->wPawn = other.wPawn;
@@ -117,13 +110,13 @@ class U64Bitboard {
         switch(c) {
             case 'p': SetBit(bPawn, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
             case 'b': SetBit(bBishop, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
-            case 'n': SetBit(bKnight, sq); SetBit(bBoard, sq); AddMaterialValue(c); InsertIndex(bKnightIndexes, sq); return;
+            case 'n': SetBit(bKnight, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
             case 'r': SetBit(bRook, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
             case 'q': SetBit(bQueen, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
             case 'k': SetBit(bKing, sq); SetBit(bBoard, sq); AddMaterialValue(c); return;
             case 'P': SetBit(wPawn, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'B': SetBit(wBishop, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
-            case 'N': SetBit(wKnight, sq); SetBit(wBoard, sq); AddMaterialValue(c); InsertIndex(wKnightIndexes, sq); return;
+            case 'N': SetBit(wKnight, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'R': SetBit(wRook, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'Q': SetBit(wQueen, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
             case 'K': SetBit(wKing, sq); SetBit(wBoard, sq); AddMaterialValue(c); return;
@@ -278,7 +271,6 @@ class U64Bitboard {
         Reset(wBoard); Reset(bBoard); Reset(occBoard); 
 
         Reset(zobrist); zobristFenHash.clear();
-        wKnightIndexes.clear(); bKnightIndexes.clear();
         ClearAttacks();
     };
 
@@ -321,8 +313,6 @@ class U64Bitboard {
 
     //board functions
     U64 AllKing() { return wKing | bKing; };
-    vector<int> GetwKnightIndexes() { return wKnightIndexes; };
-    vector<int> GetbKnightIndexes() { return bKnightIndexes; };
 
     //generic movement 
     U64 OneInAllDirection(U64 b) { return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)); };
@@ -670,8 +660,8 @@ class U64Bitboard {
     };
 
     void SetwKnightAttacks() {
-        //vector<int> indexes = GetTrueBits(wKnight);
-        for(int sq : wKnightIndexes) {
+        vector<int> indexes = GetTrueBits(wKnight);
+        for(int sq : indexes) {
             U64 knightAtt = precomputtedKnights[sq];
             U64 givesCheck = knightAtt & bKing;
 
@@ -683,7 +673,7 @@ class U64Bitboard {
 
     void SetbKnightAttacks() {
         vector<int> indexes = GetTrueBits(bKnight);
-        for(int sq : bKnightIndexes) {
+        for(int sq : indexes) {
             U64 knightAtt = precomputtedKnights[sq];
             U64 givesCheck = knightAtt & wKing;
 
@@ -842,8 +832,8 @@ class U64Bitboard {
     multimap<int, pair<int, char>> GetbPawnMapMoves() { multimap<int, pair<int, char>> moves; GetbPawnMapMoves(moves); return moves; };
 
     void GetwKnightMapMoves(multimap<int, pair<int, char>> &moves) {
-        //vector<int> indexes = GetTrueBits(wKnight);
-        for(int sq : wKnightIndexes) {
+        vector<int> indexes = GetTrueBits(wKnight);
+        for(int sq : indexes) {
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             if(pinned != Universe) return;
 
@@ -854,8 +844,8 @@ class U64Bitboard {
     multimap<int, pair<int, char>> GetwKnightMapMoves() { multimap<int, pair<int, char>> moves; GetwKnightMapMoves(moves); return moves; };
 
     void GetbKnightMapMoves(multimap<int, pair<int, char>> &moves) {
-        //vector<int> indexes = GetTrueBits(bKnight);
-        for(int sq : bKnightIndexes) {
+        vector<int> indexes = GetTrueBits(bKnight);
+        for(int sq : indexes) {
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
             if(pinned != Universe) return;
 
@@ -1020,7 +1010,7 @@ class U64Bitboard {
     void GetwBoardandResetIndex(int index) {
         ResetBit(wBoard, index); ResetBit(occBoard, index);
         if(TestBit(wPawn, index)) { ResetBit(wPawn, index); RemoveMaterialValue('P'); SetZobristHash(zobrist, index,'P'); }
-        if(TestBit(wKnight, index)) { ResetBit(wKnight, index); RemoveMaterialValue('N'); SetZobristHash(zobrist, index,'N'); RemoveIndex(wKnightIndexes, index); }
+        if(TestBit(wKnight, index)) { ResetBit(wKnight, index); RemoveMaterialValue('N'); SetZobristHash(zobrist, index,'N'); }
         if(TestBit(wBishop, index)) { ResetBit(wBishop, index); RemoveMaterialValue('B'); SetZobristHash(zobrist, index,'B');} 
         if(TestBit(wRook, index)) { ResetBit(wRook, index); RemoveMaterialValue('R'); SetZobristHash(zobrist, index,'R');}
         if(TestBit(wQueen, index)) { ResetBit(wQueen, index); RemoveMaterialValue('Q'); SetZobristHash(zobrist, index,'Q');}
@@ -1030,7 +1020,7 @@ class U64Bitboard {
     void GetbBoardandResetIndex(int index) {
         ResetBit(bBoard, index); ResetBit(occBoard, index);
         if(TestBit(bPawn, index))  { ResetBit(bPawn, index); RemoveMaterialValue('p'); SetZobristHash(zobrist, index,'p');} 
-        if(TestBit(bKnight, index))  { ResetBit(bKnight, index); RemoveMaterialValue('n'); SetZobristHash(zobrist, index,'n'); RemoveIndex(bKnightIndexes, index);} 
+        if(TestBit(bKnight, index))  { ResetBit(bKnight, index); RemoveMaterialValue('n'); SetZobristHash(zobrist, index,'n');} 
         if(TestBit(bBishop, index))  { ResetBit(bBishop, index); RemoveMaterialValue('b'); SetZobristHash(zobrist, index,'b');} 
         if(TestBit(bRook, index))  { ResetBit(bRook, index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,'q');} 
         if(TestBit(bQueen, index))  { ResetBit(bQueen, index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,'q');} 
@@ -1041,7 +1031,7 @@ class U64Bitboard {
         ResetBit(wBoard, start); SetBit(wBoard, target);
         ResetBit(occBoard, start); SetBit(occBoard, target);
         if(TestBit(wPawn, start))  { ResetBit(wPawn, start); SetBit(wPawn, target); SetZobristHash(zobrist, start,'P'); SetZobristHash(zobrist, target,'P');}
-        if(TestBit(wKnight, start)) { ResetBit(wKnight, start); SetBit(wKnight, target); SetZobristHash(zobrist, start,'N'); SetZobristHash(zobrist, target,'N'); RemoveIndex(wKnightIndexes, start); InsertIndex(wKnightIndexes, target);}
+        if(TestBit(wKnight, start)) { ResetBit(wKnight, start); SetBit(wKnight, target); SetZobristHash(zobrist, start,'N'); SetZobristHash(zobrist, target,'N'); }
         if(TestBit(wBishop, start)) { ResetBit(wBishop, start); SetBit(wBishop, target); SetZobristHash(zobrist, start,'B'); SetZobristHash(zobrist, target,'B'); }
         if(TestBit(wRook, start)) { ResetBit(wRook, start); SetBit(wRook, target); SetZobristHash(zobrist, start,'R'); SetZobristHash(zobrist, target,'R');}
         if(TestBit(wQueen, start)) { ResetBit(wQueen, start); SetBit(wQueen, target); SetZobristHash(zobrist, start,'Q'); SetZobristHash(zobrist, target,'Q');}
@@ -1052,7 +1042,7 @@ class U64Bitboard {
         ResetBit(bBoard, start); SetBit(bBoard, target);
         ResetBit(occBoard, start); SetBit(occBoard, target);
         if(TestBit(bPawn, start)) { ResetBit(bPawn, start); SetBit(bPawn, target); SetZobristHash(zobrist, start,'p'); SetZobristHash(zobrist, target,'p');}
-        if(TestBit(bKnight, start)) { ResetBit(bKnight, start); SetBit(bKnight, target); SetZobristHash(zobrist, start,'n'); SetZobristHash(zobrist, target,'n'); RemoveIndex(bKnightIndexes, start); InsertIndex(bKnightIndexes, target);}
+        if(TestBit(bKnight, start)) { ResetBit(bKnight, start); SetBit(bKnight, target); SetZobristHash(zobrist, start,'n'); SetZobristHash(zobrist, target,'n');}
         if(TestBit(bBishop, start)) { ResetBit(bBishop, start); SetBit(bBishop, target); SetZobristHash(zobrist, start,'b'); SetZobristHash(zobrist, target,'b');}
         if(TestBit(bRook, start)) { ResetBit(bRook, start); SetBit(bRook, target); SetZobristHash(zobrist, start,'r'); SetZobristHash(zobrist, target,'r');}
         if(TestBit(bQueen, start)) { ResetBit(bQueen, start); SetBit(bQueen, target); SetZobristHash(zobrist, start,'q'); SetZobristHash(zobrist, target,'q');}
@@ -1065,7 +1055,7 @@ class U64Bitboard {
             case 'q': SetBit(wQueen, index); AddMaterialValue('Q'); SetZobristHash(zobrist, index,'Q'); return;
             case 'r': SetBit(wRook, index); AddMaterialValue('R'); SetZobristHash(zobrist, index,'R'); return;
             case 'b': SetBit(wBishop, index); AddMaterialValue('B'); SetZobristHash(zobrist, index,'B'); return;
-            case 'n': SetBit(wKnight, index); AddMaterialValue('N'); SetZobristHash(zobrist, index,'N'); InsertIndex(wKnightIndexes, index);return;
+            case 'n': SetBit(wKnight, index); AddMaterialValue('N'); SetZobristHash(zobrist, index,'N'); return;
         } 
     };
 
@@ -1075,7 +1065,7 @@ class U64Bitboard {
             case 'q': SetBit(bQueen, index); AddMaterialValue('q'); SetZobristHash(zobrist, index,'q'); return;
             case 'r': SetBit(bRook, index); AddMaterialValue('r'); SetZobristHash(zobrist, index,'r'); return;
             case 'b': SetBit(bBishop, index); AddMaterialValue('b'); SetZobristHash(zobrist, index,'b'); return;
-            case 'n': SetBit(bKnight, index); AddMaterialValue('n'); SetZobristHash(zobrist, index,'n'); InsertIndex(bKnightIndexes, index);return;
+            case 'n': SetBit(bKnight, index); AddMaterialValue('n'); SetZobristHash(zobrist, index,'n'); return;
         } 
     };
 

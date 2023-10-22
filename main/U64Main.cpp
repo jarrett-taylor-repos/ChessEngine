@@ -4,17 +4,15 @@ int main () {
     U64Bitboard b;
 
     auto start = high_resolution_clock::now();
-    
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
+    cout << "Time to get all knight indexes from boardmoves: " + to_string(duration.count()) << endl;
 
 
     start = high_resolution_clock::now();
-
     stop = high_resolution_clock::now();
     duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Time to get all U64 moves: " + to_string(duration.count()) << endl;
+    cout << "Time to grab indexes: " + to_string(duration.count()) << endl;
 
 
     /* Knight indexes speed update 
