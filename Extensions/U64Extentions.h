@@ -98,6 +98,7 @@ namespace U64Extensions {
         for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
             if(it->second) { temp += it->first; }
         }
+        if(temp == "") return "-";
         return temp;
     }
 
