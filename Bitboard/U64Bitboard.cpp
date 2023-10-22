@@ -28,6 +28,7 @@ class U64Bitboard {
     U64 bAttacks;
 
     U64 zobrist;
+    map<U64, int> zobristFenHash;
 
     int halfMoveClock;
     int fullTurnNum;
@@ -35,6 +36,7 @@ class U64Bitboard {
     string currFen;
     bool isWhiteMove;
     map<char, bool> castlingRights;
+    bool isMoveRepition;
 
     int materialValue;
 
@@ -58,6 +60,7 @@ class U64Bitboard {
         // Copy the map members
         this->blockerToPinnnedMoves = other.blockerToPinnnedMoves;
         this->checkToBlockSquares = other.checkToBlockSquares;
+        this->zobristFenHash = other.zobristFenHash;
 
         // Copy the U64 members
         this->wPawn = other.wPawn;
@@ -86,6 +89,7 @@ class U64Bitboard {
     
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
+        isMoveRepition = false;
         materialValue = 0;
         currFen = arguments[0];
         string moveColor = arguments[1];
@@ -171,6 +175,7 @@ class U64Bitboard {
             }
         }
 
+        UpdateAndCheckZobristHash(zobristFenHash, zobrist);
         SetMoveData();
     };
 
@@ -255,7 +260,7 @@ class U64Bitboard {
 
         Reset(wBoard); Reset(bBoard); Reset(occBoard); 
 
-        Reset(zobrist);
+        Reset(zobrist); zobristFenHash.clear();
         ClearAttacks();
     };
 
@@ -1186,7 +1191,7 @@ class U64Bitboard {
     bool isCheckMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
     bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves(); return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
     bool is50MoveRule() { return halfMoveClock > 100; };
-    bool is3FoldRepition() { return false; };
+    bool is3FoldRepition() { return isMoveRepition; };
     bool inSufficientMaterial() { return GetTrueBits(occBoard).size() < 3;}
     bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() || inSufficientMaterial() ); };
     bool isGameOver() { return isCheckMate() || isDraw(); };
@@ -1250,7 +1255,7 @@ class U64Bitboard {
         if(isWhiteMove) { fullTurnNum++; }
         SetZobristHash(zobrist, isWhiteMove);
 
-        //isMoveRepition = UpdateFenMapAndFind3Move(hashFen, GetFenHelper() + " " + CastlingRightsString(castlingRights));
+        isMoveRepition = UpdateAndCheckZobristHash(zobristFenHash, zobrist);
         SetMoveData();
         return true;
     };

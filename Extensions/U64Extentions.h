@@ -281,4 +281,14 @@ namespace U64Extensions {
         if(isWhiteMove) return;
         zobrist ^= whiteMoveNumber;
     }
+
+    bool UpdateAndCheckZobristHash(map<U64, int> &z, U64 key) {
+        if (z.find(key) != z.end()) {
+            z[key]++;
+            return z[key] == 3;
+        } else {
+            z.insert(make_pair(key, 1));
+        }
+        return false;
+    }
 }

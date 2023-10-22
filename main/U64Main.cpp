@@ -1,16 +1,23 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
+
     U64Bitboard b;
-    b.MakeMove("e2e4");
-    U64 zobrist = b.GetZobrist();
-    cout << zobrist << endl;
+    vector<string> moves = {"e2e4", "e7e5", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2"};
+    b.MakeMove(moves);
 
-    U64Bitboard test("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-    U64 zobristtest = test.GetZobrist();
-    cout << zobristtest << endl;
+    cout << b.is3FoldRepition();
 
 
+    /*  ZOBRIST
+         U64Bitboard b;
+        U64 zobrist = b.GetZobrist();
+        cout << zobrist << endl;
+
+        U64Bitboard test("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+        U64 zobristtest = test.GetZobrist();
+        cout << zobristtest << endl;
+    */
 
     /* CASTLING
         U64Bitboard b("rn1qk1nr/pppppppp/8/8/2P5/1N1P2P1/PPb1PPbP/R3K2R b KQkq - 0 1");
