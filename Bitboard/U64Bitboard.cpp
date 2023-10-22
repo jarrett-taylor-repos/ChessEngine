@@ -455,8 +455,8 @@ class U64Bitboard {
 
     U64 bKingCastle() { return bKingCastleShort() | bKingCastleLong(); };
 
-    U64 wKingPsuedoMoves() { return (OneInAllDirection(wKing) | wKingCastle() ) & (NotwBoard() & ~bAttacks); };
-    U64 bKingPsuedoMoves() { return (OneInAllDirection(bKing) | bKingCastle() ) & (NotbBoard() & ~wAttacks); };
+    U64 wKingPsuedoMoves() { return (precomputtedKings[GetTrueBits(wKing)[0]] | wKingCastle()) & (NotwBoard() & ~bAttacks); };
+    U64 bKingPsuedoMoves() { return (precomputtedKings[GetTrueBits(bKing)[0]] | bKingCastle()) & (NotbBoard() & ~wAttacks); };
 
     U64 wKingAtt() { return OneInAllDirection(wKing); };
     U64 bKingAtt() { return OneInAllDirection(bKing); };

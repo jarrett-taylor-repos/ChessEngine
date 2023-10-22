@@ -6,8 +6,8 @@ using namespace U64Extensions;
 
 
 namespace PrecomputtedMoveData {
-
-    U64 noNoEa(U64 b) {return (b >> 15) & notAFile; };
+    //knights
+    U64 noNoEa(U64 b) {return (b >> 15) & notAFile; };  
     U64 noEaEa(U64 b) {return (b >> 6) & (notAFile & notBFile);};
     U64 soEaEa(U64 b) {return (b << 10) & (notAFile & notBFile);};
     U64 soSoEa(U64 b) {return (b << 17) & notAFile; };
@@ -16,6 +16,17 @@ namespace PrecomputtedMoveData {
     U64 noWeWe(U64 b) {return (b >> 10) & (notGFile & notHFile); };
     U64 noNoWe(U64 b) {return (b >> 17) & notHFile; };
     U64 KnightAttacks(U64 b) { return noNoEa(b) | noEaEa(b) | soEaEa(b) | soSoEa(b) | noNoWe(b) | noWeWe(b) | soWeWe(b) | soSoWe(b); };
+
+    //kings
+    U64 northOne(U64 b) { return b >> 8; };
+    U64 southOne(U64 b) { return b << 8; };
+    U64 eastOne(U64 b) { return b << 1 & notAFile; };
+    U64 westOne(U64 b) { return b >> 1 & notHFile; };
+    U64 northEastOne(U64 b) { return b >> 7 & notAFile; };
+    U64 northWestOne(U64 b) { return b >> 9 & notHFile; };
+    U64 southEastOne(U64 b) { return b << 9 & notAFile; };
+    U64 southWestOne(U64 b) { return b << 7 & notHFile; };
+    U64 OneInAllDirection(U64 b) { return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)); };
 
     void GenerateSingleBitBoards(ofstream &of) {
         of << "{";
@@ -37,10 +48,21 @@ namespace PrecomputtedMoveData {
         of << "}" << endl << endl;
     }
 
+    void GeneratePrecomputtedKings(ofstream &of) {
+        of << "{";
+        for(int i = 0; i < 64; i++) {
+            U64 knightAtt = OneInAllDirection(SingleBitBoard(i));
+            of << knightAtt;
+            if(i !=63) of << ", ";
+        }
+        of << "}" << endl << endl;
+    }
+
     void GeneratePrecomputted() {
         ofstream of("PrecomputtedMoveData.txt");
         GenerateSingleBitBoards(of);
         GeneratePrecomputtedKnights(of);
+        GeneratePrecomputtedKings(of);
         of.close();
     }
 }
