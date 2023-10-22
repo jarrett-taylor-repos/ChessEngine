@@ -399,7 +399,6 @@ class U64Bitboard {
     U64 wKnightPsuedoMoves(){ return KnightAttacks(wKnight) & NotwBoard(); };
     U64 bKnightPsuedoMoves(){ return KnightAttacks(bKnight) & NotbBoard(); };
 
-
     //king moves, castling needs to include possible castle through check 
     U64 wKingCastleShort() {
         if(checkToBlockSquares.size() > 0) return C64(0);
@@ -656,8 +655,7 @@ class U64Bitboard {
     void SetwKnightAttacks() {
         vector<int> indexes = GetTrueBits(wKnight);
         for(int sq : indexes) {
-            U64 knight = SingleBitBoard(sq);
-            U64 knightAtt = KnightAttacks(knight);
+            U64 knightAtt = precomputtedKnights[sq];
             U64 givesCheck = knightAtt & bKing;
 
             if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
@@ -669,8 +667,7 @@ class U64Bitboard {
     void SetbKnightAttacks() {
         vector<int> indexes = GetTrueBits(bKnight);
         for(int sq : indexes) {
-            U64 knight = SingleBitBoard(sq);
-            U64 knightAtt = KnightAttacks(knight);
+            U64 knightAtt = precomputtedKnights[sq];
             U64 givesCheck = knightAtt & wKing;
 
             if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
@@ -831,12 +828,11 @@ class U64Bitboard {
     void GetwKnightMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(wKnight);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
-            U64 watt = KnightAttacks(temp);
-            U64 knightMoves = watt & NotwBoard();
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
-            U64 legal = pinned & knightMoves;
-            U64ToMapMoves(moves, sq, legal);
+            if(pinned != Universe) return;
+
+            U64 knightMoves = precomputtedKnights[sq] & ~wBoard;
+            U64ToMapMoves(moves, sq, knightMoves);
         }
     };
     multimap<int, pair<int, char>> GetwKnightMapMoves() { multimap<int, pair<int, char>> moves; GetwKnightMapMoves(moves); return moves; };
@@ -844,12 +840,11 @@ class U64Bitboard {
     void GetbKnightMapMoves(multimap<int, pair<int, char>> &moves) {
         vector<int> indexes = GetTrueBits(bKnight);
         for(int sq : indexes) {
-            U64 temp = SingleBitBoard(sq);
-            U64 batt = KnightAttacks(temp);
-            U64 knightMoves = batt & NotbBoard();
             U64 pinned = GetPinnedMoves(blockerToPinnnedMoves, sq);
-            U64 legal = pinned & knightMoves;
-            U64ToMapMoves(moves, sq, legal);
+            if(pinned != Universe) return;
+
+            U64 knightMoves = precomputtedKnights[sq] & ~bBoard;
+            U64ToMapMoves(moves, sq, knightMoves);
         }
     };
     multimap<int, pair<int, char>> GetbKnightMapMoves() { multimap<int, pair<int, char>> moves; GetbKnightMapMoves(moves); return moves; };

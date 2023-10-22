@@ -1,16 +1,77 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-
     U64Bitboard b;
-    vector<string> moves = {"e2e4", "e7e5", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2"};
-    b.MakeMove(moves);
+    auto start = high_resolution_clock::now();
+    U64 runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves();
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves();
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves();
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves();
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves(); 
+    runtimeComp = b.wKnightPsuedoMoves();
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<nanoseconds>(stop - start);
+    cout << "runtime computed Knight: " + to_string(duration.count()) << endl;
 
-    cout << b.is3FoldRepition();
+    start = high_resolution_clock::now();
+    U64 precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
+    stop = high_resolution_clock::now();
+    duration = duration_cast<nanoseconds>(stop - start);
+    cout << "precomuptted Knight: " + to_string(duration.count()) << endl;
 
+
+    /* 3 move repition
+        vector<string> moves = {"e2e4", "e7e5", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2"};
+        b.MakeMove(moves);
+
+        cout << b.is3FoldRepition();
+    */
 
     /*  ZOBRIST
-         U64Bitboard b;
+        U64Bitboard b;
         U64 zobrist = b.GetZobrist();
         cout << zobrist << endl;
 
