@@ -1203,16 +1203,16 @@ class U64Bitboard {
         return moveGivesCheck;
     };
 
-    bool isCheckMate(multimap<int, pair<int, char>> moves) { return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
-    bool isStaleMate(multimap<int, pair<int, char>> moves) { return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
+    bool isCheckMate() { multimap<int, pair<int, char>> moves = GetMapMoves();return (moves.size() == 0) && (checkToBlockSquares.size() != 0) ? true : false; };
+    bool isStaleMate() { multimap<int, pair<int, char>> moves = GetMapMoves();return (moves.size() == 0) && (checkToBlockSquares.size() == 0) ? true : false; };
     bool is50MoveRule() { return halfMoveClock > 100; };
     bool is3FoldRepition() { return isMoveRepition; };
     bool inSufficientMaterial() { return GetTrueBits(occBoard).size() < 3;}
-    bool isDraw(multimap<int, pair<int, char>> moves) { return ( isStaleMate(moves) || is50MoveRule() || is3FoldRepition() || inSufficientMaterial() ); };
-    bool isGameOver() { multimap<int, pair<int, char>> moves = GetMapMoves(); return isCheckMate(moves) || isDraw(moves); };
+    bool isDraw() { return ( isStaleMate() || is50MoveRule() || is3FoldRepition() || inSufficientMaterial() ); };
+    bool isGameOver() { return isCheckMate() || isDraw(); };
 
-    bool isWhiteWin() { multimap<int, pair<int, char>> moves = GetMapMoves(); return !isWhiteMove && isCheckMate(moves); };
-    bool isBlackWin() { multimap<int, pair<int, char>> moves = GetMapMoves(); return isWhiteMove && isCheckMate(moves); };
+    bool isWhiteWin() { return !isWhiteMove && isCheckMate(); };
+    bool isBlackWin() { return isWhiteMove && isCheckMate(); };
 
 
     bool MakeMove(vector<string> listmoves) {

@@ -206,6 +206,10 @@ namespace U64Extensions {
         return false;
     }
 
+    void InsertIndex(map<char, vector<int>> &m, char c, int index) {
+        
+    }
+
     void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {
         //Print(b, "U64ToMapMoves");
         vector<int> end = GetTrueBits(b);
