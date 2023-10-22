@@ -20,6 +20,8 @@ class U64Bitboard {
     U64 bQueen;
     U64 bKing;
 
+    map<char, vector<int>> pieceToIndexes;
+
     U64 bBoard;
     U64 wBoard;
     U64 occBoard;

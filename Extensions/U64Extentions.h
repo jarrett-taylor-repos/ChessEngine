@@ -84,6 +84,15 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    void Print(map<char, vector<int>> &m, string name = "") {
+        if(name.length() != 0) { cout << name << endl;}
+
+        for(map<char, vector<int>>::const_iterator it = m.begin(); it != m.end(); ++it){
+            cout << it->first << " - "; Print(it->second);
+        }
+        cout << endl << endl;
+    }
+    
     string CastlingRightsString(map<char, bool> m) {
         string temp = "";
         for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
