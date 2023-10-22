@@ -1,67 +1,15 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 int main () {
-    U64Bitboard b;
-    auto start = high_resolution_clock::now();
-    U64 runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves();
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves();
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves();
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves();
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves(); 
-    runtimeComp = b.wKnightPsuedoMoves();
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<nanoseconds>(stop - start);
-    cout << "runtime computed Knight: " + to_string(duration.count()) << endl;
+    U64Bitboard b("7Q/3k2p1/1p3n2/8/8/8/3bKq2/1N5R w  - 0 19");
+    multimap<int, pair<int, char>> mapmoves = b.GetMapMoves();
+    Print(mapmoves, "mapmoves");
 
-    start = high_resolution_clock::now();
-    U64 precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    precomuptted = precomputtedKnights[57] | precomputtedKnights[62]; 
-    stop = high_resolution_clock::now();
-    duration = duration_cast<nanoseconds>(stop - start);
-    cout << "precomuptted Knight: " + to_string(duration.count()) << endl;
-
+    /*  SINGLE check - king moves back and captures a piece 
+        U64Bitboard b("7Q/3k2p1/1p3n2/8/8/8/3bKq2/1N5R w  - 0 19");
+        multimap<int, pair<int, char>> mapmoves = b.GetMapMoves();
+        Print(mapmoves, "mapmoves");
+    */
 
     /* 3 move repition
         vector<string> moves = {"e2e4", "e7e5", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2", "e8e7", "e2e1", "e7e8", "e1e2"};
