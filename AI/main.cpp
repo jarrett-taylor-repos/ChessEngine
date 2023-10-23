@@ -4,112 +4,152 @@
 #include <fstream>
 #include <cstdio>
 #include <stdlib.h>
-#include "evaluation.h"
+#include "./helpers/moveList.cpp"
 using namespace std;
 
-int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, string logtab) {
+int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, string logtab, ZTable &ztable) {
   if (logging) {log<<logtab<<"quiesce search for FEN: "<<b.GetFen()<<endl;}
 
   if (b.isGameOver()) {
-    if (b.isDraw()) return 0;
+    if (logging) log<<logtab<<"game is over, returning score of ";
+    if (b.isDraw()) {
+      if (logging) log<<"0"<<endl;
+      return -1;
+    }
+    if (logging) log<<"-9999999"<<endl;
     return -9999999;
   }
 
-  if (!b.isInCheck()) {
+  int ogalpha = alpha;
+
   int standPat = getEval(b);
-  if (standPat>=beta) {
-    if (logging) {log<<logtab<<"standPat of "<<standPat<<" is greater than beta "<<beta<<" returning beta"<<endl;}
-    return beta;
-  }
-  if (standPat>alpha) alpha = standPat;
+
+  if (logging) {log<<logtab<<"retrieved standPat score of "<<standPat<<endl;}
+  if (!b.isInCheck()) {
+    if (standPat>=beta) {
+      if (logging) {log<<logtab<<"standPat of "<<standPat<<" is greater than beta "<<beta<<" returning beta"<<endl;}
+      return beta;
+    }
+    if (standPat>alpha) alpha = standPat;
   }
 
   multimap<int, pair<int, char>> moves;
   b.GetMapMoves(moves);
-  for(multimap<int, pair<int, char>>::const_iterator it = moves.begin(); it != moves.end(); ++it){
-    // if (logging) {
-    //   log<<logtab<<"testing move "<<IndexToSquare(it->first)<<IndexToSquare(it->second.first)<<it->second.second<<endl;
-    // }
-
-    if (b.isKingCapture(it->second.first)) {
-      if (logging) {log<<logtab+"\t"<<"move is king capture, returning beta: "<<beta<<endl;}
+  MoveList allmoves(moves, b, alpha, standPat, logging, log, logtab);
+  allmoves.setEvals(b);
+  allmoves.sortmoves();
+  for(auto & move : allmoves.movelist){//|| b.isMoveCheck(it->first, it->second.first, it->second.second)) {
+    if (logging) {log<<logtab<<"testing move: "<<IndexToSquare(move.from)<<IndexToSquare(move.to)<<move.promo<<endl;}
+    U64Bitboard bCopy;
+    if (move.hasBoard) {
+      bCopy = move.b;
+    } else {
+      U64Bitboard bCopy = b;
+      bCopy.MakeMove(move.from, move.to, move.promo);
+    }
+    int score = -quiesce(bCopy, -beta, -alpha, log, logging, logtab+"\t", ztable);
+    if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
+    if (score >= beta ) {
+      if (logging) {log<<logtab<<"score "<<score<<" is greater than beta "<<beta<<" returning beta"<<endl;}
+      ztable.setValue(b.GetZobrist(), 0, beta, -1);
       return beta;
     }
-
-    if (b.isInCheck() || b.isCapture(it->second.first)  ){ //|| b.isMoveCheck(it->first, it->second.first, it->second.second)) {
-      if (logging) {log<<logtab<<"testing move: "<<IndexToSquare(it->first)<<IndexToSquare(it->second.first)<<it->second.second<<endl;}
-      U64Bitboard bCopy = b;
-      bCopy.MakeMove(it->first, it->second.first, it->second.second);
-      int score = -quiesce(bCopy, -beta, -alpha, log, logging, logtab+"\t");
-      if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
-      if (score >= beta ) {
-        if (logging) {log<<logtab<<"score "<<score<<" is greater than beta "<<beta<<" returning beta"<<endl;}
-        return beta;
-      }
-      if (score > alpha ) alpha = score;
-    }
+    if (score > alpha ) alpha = score;
   }
   if (logging) {log<<logtab<<"sending back score of "<<alpha<<endl;}
+  if (ogalpha==alpha){
+    ztable.setValue(b.GetZobrist(), 0, alpha, 3);
+  } else {
+    ztable.setValue(b.GetZobrist(), 0, alpha, 0);
+  }
   return alpha;
 }
 
-int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab){
+int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable){
   if (depth == 0) {
-    return quiesce(b, alpha, beta, log, logging, logtab);
+    return quiesce(b, alpha, beta, log, logging, logtab, ztable);
   };
 
   if (logging) {
     log<<logtab<<"starting search for depth "<<depth<<" FEN: "<<b.GetFen()<<" alpha: "<<alpha<<" beta: "<<beta<<endl;
   }
 
+  if (b.isGameOver()) {
+    if (logging) log<<logtab<<"game is over, returning score of ";
+    if (b.isDraw()) {
+      if (logging) log<<"0"<<endl;
+      return -1;
+    }
+    if (logging) log<<"-9999999"<<endl;
+    return -9999999;
+  }
+
+  int ogalpha = alpha;
+
   multimap<int, pair<int, char>> moves;
   b.GetMapMoves(moves);
-  for(multimap<int, pair<int, char>>::const_iterator it = moves.begin(); it != moves.end(); ++it){
+  MoveList allmoves(moves, logging, log, logtab);
+  allmoves.setEvals(b);
+  allmoves.sortmoves();
+  for(auto & move : allmoves.movelist){
     if (logging) {
-      log<<logtab<<"testing move "<<IndexToSquare(it->first)<<IndexToSquare(it->second.first)<<it->second.second<<endl;
+      log<<logtab<<"testing move "<<IndexToSquare(move.from)<<IndexToSquare(move.to)<<move.promo<<endl;
     }
-    if (b.isKingCapture(it->second.first)) {
-      if (logging) {log<<logtab<<"move is king capture, returning beta: "<<beta<<endl;}
-      return beta;
+    U64Bitboard bCopy;
+    if (move.hasBoard) {
+      bCopy = move.b;
+    } else {
+      U64Bitboard bCopy = b;
+      bCopy.MakeMove(move.from, move.to, move.promo);
     }
-    U64Bitboard bCopy = b;
-    bCopy.MakeMove(it->first, it->second.first, it->second.second);
-    int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t");
+    int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable);
     if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
     if (score >= beta ) {
       if (logging) {log<<logtab<<"score "<<score<<" is greater than beta "<<beta<<" returning beta"<<endl;}
+      ztable.setValue(b.GetZobrist(), depth, beta, -1);
       return beta;
     }
     if (score > alpha ) alpha = score;
   }
   if (logging) {log<<logtab<<"sending back score of "<<alpha<<endl;}
+  if (ogalpha==alpha){
+    ztable.setValue(b.GetZobrist(), depth, alpha, 3);
+  } else {
+    ztable.setValue(b.GetZobrist(), depth, alpha, 0);
+  }
   return alpha;
 }
 
-void rootsearch(U64Bitboard &b, ofstream &log, bool &logging) {
+void rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable) {
+  int DEPTH = 1;
+
   multimap<int, pair<int, char>> m;
   b.GetMapMoves(m);
+  MoveList allmoves(m, logging, log, "\t");
+  allmoves.setEvals(b);
+  allmoves.sortmoves();
   int alpha = -9999999;
   int beta = 9999999;
   int bestfrom = -1;
   int bestto = -1;
   char promo = ' ';
-  for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
+  for(auto & move : allmoves.movelist){
     if (logging) {
-      log<<"\trootsearch move "<<IndexToSquare(it->first)<<IndexToSquare(it->second.first)<<it->second.second<<endl;
+      log<<"\trootsearch move "<<IndexToSquare(move.from)<<IndexToSquare(move.to)<<move.promo<<endl;
     }
-    if (!b.isKingCapture(it->second.first)) {
-      U64Bitboard bCopy = b;
-      bCopy.MakeMove(it->first, it->second.first, it->second.second);
-      int eval = -alphabeta(bCopy, alpha, beta, 1, log, logging, "\t\t");
-      if (eval > alpha) {
-        alpha = eval;
-        bestfrom = it->first;
-        bestto = it->second.first;
-        promo = it->second.second;
-      }
+    U64Bitboard bCopy;
+    if (move.hasBoard) {
+      bCopy = move.b;
     } else {
-      log<<"is king capture"<<endl;
+      U64Bitboard bCopy = b;
+      bCopy.MakeMove(move.from, move.to, move.promo);
+    }
+    int eval = -alphabeta(bCopy, alpha, beta, DEPTH, log, logging, "\t\t", ztable);
+    if (eval > alpha) {
+      alpha = eval;
+      bestfrom = move.from;
+      bestto = move.to;
+      promo = move.promo;
     }
   }
   if (logging) {log<<"making move "<<bestfrom<<" "<<bestto<<" "<<promo; log<<" OR "<<IndexToSquare(bestfrom)<<IndexToSquare(bestto)<<promo<<" with evaluation of: "<<alpha<<endl;}
@@ -119,48 +159,49 @@ void rootsearch(U64Bitboard &b, ofstream &log, bool &logging) {
     cout<<" with from num: "<<bestfrom<<" and to num: "<< bestto;
     cout<<"or uci move: "<<IndexToSquare(bestfrom)<<IndexToSquare(bestto)<<promo<<endl<<endl;
   } else {
-  cout<<IndexToSquare(bestfrom)<<IndexToSquare(bestto)<<promo<<endl;
+  simgames<<IndexToSquare(bestfrom)<<IndexToSquare(bestto)<<promo<<endl;
   }
+
+  ztable.setValue(b.GetZobrist(), DEPTH, alpha, 0);
   // cout<<movemade<<endl<<b.GetFen()<<endl;;
 }
 
 void main() {
-  U64Bitboard b;
-  freopen("simgames.txt","w",stdout);
+  U64Bitboard b("r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4");
+  // freopen("simgames.txt","w",stdout);
   ofstream log;
+  ofstream simgames;
+  simgames.open("simgames.txt");
+
+  ZTable ztable;
   
   bool logging = true;
-  for (int i=0; i<100; i++) {
+  int i = 0;
+  while (!b.isGameOver()) {
     log.open("logs\\log_"+to_string(i)+".md");
     if (logging) {log<<"NEW MOVE, half move num "<<i<<" FEN: "<<b.GetFen()<<endl;}
-    rootsearch(b, log, logging);
+    rootsearch(b, log, logging, simgames, ztable);
     log.close();
+    i++;
   }
   cout<<endl;
 }
 
 typedef uint64_t u64;
 void main2() {
-  // U64Bitboard b;
-  // b.LoadFen("3r1bnr/1Np1ppp1/2p1b2p/4k3/Ppn1Q1P1/4P2P/3P1P2/R1B1K1NR b K - 5 18");
-  // multimap<int, pair<int, char>> m;
-  // m = b.GetMapMoves();
-  // for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-  //   cout<<IndexToSquare(it->first)<<IndexToSquare(it->second.first)<<it->second.second<<endl;
-  // }
-  cout<<"{"<<endl;
-  srand(time(0));
-  for (int i=0;i<16;i++) {
-    cout<<"{";
-    for (int j=0; j<16; j++) {
-      u64 n;
-  
-      
-
-      n = (rand()<<48) ^ (rand()<<35) ^ (rand()<<22) ^ (rand()<< 9) ^ (rand()>> 4);
-      cout<<n<<",";
-    }
-    cout<<"},"<<endl;
+  U64Bitboard b;
+  b.LoadFen("3k3r/2p1pp1p/7R/8/8/8/4B3/1N2K1q1 w - - 0 37");
+  cout<<b.GetFen()<<endl;
+  multimap<int, pair<int, char>> m;
+  m = b.GetMapMoves();
+  for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
+    cout<<IndexToSquare(it->first)<<IndexToSquare(it->second.first)<<it->second.second<<endl;
   }
-  cout<<"}"<<endl;
+}
+
+void main3() {
+  U64Bitboard b1;
+  cout<<b1.isGameOver()<<endl;
+  U64Bitboard b2 = b1;
+  cout<<b2.isGameOver()<<endl;
 }
