@@ -1,18 +1,44 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
+
 int main () {
     U64Bitboard b;
 
     auto start = high_resolution_clock::now();
+    b.GetKnightPsuedoMoves();
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Time to get all knight indexes from boardmoves: " + to_string(duration.count()) << endl;
+    cout << "Time to get knight pswuedomoves: " + to_string(duration.count()) << endl;
 
 
     start = high_resolution_clock::now();
+    b.GetwKnightMapMoves();
     stop = high_resolution_clock::now();
     duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Time to grab indexes: " + to_string(duration.count()) << endl;
+    cout << "Time to get knight map moves: " + to_string(duration.count()) << endl;
+
+
+    U64 knights = b.GetKnight();
+    multimap<int, pair<int, char>> moves;
+
+    start = high_resolution_clock::now();
+    
+    U64 temp = knights;
+    while(temp != C64(0)) {
+        U64 lsb = temp & -temp;
+        temp ^= lsb;
+        int startSq = GetTrueBits(lsb)[0];
+        U64 knightMoves = precomputtedKnights[startSq] & ~b.GetwBoard();
+        vector<int> indexes = GetTrueBits(knightMoves);
+        for(int i = 0; i < indexes.size(); i++) {
+            InsertMove(moves, startSq, indexes[i], ' ');
+        }
+    }
+
+    stop = high_resolution_clock::now();
+    duration = duration_cast<nanoseconds>(stop - start);
+    cout << "Time to grab get knights lsb: " + to_string(duration.count()) << endl;
+    Print(moves, "moves");
 
 
     /* Knight indexes speed update 

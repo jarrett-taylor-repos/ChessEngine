@@ -28,12 +28,20 @@ namespace PrecomputtedMoveData {
     U64 southWestOne(U64 b) { return b << 7 & notHFile; };
     U64 OneInAllDirection(U64 b) { return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)); };
 
+    //pawns
+    U64 wPawnWestAtt(U64 b) { return (b >> 9) & notHFile; };
+    U64 wPawnEastAtt(U64 b) { return (b >> 7) & notAFile; };
+    U64 wPawnAllAtt(U64 b) { return wPawnEastAtt(b) | wPawnWestAtt(b); };
+    U64 bPawnWestAtt(U64 b) { return (b << 9) & notAFile; };
+    U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
+    U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
+
     void GenerateSingleBitBoards(ofstream &of) {
         of << "{";
         for(int i = 0; i < 64; i++) {
             U64 single = SingleBitBoard(i);
             of << single;
-            if(i !=63) of << ", ";
+            if(i != 63) of << ", ";
         }
         of << "}" << endl << endl;
     }
@@ -58,11 +66,33 @@ namespace PrecomputtedMoveData {
         of << "}" << endl << endl;
     }
 
+    void PrecomputtedWhitePawnAttacks(ofstream &of) {
+        of << "{";
+        for(int i = 0; i < 64; i++) {
+            U64 pawnAtt = wPawnAllAtt(SingleBitBoard(i));
+            of << pawnAtt;
+            if(i !=63) of << ", ";
+        }
+        of << "}" << endl << endl;
+    }
+
+    void PrecomputtedBlackPawnAttacks(ofstream &of) {
+        of << "{";
+        for(int i = 0; i < 64; i++) {
+            U64 pawnAtt = bPawnAllAtt(SingleBitBoard(i));
+            of << pawnAtt;
+            if(i !=63) of << ", ";
+        }
+        of << "}" << endl << endl;
+    }
+
     void GeneratePrecomputted() {
         ofstream of("PrecomputtedMoveData.txt");
         GenerateSingleBitBoards(of);
         GeneratePrecomputtedKnights(of);
         GeneratePrecomputtedKings(of);
+        PrecomputtedWhitePawnAttacks(of);
+        PrecomputtedBlackPawnAttacks(of);
         of.close();
     }
 }

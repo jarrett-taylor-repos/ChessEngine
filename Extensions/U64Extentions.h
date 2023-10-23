@@ -5,21 +5,9 @@ using namespace std;
 using namespace U64BitboardConstants;
 
 namespace U64Extensions {
-    void SetBit(U64 &b, int sq) {
-        U64 singleBitset = C64(1) << sq;
-        b |= singleBitset;
-    }
-
-    bool TestBit(U64 &b, int sq) {
-        U64 singleBitset = C64(1) << sq;
-        return (b & singleBitset);
-    }
-
-    void ResetBit(U64 &b, int sq) {
-        U64 singleBitset = C64(1) << sq;
-        b &= ~singleBitset;
-    }
-
+    void SetBit(U64 &b, int sq) { U64 singleBitset = C64(1) << sq; b |= singleBitset; }
+    bool TestBit(U64 &b, int sq) { U64 singleBitset = C64(1) << sq; return (b & singleBitset); }
+    void ResetBit(U64 &b, int sq) { U64 singleBitset = C64(1) << sq; b &= ~singleBitset; }
     void Reset(U64 &b) { b = 0; }
 
     U64 SingleBitBoard(int sq) {
