@@ -27,11 +27,10 @@ class U64Bitboard {
     U64 wAttacks;
     U64 bAttacks;
 
+    U64 zobrist;
+
     int wKingSq;
     int bKingSq;
-
-    U64 zobrist;
-    map<U64, int> zobristFenHash;
 
     int halfMoveClock;
     int fullTurnNum;
@@ -40,12 +39,11 @@ class U64Bitboard {
     bool isWhiteMove;
     map<char, bool> castlingRights;
     bool isMoveRepition;
-
     int materialValue;
 
     map<int, U64> blockerToPinnnedMoves;
     map<int, vector<int>> checkToBlockSquares;
-
+    map<U64, int> zobristFenHash;
 
     public:
     U64Bitboard() { LoadFen(startFen); };
@@ -232,6 +230,7 @@ class U64Bitboard {
         if(TestBit(bRook, index)) return "r";
         if(TestBit(bQueen, index)) return "q";
         if(TestBit(bKing, index)) return "k";
+        return "";
     };
 
     int GetValueAtIndex(int index) {
@@ -644,8 +643,7 @@ class U64Bitboard {
     void SetwPawnAttacks() {
         vector<int> indexes = GetTrueBits(wPawn);
         for(int sq : indexes) {
-            U64 pawn = precomputtedSingleBit[sq];
-            U64 pawnAttacks = wPawnAllAtt(pawn);
+            U64 pawnAttacks = precomputtedWhitePawnAttacks[sq];
             U64 givesCheck = pawnAttacks & bKing;
 
             if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
@@ -657,8 +655,7 @@ class U64Bitboard {
     void SetbPawnAttacks() {
         vector<int> indexes = GetTrueBits(bPawn);
         for(int sq : indexes) {
-            U64 pawn = precomputtedSingleBit[sq];
-            U64 pawnAttacks = bPawnAllAtt(pawn);
+            U64 pawnAttacks = precomputtedBlackPawnAttacks[sq];
             U64 givesCheck = pawnAttacks & wKing;
 
             if(givesCheck != C64(0)) InsertCheck(checkToBlockSquares, sq, {sq});
@@ -1134,6 +1131,7 @@ class U64Bitboard {
         if(TestBit(wRook, index)) return GetwRookMapMoves();
         if(TestBit(wQueen, index)) return GetwQueenMapMoves();
         if(TestBit(wKing, index)) return GetwKingMapMoves();
+        multimap<int, pair<int, char>> m; return m;
     };
 
     multimap<int, pair<int, char>> GetbBoardMoves(int index) {
@@ -1143,6 +1141,7 @@ class U64Bitboard {
         if(TestBit(bRook, index)) return GetbRookMapMoves();
         if(TestBit(bQueen, index)) return GetbQueenMapMoves();
         if(TestBit(bKing, index)) return GetbKingMapMoves();
+        multimap<int, pair<int, char>> m; return m;
     };
 
     multimap<int, pair<int, char>> GetMovesByBoard(int index) { return isWhiteMove ? GetwBoardMoves(index): GetbBoardMoves(index); };
