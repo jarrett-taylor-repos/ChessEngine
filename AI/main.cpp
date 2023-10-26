@@ -173,14 +173,14 @@ void main() {
   ofstream simgames;
   simgames.open("simgames.txt");
 
-  ZTable ztable;
+  ZTable* ztable = new ZTable;
   
   bool logging = true;
   int i = 0;
   while (!b.isGameOver()) {
     log.open("logs\\log_"+to_string(i)+".md");
     if (logging) {log<<"NEW MOVE, half move num "<<i<<" FEN: "<<b.GetFen()<<endl;}
-    rootsearch(b, log, logging, simgames, ztable);
+    rootsearch(b, log, logging, simgames, *ztable);
     log.close();
     i++;
   }
