@@ -293,6 +293,7 @@ class U64Bitboard {
     U64 GetbRook() { return bRook; };
     U64 GetbQueen() { return bQueen; };
     U64 GetbKing() { return bKing; };
+    
     U64 GetwAttacks() { return wAttacks; };
     U64 GetbAttacks() { return bAttacks; };
 
@@ -322,7 +323,6 @@ class U64Bitboard {
     U64 AllKing() { return wKing | bKing; };
 
     //generic movement 
-    U64 OneInAllDirection(U64 b) { return (northOne(b) | southOne(b) | eastOne(b) | westOne(b) | northEastOne(b) | northWestOne(b) | southEastOne(b) | southWestOne(b)); };
     U64 northOne(U64 b) { return b >> 8; };
     U64 southOne(U64 b) { return b << 8; };
     U64 eastOne(U64 b) { return b << 1 & notAFile; };
@@ -338,47 +338,8 @@ class U64Bitboard {
     U64 wDoublePushTargets(U64 b) { return northOne(wSinglePushTargets(b)) & EmptyBoard() & rank4; };
     U64 bSinglePushTargets(U64 b) { return southOne(b) & EmptyBoard(); };
     U64 bDoublePushTargets(U64 b) { return southOne(bSinglePushTargets(b)) & EmptyBoard() & rank5; };
-    U64 wPawnPushes() { return wSinglePushTargets(wPawn) | wDoublePushTargets(wPawn); };
-    U64 bPawnPushes() { return bSinglePushTargets(bPawn) | bDoublePushTargets(bPawn); };
-
     U64 wPawnPushes(U64 b) { return wSinglePushTargets(b) | wDoublePushTargets(b); };
     U64 bPawnPushes(U64 b) { return bSinglePushTargets(b) | bDoublePushTargets(b); };
-
-    U64 wPawnWestAtt() { return (wPawn >> 9) & notHFile; };
-    U64 wPawnEastAtt() { return (wPawn >> 7) & notAFile; };
-    U64 wPawnAllAtt() { return wPawnEastAtt() | wPawnWestAtt(); };
-    U64 bPawnWestAtt() { return (bPawn << 9) & notAFile; };
-    U64 bPawnEastAtt() { return (bPawn << 7) & notHFile; };
-    U64 bPawnAllAtt() { return bPawnEastAtt() | bPawnWestAtt(); };
-    U64 wPawnWestCaptures() { 
-        U64 wpatt = wPawnWestAtt();
-        U64 enpass = precomputtedSingleBit[enPassantTarget];
-        U64 westcaptures = (wpatt & bBoard) | (wpatt & enpass);
-        return westcaptures;
-    };
-    U64 wPawnEastCaptures() { 
-        U64 wpatt = wPawnEastAtt();
-        U64 enpass = precomputtedSingleBit[enPassantTarget];
-        U64 eastcaptures = (wpatt & bBoard) | (wpatt & enpass);
-        return eastcaptures;
-    };
-    U64 wPawnAllCaptures() { return wPawnEastCaptures() | wPawnWestCaptures(); };
-    U64 bPawnWestCaptures() { 
-        U64 bpatt = bPawnWestAtt();
-        U64 enpass = precomputtedSingleBit[enPassantTarget];
-        U64 westcaptures = (bpatt & wBoard) | (bpatt & enpass);
-        return westcaptures;
-    };
-    U64 bPawnEastCaptures() { 
-        U64 bpatt = bPawnEastAtt();
-        U64 enpass = precomputtedSingleBit[enPassantTarget];
-        U64 eastcaptures = (bpatt & wBoard) | (bpatt & enpass);
-        return eastcaptures;
-    };
-    U64 bPawnAllCaptures() { return bPawnEastCaptures() | bPawnWestCaptures(); };
-
-    U64 wPawnPsuedoMoves() { return wPawnAllCaptures() | wPawnPushes(); };
-    U64 bPawnPsuedoMoves() { return bPawnAllCaptures() | bPawnPushes(); };
 
     U64 wPawnWestAtt(U64 b) { return (b >> 9) & notHFile; };
     U64 wPawnEastAtt(U64 b) { return (b >> 7) & notAFile; };
@@ -467,6 +428,74 @@ class U64Bitboard {
 
     U64 wKingAtt() { return precomputtedKings[wKingSq]; };
     U64 bKingAtt() { return precomputtedKings[bKingSq]; };
+
+    //sliding moves on the fly 
+    U64 BishopAttacksOnTheFly(int sq, U64 blocks) {
+        U64 attacks = C64(0);
+        int file,rank;
+
+        int targetRank = sq/8;
+        int targetFile = sq%8;
+
+        //south east 
+        for(rank = targetRank + 1, file = targetFile + 1; rank <= 7 && file <= 7; rank++, file++) {
+            U64 bit = precomputtedSingleBit[rank*8 + file];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+
+        //north east 
+        for(rank = targetRank - 1, file = targetFile + 1; rank >= 0 && file <= 7; rank--, file++) {
+            U64 bit = precomputtedSingleBit[rank*8 + file];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+
+        //south west 
+        for(rank = targetRank + 1, file = targetFile - 1; rank <= 7 && file >= 0; rank++, file--) {
+            U64 bit = precomputtedSingleBit[rank*8 + file];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+
+        //north west
+        for(rank = targetRank - 1, file = targetFile - 1; rank >= 0 && file >= 0; rank--, file--) {
+            U64 bit = precomputtedSingleBit[rank*8 + file];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+        return attacks;
+    }
+
+    U64 RookAttacksOnTheFly(int sq, U64 blocks) {
+        U64 attacks = C64(0);
+        int file,rank;
+
+        int targetRank = sq/8;
+        int targetFile = sq%8;
+
+        for(rank = targetRank + 1; rank <=7; rank++) {
+            U64 bit = precomputtedSingleBit[rank*8 + targetFile];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+        for(rank = targetRank - 1; rank >=0; rank--) {
+            U64 bit = precomputtedSingleBit[rank*8 + targetFile];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+        for(file = targetFile + 1; file <=7; file++) {
+            U64 bit = precomputtedSingleBit[targetRank*8 + file];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+        for(file = targetFile - 1; file >=0; file--) {
+            U64 bit = precomputtedSingleBit[targetRank*8 + file];
+            attacks |= bit;
+            if(bit & blocks) break;
+        }
+        return attacks;
+    }
 
     //sliding moves helper
     bool ValidTravel(U64 overlap, int offset) { 
@@ -799,10 +828,10 @@ class U64Bitboard {
 
 
     //Psuedomoves
-    U64 wPsuedoMoves() { return wPawnPsuedoMoves() | wKnightPsuedoMoves() | wBishopPsuedoMoves() | wRookPsuedoMoves() | wQueenPsuedoMoves() | wKingPsuedoMoves(); };
-    U64 bPsuedoMoves() { return bPawnPsuedoMoves() | bKnightPsuedoMoves() | bBishopPsuedoMoves() | bRookPsuedoMoves() | bQueenPsuedoMoves() | bKingPsuedoMoves(); };
+    U64 wPsuedoMoves() { return wPawnPsuedoMoves(wPawn) | wKnightPsuedoMoves() | wBishopPsuedoMoves() | wRookPsuedoMoves() | wQueenPsuedoMoves() | wKingPsuedoMoves(); };
+    U64 bPsuedoMoves() { return bPawnPsuedoMoves(bPawn) | bKnightPsuedoMoves() | bBishopPsuedoMoves() | bRookPsuedoMoves() | bQueenPsuedoMoves() | bKingPsuedoMoves(); };
 
-    U64 GetPawnPsuedoMoves() { return isWhiteMove ? wPawnPsuedoMoves(): bPawnPsuedoMoves(); };
+    U64 GetPawnPsuedoMoves() { return isWhiteMove ? wPawnPsuedoMoves(wPawn): bPawnPsuedoMoves(bPawn); };
     U64 GetKnightPsuedoMoves() { return isWhiteMove ? wKnightPsuedoMoves(): bKnightPsuedoMoves(); };
     U64 GetBishopPsuedoMoves() { return isWhiteMove ? wBishopPsuedoMoves(): bBishopPsuedoMoves(); };
     U64 GetRookPsuedoMoves() { return isWhiteMove ? wRookPsuedoMoves(): bRookPsuedoMoves(); };
@@ -1013,45 +1042,45 @@ class U64Bitboard {
 
     //make move helpers
     void GetwBoardandResetIndex(int index) {
-        ResetBit(wBoard, index); ResetBit(occBoard, index);
-        if(TestBit(wPawn, index)) { ResetBit(wPawn, index); RemoveMaterialValue('P'); SetZobristHash(zobrist, index,'P'); }
-        if(TestBit(wKnight, index)) { ResetBit(wKnight, index); RemoveMaterialValue('N'); SetZobristHash(zobrist, index,'N'); }
-        if(TestBit(wBishop, index)) { ResetBit(wBishop, index); RemoveMaterialValue('B'); SetZobristHash(zobrist, index,'B');} 
-        if(TestBit(wRook, index)) { ResetBit(wRook, index); RemoveMaterialValue('R'); SetZobristHash(zobrist, index,'R');}
-        if(TestBit(wQueen, index)) { ResetBit(wQueen, index); RemoveMaterialValue('Q'); SetZobristHash(zobrist, index,'Q');}
-        if(TestBit(wKing, index)) { ResetBit(wKing, index); RemoveMaterialValue('K'); SetZobristHash(zobrist, index,'K');} 
+        PopBit(wBoard, index); PopBit(occBoard, index);
+        if(TestBit(wPawn, index)) { PopBit(wPawn, index); RemoveMaterialValue('P'); SetZobristHash(zobrist, index,'P'); }
+        if(TestBit(wKnight, index)) { PopBit(wKnight, index); RemoveMaterialValue('N'); SetZobristHash(zobrist, index,'N'); }
+        if(TestBit(wBishop, index)) { PopBit(wBishop, index); RemoveMaterialValue('B'); SetZobristHash(zobrist, index,'B');} 
+        if(TestBit(wRook, index)) { PopBit(wRook, index); RemoveMaterialValue('R'); SetZobristHash(zobrist, index,'R');}
+        if(TestBit(wQueen, index)) { PopBit(wQueen, index); RemoveMaterialValue('Q'); SetZobristHash(zobrist, index,'Q');}
+        if(TestBit(wKing, index)) { PopBit(wKing, index); RemoveMaterialValue('K'); SetZobristHash(zobrist, index,'K');} 
     };
 
     void GetbBoardandResetIndex(int index) {
-        ResetBit(bBoard, index); ResetBit(occBoard, index);
-        if(TestBit(bPawn, index))  { ResetBit(bPawn, index); RemoveMaterialValue('p'); SetZobristHash(zobrist, index,'p');} 
-        if(TestBit(bKnight, index))  { ResetBit(bKnight, index); RemoveMaterialValue('n'); SetZobristHash(zobrist, index,'n');} 
-        if(TestBit(bBishop, index))  { ResetBit(bBishop, index); RemoveMaterialValue('b'); SetZobristHash(zobrist, index,'b');} 
-        if(TestBit(bRook, index))  { ResetBit(bRook, index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,'q');} 
-        if(TestBit(bQueen, index))  { ResetBit(bQueen, index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,'q');} 
-        if(TestBit(bKing, index))  { ResetBit(bKing, index); RemoveMaterialValue('k'); SetZobristHash(zobrist, index,'k');} 
+        PopBit(bBoard, index); PopBit(occBoard, index);
+        if(TestBit(bPawn, index))  { PopBit(bPawn, index); RemoveMaterialValue('p'); SetZobristHash(zobrist, index,'p');} 
+        if(TestBit(bKnight, index))  { PopBit(bKnight, index); RemoveMaterialValue('n'); SetZobristHash(zobrist, index,'n');} 
+        if(TestBit(bBishop, index))  { PopBit(bBishop, index); RemoveMaterialValue('b'); SetZobristHash(zobrist, index,'b');} 
+        if(TestBit(bRook, index))  { PopBit(bRook, index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,'q');} 
+        if(TestBit(bQueen, index))  { PopBit(bQueen, index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,'q');} 
+        if(TestBit(bKing, index))  { PopBit(bKing, index); RemoveMaterialValue('k'); SetZobristHash(zobrist, index,'k');} 
     };
 
     void GetwBoardResetStartandSetTarget(int start, int target) {
-        ResetBit(wBoard, start); SetBit(wBoard, target);
-        ResetBit(occBoard, start); SetBit(occBoard, target);
-        if(TestBit(wPawn, start))  { ResetBit(wPawn, start); SetBit(wPawn, target); SetZobristHash(zobrist, start,'P'); SetZobristHash(zobrist, target,'P');}
-        if(TestBit(wKnight, start)) { ResetBit(wKnight, start); SetBit(wKnight, target); SetZobristHash(zobrist, start,'N'); SetZobristHash(zobrist, target,'N'); }
-        if(TestBit(wBishop, start)) { ResetBit(wBishop, start); SetBit(wBishop, target); SetZobristHash(zobrist, start,'B'); SetZobristHash(zobrist, target,'B'); }
-        if(TestBit(wRook, start)) { ResetBit(wRook, start); SetBit(wRook, target); SetZobristHash(zobrist, start,'R'); SetZobristHash(zobrist, target,'R');}
-        if(TestBit(wQueen, start)) { ResetBit(wQueen, start); SetBit(wQueen, target); SetZobristHash(zobrist, start,'Q'); SetZobristHash(zobrist, target,'Q');}
-        if(TestBit(wKing, start)) { ResetBit(wKing, start); SetBit(wKing, target); SetZobristHash(zobrist, start,'K'); SetZobristHash(zobrist, target,'K');}
+        PopBit(wBoard, start); SetBit(wBoard, target);
+        PopBit(occBoard, start); SetBit(occBoard, target);
+        if(TestBit(wPawn, start))  { PopBit(wPawn, start); SetBit(wPawn, target); SetZobristHash(zobrist, start,'P'); SetZobristHash(zobrist, target,'P');}
+        if(TestBit(wKnight, start)) { PopBit(wKnight, start); SetBit(wKnight, target); SetZobristHash(zobrist, start,'N'); SetZobristHash(zobrist, target,'N'); }
+        if(TestBit(wBishop, start)) { PopBit(wBishop, start); SetBit(wBishop, target); SetZobristHash(zobrist, start,'B'); SetZobristHash(zobrist, target,'B'); }
+        if(TestBit(wRook, start)) { PopBit(wRook, start); SetBit(wRook, target); SetZobristHash(zobrist, start,'R'); SetZobristHash(zobrist, target,'R');}
+        if(TestBit(wQueen, start)) { PopBit(wQueen, start); SetBit(wQueen, target); SetZobristHash(zobrist, start,'Q'); SetZobristHash(zobrist, target,'Q');}
+        if(TestBit(wKing, start)) { PopBit(wKing, start); SetBit(wKing, target); SetZobristHash(zobrist, start,'K'); SetZobristHash(zobrist, target,'K');}
     };
 
     void GetbBoardResetStartandSetTarget(int start, int target) {
-        ResetBit(bBoard, start); SetBit(bBoard, target);
-        ResetBit(occBoard, start); SetBit(occBoard, target);
-        if(TestBit(bPawn, start)) { ResetBit(bPawn, start); SetBit(bPawn, target); SetZobristHash(zobrist, start,'p'); SetZobristHash(zobrist, target,'p');}
-        if(TestBit(bKnight, start)) { ResetBit(bKnight, start); SetBit(bKnight, target); SetZobristHash(zobrist, start,'n'); SetZobristHash(zobrist, target,'n');}
-        if(TestBit(bBishop, start)) { ResetBit(bBishop, start); SetBit(bBishop, target); SetZobristHash(zobrist, start,'b'); SetZobristHash(zobrist, target,'b');}
-        if(TestBit(bRook, start)) { ResetBit(bRook, start); SetBit(bRook, target); SetZobristHash(zobrist, start,'r'); SetZobristHash(zobrist, target,'r');}
-        if(TestBit(bQueen, start)) { ResetBit(bQueen, start); SetBit(bQueen, target); SetZobristHash(zobrist, start,'q'); SetZobristHash(zobrist, target,'q');}
-        if(TestBit(bKing, start)) { ResetBit(bKing, start); SetBit(bKing, target); SetZobristHash(zobrist, start,'k'); SetZobristHash(zobrist, target,'k');}
+        PopBit(bBoard, start); SetBit(bBoard, target);
+        PopBit(occBoard, start); SetBit(occBoard, target);
+        if(TestBit(bPawn, start)) { PopBit(bPawn, start); SetBit(bPawn, target); SetZobristHash(zobrist, start,'p'); SetZobristHash(zobrist, target,'p');}
+        if(TestBit(bKnight, start)) { PopBit(bKnight, start); SetBit(bKnight, target); SetZobristHash(zobrist, start,'n'); SetZobristHash(zobrist, target,'n');}
+        if(TestBit(bBishop, start)) { PopBit(bBishop, start); SetBit(bBishop, target); SetZobristHash(zobrist, start,'b'); SetZobristHash(zobrist, target,'b');}
+        if(TestBit(bRook, start)) { PopBit(bRook, start); SetBit(bRook, target); SetZobristHash(zobrist, start,'r'); SetZobristHash(zobrist, target,'r');}
+        if(TestBit(bQueen, start)) { PopBit(bQueen, start); SetBit(bQueen, target); SetZobristHash(zobrist, start,'q'); SetZobristHash(zobrist, target,'q');}
+        if(TestBit(bKing, start)) { PopBit(bKing, start); SetBit(bKing, target); SetZobristHash(zobrist, start,'k'); SetZobristHash(zobrist, target,'k');}
     };
 
     void GetwBoardandSetPromoIndex(int index, char promoP) {
@@ -1112,7 +1141,7 @@ class U64Bitboard {
 
     void PromotionUpdate(bool isCap, int startIndex, int targetIndex, char promoP) { return isCap ? CapturePromoUpdate(startIndex, targetIndex, promoP) : QuietPromoUpdate(startIndex, targetIndex, promoP); };
     
-    void CastleUpdateHelper(U64 &color, U64 &b, int start, int end) { ResetBit(color, start); SetBit(color, end); ResetBit(b, start); SetBit(b, end); ResetBit(occBoard, start); SetBit(occBoard, end); };
+    void CastleUpdateHelper(U64 &color, U64 &b, int start, int end) { PopBit(color, start); SetBit(color, end); PopBit(b, start); SetBit(b, end); PopBit(occBoard, start); SetBit(occBoard, end); };
     void wCastleLongUpdate() { CastleUpdateHelper(wBoard, wRook, 56, 59); CastleUpdateHelper(wBoard, wKing, 60, 58); };
     void wCastleShortUpdate() { CastleUpdateHelper(wBoard, wRook, 63, 61); CastleUpdateHelper(wBoard, wKing, 60, 62); };
 

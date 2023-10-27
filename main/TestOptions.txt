@@ -1,3 +1,45 @@
+/* TEST bishop and rook attacks with occupancies
+    U64 testocc = 0;
+    SetBit(testocc, c5);
+    SetBit(testocc, f2);
+    SetBit(testocc, g7);
+    SetBit(testocc, b2);
+    SetBit(testocc, g5);
+    SetBit(testocc, e2);
+    SetBit(testocc, e7);
+    Print(testocc, "testocc");
+
+    U64 batt = GetBishopAttacks(d4, testocc);
+    Print(batt, "bishop attacks");
+
+    U64 ratt = GetRookAttacks(e5, testocc);
+    Print(ratt, "rook attacks");
+*/
+
+/* Masks and attacks with blockers
+    U64 bmask = precomputtedBishopMask[d4];
+    Print(bmask);
+    U64 rmask = precomputtedRookMask[d4];
+    Print(rmask);
+
+    U64 currOcc = C64(0);
+    SetBit(currOcc, d6);
+    SetBit(currOcc, g4);
+    SetBit(currOcc, b6);
+    Print(currOcc, "Occupied");
+    U64 batt = BishopAttacks(d4, currOcc);
+    Print(batt, "bishop attacks");
+    U64 ratt = RookAttacks(d4, currOcc);
+    Print(ratt, "rook attacks");
+*/
+
+/*random number test
+    cout << GetU32RandomNumber() << endl;
+    cout << (GetU32RandomNumber() & 0xFFFF)<< endl;
+    cout << GetU64RandomNumber() << endl;
+    cout << GenerateMagicNumber() << endl;
+*/
+
 /* Time test
     auto start = high_resolution_clock::now();
     b.GetPsuedoMoves();

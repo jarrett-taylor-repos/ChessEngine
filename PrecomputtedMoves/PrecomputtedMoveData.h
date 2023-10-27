@@ -39,6 +39,7 @@ namespace PrecomputtedMoveData {
     U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
     U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
 
+
     void GenerateSingleBitBoards(ofstream &of) {
         of << "U64 precomputtedSingleBit[64] = {";
         for(int i = 0; i < 64; i++) {
@@ -46,7 +47,7 @@ namespace PrecomputtedMoveData {
             of << single;
             if(i != 63) of << ", ";
         }
-        of << "};" << endl << endl;
+        of << "};" << endl;
     }
 
     void GeneratePrecomputtedKnights(ofstream &of) {
@@ -56,7 +57,7 @@ namespace PrecomputtedMoveData {
             of << knightAtt;
             if(i !=63) of << ", ";
         }
-        of << "};" << endl << endl;
+        of << "};" << endl;
     }
 
     void GeneratePrecomputtedKings(ofstream &of) {
@@ -66,47 +67,159 @@ namespace PrecomputtedMoveData {
             of << knightAtt;
             if(i !=63) of << ", ";
         }
-        of << "};" << endl << endl;
+        of << "};" << endl;
     }
 
-    void PrecomputtedWhitePawnAttacks(ofstream &of) {
+    void GeneratePrecomputtedWhitePawnAttacks(ofstream &of) {
         of << "U64 precomputtedWhitePawnAttacks[64] = {";
         for(int i = 0; i < 64; i++) {
             U64 pawnAtt = wPawnAllAtt(SingleBitBoard(i));
             of << pawnAtt;
             if(i !=63) of << ", ";
         }
-        of << "};" << endl << endl;
+        of << "};" << endl;
     }
 
-    void PrecomputtedBlackPawnAttacks(ofstream &of) {
+    void GeneratePrecomputtedBlackPawnAttacks(ofstream &of) {
         of << "U64 precomputtedBlackPawnAttacks[64] = {";
         for(int i = 0; i < 64; i++) {
             U64 pawnAtt = bPawnAllAtt(SingleBitBoard(i));
             of << pawnAtt;
             if(i !=63) of << ", ";
         }
-        of << "};" << endl << endl;
+        of << "};" << endl;
     }
 
-    void PrecomputtedWhitePawnSinglePush(ofstream &of) {
+    void GeneratePrecomputtedWhitePawnSinglePush(ofstream &of) {
         of << "U64 precomputtedWhitePawnSinglePush[64] = {";
         for(int i = 0; i < 64; i++) {
             U64 pawnPush = wSinglePushTargets(SingleBitBoard(i));
             of << pawnPush;
             if(i !=63) of << ", ";
         }
-        of << "};" << endl << endl;
+        of << "};" << endl;
     }
 
-    void PrecomputtedBlackPawnSinglePush(ofstream &of) {
+    void GeneratePrecomputtedBlackPawnSinglePush(ofstream &of) {
         of << "U64 precomputtedBlackPawnSinglePush[64] = {";
         for(int i = 0; i < 64; i++) {
             U64 pawnPush = bSinglePushTargets(SingleBitBoard(i));
             of << pawnPush;
             if(i !=63) of << ", ";
         }
-        of << "};" << endl << endl;
+        of << "};" << endl;
+    }
+
+    void GeneratePrecomputtedWhitePawnAttackMap(ofstream &of) {
+        of << "map<U64, U64> precomputtedWhitePawnAttackMap = {";
+        for(int i = 0; i < 64; i++) {
+            U64 key = SingleBitBoard(i);
+            U64 pawnPush = wPawnAllAtt(SingleBitBoard(i));
+            of << "{" + to_string(key) + ", " + to_string(pawnPush) + "}";
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
+    }
+
+    void GeneratePrecomputtedBlackPawnAttackMap(ofstream &of) {
+        of << "map<U64, U64> precomputtedBlackPawnAttackMap = {";
+        for(int i = 0; i < 64; i++) {
+            U64 key = SingleBitBoard(i);
+            U64 pawnPush = bPawnAllAtt(SingleBitBoard(i));
+            of << "{" + to_string(key) + ", " + to_string(pawnPush) + "}";
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
+    }
+
+    void GeneratePrecomputtedKnightMap(ofstream &of) {
+        of << "map<U64, U64> precomputtedKnightMap = {";
+        for(int i = 0; i < 64; i++) {
+            U64 key = SingleBitBoard(i);
+            U64 knightAtt = KnightAttacks(SingleBitBoard(i));
+            of << "{" + to_string(key) + ", " + to_string(knightAtt) + "}";
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
+    }
+
+    void GeneratePrecomputtedKingMap(ofstream &of) {
+        of << "map<U64, U64> precomputtedKingMap = {";
+        for(int i = 0; i < 64; i++) {
+            U64 key = SingleBitBoard(i);
+            U64 kingAtt = OneInAllDirection(SingleBitBoard(i));
+            of << "{" + to_string(key) + ", " + to_string(kingAtt) + "}";
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
+    }
+
+    void GeneratePrecomputtedBishopMask(ofstream &of) {
+        of << "U64 precomputtedBishopMask[64] = {";
+        for(int i = 0; i < 64; i++) {
+            U64 attacks = MaskBishop(i);
+            of << attacks;
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
+    }
+
+    void GeneratePrecomputtedRookMask(ofstream &of) {
+        of << "U64 precomputtedRookMask[64] = {";
+        for(int i = 0; i < 64; i++) {
+            U64 attacks = MaskRook(i);
+            of << attacks;
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
+    }
+
+    void GenerateBishopOccupanyBitLookupTables(ofstream &of) {
+        of << "const int BishopOccupanyBitCount[64] = {" << endl;
+        for(int rank = 0; rank < 8; rank++) {
+            for(int file = 0; file < 8; file++) {
+                int sq = rank * 8 + file;
+                if(sq % 8 == 0) of << "    ";
+                of << CountBits(MaskBishop(sq));
+                if(sq != 63) of << ", ";
+            }
+            of << endl;
+        }
+        of << "};" << endl;
+    }
+
+    void GenerateRookOccupanyBitLookupTables(ofstream &of) {
+        of << "const int RookOccupanyBitCount[64] = {" << endl;
+        for(int rank = 0; rank < 8; rank++) {
+            for(int file = 0; file < 8; file++) {
+                int sq = rank * 8 + file;
+                if(sq % 8 == 0) of << "    ";
+                of << CountBits(MaskRook(sq));
+                if(sq != 63) of << ", ";
+            }
+            of << endl;
+        }
+        of << "};" << endl;
+    }
+
+    void GenerateRookMagicNumbers(ofstream &of) {
+        of << "U64 rookMagicNumbers[64] = {";
+        for(int i = 0; i < 64; i++) {
+            U64 attacks = FindMagicNumber(i, CountBits(MaskRook(i)), false);
+            of << attacks;
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
+    }
+
+    void GenerateBishopMagicNumbers(ofstream &of) {
+        of << "U64 bishopMagicNumbers[64] = {";
+        for(int i = 0; i < 64; i++) {
+            U64 attacks = FindMagicNumber(i, CountBits(MaskBishop(i)), true);
+            of << attacks;
+            if(i !=63) of << ", ";
+        }
+        of << "};" << endl;
     }
 
     void GeneratePrecomputted() {
@@ -114,10 +227,25 @@ namespace PrecomputtedMoveData {
         GenerateSingleBitBoards(of);
         GeneratePrecomputtedKnights(of);
         GeneratePrecomputtedKings(of);
-        PrecomputtedWhitePawnAttacks(of);
-        PrecomputtedBlackPawnAttacks(of);
-        PrecomputtedWhitePawnSinglePush(of);
-        PrecomputtedBlackPawnSinglePush(of);
+
+        GeneratePrecomputtedWhitePawnAttacks(of);
+        GeneratePrecomputtedBlackPawnAttacks(of);
+        GeneratePrecomputtedWhitePawnSinglePush(of);
+        GeneratePrecomputtedBlackPawnSinglePush(of);
+        GeneratePrecomputtedWhitePawnAttackMap(of);
+        GeneratePrecomputtedBlackPawnAttackMap(of);
+
+        GeneratePrecomputtedKnightMap(of);
+        GeneratePrecomputtedKingMap(of);
+
+        GeneratePrecomputtedBishopMask(of);
+        GeneratePrecomputtedRookMask(of);
+
+        GenerateBishopOccupanyBitLookupTables(of);
+        GenerateRookOccupanyBitLookupTables(of);
+
+        GenerateRookMagicNumbers(of);
+        GenerateBishopMagicNumbers(of);
         of.close();
     }
 }
