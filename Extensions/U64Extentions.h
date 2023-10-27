@@ -124,6 +124,8 @@ namespace U64Extensions {
         return attacks;
     }
 
+    U64 QueenAttacks(int sq, U64 block) { return BishopAttacks(sq, block) | RookAttacks(sq, block); }
+
     //occupancy 
     U64 SetOccupancy(int index, int bitCount, U64 attacks) {
         U64 occupancy = C64(0);
