@@ -2,8 +2,8 @@
 
 class ZTable {
   private:
-    int tableSize = 10000;
-    ZTableEntry table[10000];
+    int tableSize = 1000000;
+    ZTableEntry table[1000000];
   public:
 
     ZTable() {
