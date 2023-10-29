@@ -62,6 +62,7 @@ namespace U64BitboardConstants {
     const U64 notRank8 = 0xFFFFFFFFFFFFFF00;
 
     const U64 Universe = 0xFFFFFFFFFFFFFFFF;
+    const U64 Empty = C64(0);
 
     enum enumSquare {
         a8, b8, c8, d8, e8, f8, g8, h8,

@@ -9,21 +9,74 @@ int main () {
     U64 temp = aFile;
 
     auto start = high_resolution_clock::now();
-    for(int i = 0; i < 64; i++) {
-        b.QueenAttacks(precomputtedSingleBit[i], occboard);
-    }
+    b.GetMapMoves();
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Get traditional way rook attacks: " + to_string(duration.count()) << endl;
+    cout << "Get map moves: " + to_string(duration.count()) << endl;
 
 
     start = high_resolution_clock::now();
-    for(int i = 0; i < 64; i++) {
-        QueenAttacks(i, occboard);
-    }
+    b.wBishopPsuedoMoves();
+    b.wRookPsuedoMoves();
+    b.wQueenPsuedoMoves();
+
+    b.wBishopPsuedoMoves();
+    b.wRookPsuedoMoves();
+    b.wQueenPsuedoMoves();
+
+    b.wBishopPsuedoMoves();
+    b.wRookPsuedoMoves();
+    b.wQueenPsuedoMoves();
+
+    b.wBishopPsuedoMoves();
+    b.wRookPsuedoMoves();
+    b.wQueenPsuedoMoves();
+
+    b.wBishopPsuedoMoves();
+    b.wRookPsuedoMoves();
+    b.wQueenPsuedoMoves();
+
+    b.wBishopPsuedoMoves();
+    b.wRookPsuedoMoves();
+    U64 queen = b.wQueenPsuedoMoves();
     stop = high_resolution_clock::now();
     duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Get on the fly rok attacks: " + to_string(duration.count()) << endl;
+    cout << "Get psuedo moves: " + to_string(duration.count()) << endl;
+
+    start = high_resolution_clock::now();
+    b.wMagicRookMoves();
+    b.wMagicBishopMoves();
+    U64 magicq = b.wMagicQueenMoves();
+
+    b.wMagicRookMoves();
+    b.wMagicBishopMoves();
+    b.wMagicQueenMoves();
+
+    b.wMagicRookMoves();
+    b.wMagicBishopMoves();
+    b.wMagicQueenMoves();
+
+    b.wMagicRookMoves();
+    b.wMagicBishopMoves();
+    b.wMagicQueenMoves();
+
+    b.wMagicRookMoves();
+    b.wMagicBishopMoves();
+    b.wMagicQueenMoves();
+
+    b.wMagicRookMoves();
+    b.wMagicBishopMoves();
+    b.wMagicQueenMoves();
+
+    b.wMagicRookMoves();
+    b.wMagicBishopMoves();
+    b.wMagicQueenMoves();
+    stop = high_resolution_clock::now();
+    duration = duration_cast<nanoseconds>(stop - start);
+    cout << "Get magic moves: " + to_string(duration.count()) << endl;
+
+    Print(queen);
+    Print(magicq);
 
 
 

@@ -250,6 +250,8 @@ namespace U64Extensions {
         return magicRookAttacks[sq][occupancy];
     }
 
+    U64 GetQueenAttacks(int sq, U64 occupancy) { return GetRookAttacks(sq, occupancy) | GetBishopAttacks(sq, occupancy); }
+
     U64 SingleBitBoard(int sq) {
         U64 temp = 0;
         SetBit(temp, sq);
