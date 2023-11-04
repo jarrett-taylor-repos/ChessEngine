@@ -9,8 +9,8 @@ for line in lines:
   [FEN, jertFEN, movesString] = line.split("|")
 
     
-  # if FEN!=jertFEN:
-  #   print(f"when inputting FEN: {FEN}, program outputed FEN {jertFEN}", file=errfile) 
+  if FEN!=jertFEN:
+    print(f"when inputting FEN: {FEN}, program outputed FEN {jertFEN}", file=errfile) 
 
   jertMoves = movesString.split(",")
   jertMoves.pop() # gets rid of \n at the end
