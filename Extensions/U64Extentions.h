@@ -260,7 +260,6 @@ namespace U64Extensions {
         return temp;
     }
 
-
     //PRINT methods
     void Print(U64 b, string name = "") {
         if(name != "") cout << name << endl;

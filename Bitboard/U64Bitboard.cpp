@@ -205,7 +205,7 @@ class U64Bitboard {
 
     string GetPieceAtIndex(int index) {
         if(TestBit(bb[P], index)) return "P";
-        if(TestBit(bb[K], index)) return "N";
+        if(TestBit(bb[N], index)) return "N";
         if(TestBit(bb[B], index)) return "B";
         if(TestBit(bb[R], index)) return "R";
         if(TestBit(bb[Q], index)) return "Q";
@@ -356,7 +356,6 @@ class U64Bitboard {
     U64 wKnightPsuedoMoves(){ return KnightAttacks(bb[K]) & NotwBoard(); };
     U64 bKnightPsuedoMoves(){ return KnightAttacks(bb[n]) & NotbBoard(); };
 
-    //king moves, castling needs to include possible castle through check 
     U64 wKingCastleShort() {
         bool canCastle = castlingRights & wk;
         if(!canCastle) return Empty;
@@ -521,153 +520,24 @@ class U64Bitboard {
 
 
     //Moves
-    void GenerateWhiteMoves(Moves &movesList) {
-        int source, target;
-        U64 board, att, moves;
-
-        //pawn pushes
-        board = bb[P];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            moves = wPawnPushes(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, P, true, false, enPassantTarget, Empty);
-            PopBit(board, source);
-        }
-
-        //pawn captures 
-        board = bb[P];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            moves = wPawnAllCaptures(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, P, true, true, 0, occ[BLACK]);
-            PopBit(board, source);
-        }
-
-        //knight moves
-        board = bb[K];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = precomputtedKnights[source];
-            moves = GetMovesFromPieceAttacks(att, occ[WHITE]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, N, true, false, 0, occ[BLACK]);
-            PopBit(board, source);
-        }
-
-        //bishop moves
-        board = bb[B];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = GetBishopAttacks(source, occ[BOTH]);
-            moves = GetMovesFromPieceAttacks(att, occ[WHITE]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, B, true, false, 0, occ[BLACK]);
-            PopBit(board, source);
-        }
-
-        //rook moves
-        board = bb[R];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = GetRookAttacks(source, occ[BOTH]);
-            moves = GetMovesFromPieceAttacks(att, occ[WHITE]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, R, true, false, 0, occ[BLACK]);
-            PopBit(board, source);
-        }
-
-        //queen moves
-        board = bb[Q];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = GetQueenAttacks(source, occ[BOTH]);
-            moves = GetMovesFromPieceAttacks(att, occ[WHITE]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, Q, true, false, 0, occ[BLACK]);
-            PopBit(board, source);
-        }
-
-        //king moves
-        att = wKingPsuedoMoves();
-        moves = GetMovesFromPieceAttacks(att, occ[WHITE]);
-        if(moves != Empty) FindAndInsertMoves(movesList, wKingSq, moves, K, true, false, 0, occ[BLACK]);
-    };
-
-    void GenerateBlackMoves(Moves &movesList) {
-        int source, target;
-        U64 board, att, moves;
-
-        //pawn pushes
-        board = bb[p];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            moves = bPawnPushes(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, true, false, enPassantTarget, Empty);
-            PopBit(board, source);
-        }
-
-        //pawn captures 
-        board = bb[p];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            moves = bPawnAllCaptures(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, false, true, 0, occ[WHITE]);
-            PopBit(board, source);
-        }
-
-        //knight moves
-        board = bb[n];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = precomputtedKnights[source];
-            moves = GetMovesFromPieceAttacks(att, occ[BLACK]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, n, false, false, 0, occ[WHITE]);
-            PopBit(board, source);
-        }
-
-        //bishop moves
-        board = bb[b];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = GetBishopAttacks(source, occ[BOTH]);
-            moves = GetMovesFromPieceAttacks(att, occ[BLACK]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, b, false, false, 0, occ[WHITE]);
-            PopBit(board, source);
-        }
-
-        //rook moves
-        board = bb[r];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = GetRookAttacks(source, occ[BOTH]);
-            moves = GetMovesFromPieceAttacks(att, occ[BLACK]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, r, false, false, 0, occ[WHITE]);
-            PopBit(board, source);
-        }
-
-        //queen moves
-        board = bb[q];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            att = GetQueenAttacks(source, occ[BOTH]);
-            moves = GetMovesFromPieceAttacks(att, occ[BLACK]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, q, false, false, 0, occ[WHITE]);
-            PopBit(board, source);
-        }
-
-        //king moves
-        att = bKingPsuedoMoves();
-        moves = GetMovesFromPieceAttacks(att, occ[BLACK]);
-        if(moves != Empty) FindAndInsertMoves(movesList, bKingSq, moves, k, false, false, 0, occ[WHITE]);
-    };
-
-    void GenerateMoves(Moves &movesList) { (isWhiteMove) ? GenerateWhiteMoves(movesList): GenerateBlackMoves(movesList); };
-
     void GenerateWhitePawnMoves(Moves &movesList) {
         int source, target;
         U64 board, att, moves;
 
-        //pawn pushes
+        //pawn single pushes
         board = bb[P];
         while(board != Empty) {
             source = GetLSBIndex(board);
-            moves = wPawnPushes(precomputtedSingleBit[source]);
+            moves = wSinglePushTargets(precomputtedSingleBit[source]);
+            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, P, true, false, 0, Empty);
+            PopBit(board, source);
+        }
+
+        //pawn double pushes
+        board = bb[P];
+        while(board != Empty) {
+            source = GetLSBIndex(board);
+            moves = wDoublePushTargets(precomputtedSingleBit[source]);
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, P, true, false, 0, Empty);
             PopBit(board, source);
         }
@@ -698,11 +568,20 @@ class U64Bitboard {
         int source, target;
         U64 board, att, moves;
 
-        //pawn pushes
+        //pawn single pushes
         board = bb[p];
         while(board != Empty) {
             source = GetLSBIndex(board);
-            moves = bPawnPushes(precomputtedSingleBit[source]);
+            moves = bSinglePushTargets(precomputtedSingleBit[source]);
+            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, true, false, 0, Empty);
+            PopBit(board, source);
+        }
+
+        //pawn double pushes
+        board = bb[p];
+        while(board != Empty) {
+            source = GetLSBIndex(board);
+            moves = bDoublePushTargets(precomputtedSingleBit[source]);
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, true, false, 0, Empty);
             PopBit(board, source);
         }
@@ -1071,5 +950,19 @@ class U64Bitboard {
         Print(occ[BLACK], "bBoard");
         Print(occ[WHITE], "wBoard");
         Print(occ[BOTH], "BothBoard");
+    }
+
+    void PrintPretty() {
+        for(int i = 0; i < 64; i++) {
+
+            if(i != 0 && (i % 8) == 0) { cout << "   " << to_string(9 - i/8) <<  endl; }
+            string piece = GetPieceAtIndex(i) != "" ? GetPieceAtIndex(i) : ".";
+            cout << piece << " ";
+
+        }
+
+        cout << "   " << 1;
+        cout << endl << endl << "A B C D E F G H " << endl;
+        cout << endl << endl;
     }
 };
