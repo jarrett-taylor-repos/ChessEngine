@@ -1,8 +1,10 @@
 #include "U64BitboardConstants.h"
+#include "Moves.cpp"
 #include <chrono>
 using namespace chrono;
 using namespace std;
 using namespace U64BitboardConstants;
+
 
 namespace U64Extensions {
     void SetBit(U64 &b, int sq) { b |= precomputtedSingleBit[sq]; }
@@ -261,7 +263,7 @@ namespace U64Extensions {
 
     //PRINT methods
     void Print(U64 b, string name = "") {
-        if(name.length() != 0) { cout << name << endl;}
+        if(name != "") cout << name << endl;
 
         for(int i = 0; i < 64; i++) {
 
@@ -273,38 +275,70 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
-    void Print(multimap<int, pair<int, char>> m, string name = "") {
-        if(name.length() != 0) { cout << name << endl;}
+    char GetPromoPieceChar(int move) {
+        int promoM = getMovePromoted(move);
+        if(!promoM) return ' ';
 
-        for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-            cout << it->first << " " << it->second.first << " " << it->second.second << endl;
+        switch (promoM) {
+            case 1: return 'q';
+            case 2: return 'r';
+            case 4: return 'b';
+            case 8: return 'n';
+            default: return ' ';
         }
-        cout << endl << endl;
+    }
+
+    void PrintMoveUci(int move, int nodes = 0) {
+        cout << squares_to_coordinates[getMoveSource(move)] 
+            << squares_to_coordinates[getMoveTarget(move)] 
+            << GetPromoPieceChar(move);
+
+        if(nodes) cout << ": " << nodes;
+        cout << endl;
+    }
+
+    void PrintMoveListUci(Moves movesList) {
+        cout << "Move Count: " << movesList.GetCount() << endl;
+        for(int i = 0; i < movesList.GetCount(); i++){
+            PrintMoveUci(movesList.GetMove(i));
+        }
+    }
+
+    void PrintMove(int move) {
+        int source = getMoveSource(move);
+        int target = getMoveTarget(move);
+        int piece = getMovePiece(move);
+        int promoted = getMovePromoted(move);
+        int capture = getMoveCapture(move);
+        int doublePush = getMoveDouble(move);
+        int enpassant = getMoveEnpassant(move);
+        int castling = getMoveCastling(move);
+
+
+        string str_start = squares_to_coordinates[source];
+        string str_target = squares_to_coordinates[target];
+        char str_piece = *ascii_pieces[piece];
+        char str_promoted = GetPromoPieceChar(move);
+        char str_capture = capture ? '1' : '0';
+        char str_double = doublePush ? '1' : '0';
+        char str_enpassant = enpassant ? '1' : '0';
+        char str_castling = castling ? '1' : '0';
+
+        cout << str_start 
+            << str_target 
+            << str_piece
+            << str_promoted
+            << str_capture
+            << str_double
+            << str_enpassant
+            << str_castling
+            << endl;
     }
 
     void Print(vector<int> vect, string name = "") {
         if(name.length() != 0) { cout << name << endl; }
         for(int i = 0; i < vect.size(); i++) {
             cout << to_string(vect[i]) << " ";
-        }
-        cout << endl << endl;
-    }
-
-    void Print(map<int, U64> m, string name = "") {
-        if(name.length() != 0) { cout << name << endl;}
-
-        for(map<int, U64>::const_iterator it = m.begin(); it != m.end(); ++it){
-            string pinnedMovesStr = "Pinned moves for " + to_string(it->first);
-            Print(it->second, pinnedMovesStr);
-        }
-        cout << endl << endl;
-    }
-
-    void Print(map<string, int> m, string name = "") {
-        if(name.length() != 0) { cout << name << endl;}
-
-        for(map<string, int>::const_iterator it = m.begin(); it != m.end(); ++it){
-            cout << it->first << " - " << to_string(it->second) << endl;
         }
         cout << endl << endl;
     }
@@ -318,21 +352,34 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
-    void Print(map<char, vector<int>> &m, string name = "") {
-        if(name.length() != 0) { cout << name << endl;}
-
-        for(map<char, vector<int>>::const_iterator it = m.begin(); it != m.end(); ++it){
-            cout << it->first << " - "; Print(it->second);
+    int SetCastlingRightsHelper(char ch) {
+        switch (ch) {
+            case 'K': return wk; 
+            case 'Q': return wq;
+            case 'k': return bk; 
+            case 'q': return bq;
+            default: return 0;
         }
-        cout << endl << endl;
+    }
+
+    int SetCastlingRights(string str) {
+        int result = 0;
+        if(str == "" || str == "-") return 0;
+        for(int i = 0; i < str.size(); i++) {
+            char ch = str[i];
+            result |= SetCastlingRightsHelper(ch);
+        }
+        return result;
     }
     
-    string CastlingRightsString(map<char, bool> m) {
+    string CastlingRightsString(int castling) {
+        if(castling == 0) return "-";
+
         string temp = "";
-        for(map<char, bool>::const_iterator it = m.begin(); it != m.end(); ++it){
-            if(it->second) { temp += it->first; }
-        }
-        if(temp == "") return "-";
+        if(castling & wk) temp += "K";
+        if(castling & wq) temp += "Q";
+        if(castling & bk) temp += "k";
+        if(castling & bq) temp += "Q";
         return temp;
     }
 
@@ -346,32 +393,17 @@ namespace U64Extensions {
         return -1;
     }
 
-    map<char, bool> SetCastlingRights(string str, U64 &zobrist) {
-        map<char, bool> m = castlingRightsDefault;
-
-        for(char c : str) {
-            auto it = m.find(c);
-            it->second = true;
-            int index = CastlingRightsToZobristIndex(c);
-            zobrist ^= castlingNumbers[index];
-        }
-        return m;
-    }
-
-    bool IsIntInVector(vector<int> v, int key) {
-        return count(v.begin(), v.end(), key) > 0;
-    }
-
-    void SetCastlingRightsFalse(map<char, bool> &m, char c, U64 &zobrist) {
-        auto it = m.find(c);
-        it->second = false;
+    void SetCastlingZobritst(int &castling, char c, U64 &zobrist) {
         int index = CastlingRightsToZobristIndex(c);
         zobrist ^= castlingNumbers[index];
-    }
 
-    bool GetCastlingRightsValueByChar(map<char, bool> m, char c) {
-        auto it = m.find(c);
-        return it->second;
+        switch (c) {
+            case 'K': castling ^ wk; return;
+            case 'Q': castling ^ wq; return;
+            case 'k': castling ^ bk; return;
+            case 'q': castling ^ bq; return;
+            default: return;
+        }
     }
 
     vector<string> Split(string str, const char token = ' '){
@@ -385,103 +417,42 @@ namespace U64Extensions {
         return words;
     }
 
-    short int CharToInt(char ch) {
-        string str(1, ch);
-        return stoi(str);
-    };
+    short int CharToInt(char ch) { string str(1, ch); return stoi(str); };
 
-    vector<int> GetTrueBits(U64 b) {
-        vector<int> indexes;
-        // for(int i = 0; i < 64; i++) {
-        //     if(TestBit(b, i)) indexes.push_back(i);
-        // }
-        while(b != C64(0)) {
-            U64 temp = b & -b;
-            int index = GetLSBIndex(b);
-            indexes.push_back(index);
-            b ^= temp;
-        }
-        return indexes;
-    }
-
-    string IndexToSquare(int index) { return IntToSquareMap.at(index); }
     int StringtoIndex(string str) {return SquaretoIntMap.at(str); }
 
     string EnpassantTargetToString(int index) { 
         if(index == 0) return "-";
-        return IndexToSquare(index);
+        return squares_to_coordinates[index];
     }
 
-    void InsertPin(map<int, U64> &m, int blockerSq, U64 pinnedMoves) {
-        pair<int, U64> pinnedToKing = pair<int, U64> (blockerSq, pinnedMoves); 
-        m.insert(pinnedToKing);
-    }
-    
-    void InsertCheck(map<int, vector<int>> &m, int key, vector<int> blocks) {
-        pair<int, vector<int>> blocksForKing = pair<int, vector<int>> (key, blocks); 
-        m.insert(blocksForKing);
-    }
+    void FindAndInsertMoves(Moves &movesList, int source, U64 moves, int piece, bool isWhite, bool isPawnCap, int enpassantTarget, U64 possibleCaptures) {
+        int move = 0;
+        while(moves != Empty) {
+            int target = GetLSBIndex(moves);
+            bool isPawn = (piece == P) || (piece == p);
+            bool isPromo = (isWhite && isPawn && (target < a7)) || (!isWhite && isPawn && (target > h2));
+            bool isDoublePawnPush = isPawn && abs(target-source) == 16;
+            bool isCastle = ((piece == K) || (piece == k)) && abs(target-source) == 2;
+            bool isEnpassant = isPawn && target == enpassantTarget;
+            bool isCap = isPawnCap || TestBit(possibleCaptures, target);
 
-    void InsertMove(multimap<int, pair<int, char>> &m, int start, int target, char promo) {
-        pair<int, char> helper = pair<int, char>(target, promo);
-        pair<int, pair<int, char>> temp = pair<int, pair<int, char>>(start, helper); 
-        m.insert(temp);
-    }
-
-    vector<int> GetBlocksFromChecks(map<int, vector<int>> &m, int key) {
-        if (m.find(key) != m.end()) {
-            return m[key];
-        }
-        return vector<int>{-1};
-    }
-
-    U64 GetPinnedMoves(map<int, U64> &m, int key) {
-        if (m.find(key) != m.end()) {
-            return m[key];
-        }
-        return Universe;
-    }
-
-    bool FindMoveInMap(multimap<int, pair<int, char>> m, int key) {
-        if (m.find(key) != m.end()) return true;
-        return false;
-    }
-
-    void InsertIndex(vector<int> &m, int value) {
-        m.push_back(value);
-    }
-
-    void RemoveIndex(vector<int> &m, int value) {
-        m.erase(remove(m.begin(), m.end(), value), m.end());
-    }
-
-    void U64ToMapMoves(multimap<int, pair<int, char>> &moves, int sq, U64 b, bool isPawnMove = false, bool isWhitePawn = false) {
-        //Print(b, "U64ToMapMoves");
-        vector<int> end = GetTrueBits(b);
-        for(int i = 0; i < end.size(); i++) {
-            bool isPromo = (isWhitePawn ? end[i] < 8 : end[i] > 55) && isPawnMove;
             if(isPromo) {
-                for(int j = 0; j < promotionUci.length(); j++) {
-                    char curr = promotionUci[j];
-                    pair<int, char> chartemp = pair<int, char>(end[i], curr);
-                    pair<int, pair<int, char>> temp = pair<int, pair<int, char>>(sq, chartemp);
-                    moves.insert(temp);
-                }
+                move = encodeMove(source, target, piece, 1, isCap, 0, 0, 0);
+                movesList.AddMove(move);
+                move = encodeMove(source, target, piece, 2, isCap, 0, 0, 0);
+                movesList.AddMove(move);
+                move = encodeMove(source, target, piece, 4, isCap, 0, 0, 0);
+                movesList.AddMove(move);
+                move = encodeMove(source, target, piece, 8, isCap, 0, 0, 0);
+                movesList.AddMove(move);
             } else {
-                pair<int, char> chartemp = pair<int, char>(end[i], ' ');
-                pair<int, pair<int, char>> temp = pair<int, pair<int, char>>(sq, chartemp);
-                moves.insert(temp);
+                move = encodeMove(source, target, piece, 0, isCap, isDoublePawnPush, isEnpassant, isCastle);
+                movesList.AddMove(move);
             }
-        }
-    }
 
-    vector<string> MapMovesToUCI(multimap<int, pair<int, char>> m) {
-        vector<string> uci;
-        for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-            string move = IndexToSquare(it->first) + IndexToSquare(it->second.first) + it->second.second;
-            uci.push_back(move);
+            PopBit(moves, target);
         }
-        return uci;
     }
 
     //zobrist 
@@ -504,31 +475,12 @@ namespace U64Extensions {
     }
 
     int EnpassantZobristIndex(int enPassantTarget) {
-        switch(enPassantTarget) {
-            case 16: return 0;
-            case 17: return 1;
-            case 18: return 2;
-            case 19: return 3;
-            case 20: return 4;
-            case 21: return 5;
-            case 22: return 6;
-            case 23: return 7;
-            case 40: return 8;
-            case 41: return 9;
-            case 42: return 10;
-            case 43: return 11;
-            case 44: return 12;
-            case 45: return 13;
-            case 46: return 14;
-            case 47: return 15;
-            default: return -1;
-        }
+        if(enPassantTarget < 16 || enPassantTarget > 47) return -1;
+        if(enPassantTarget > 23) return enPassantTarget -16;
+        return enPassantTarget - 32;
     }
 
-    void SetZobristHash(U64 &zobrist, int boardSq, char c) {
-        int pieceNum = PieceToZobristIndex(c);
-        zobrist ^= pieceNumbers[boardSq][pieceNum];
-    }
+    void SetZobristHash(U64 &zobrist, int boardSq, int piece) { zobrist ^= pieceNumbers[boardSq][piece]; }
 
     void SetZobristHash(U64 &zobrist, int enpassantTarget) {
         int index = EnpassantZobristIndex(enpassantTarget);

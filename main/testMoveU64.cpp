@@ -4,22 +4,18 @@ int moveGenerationTest(U64Bitboard b, int depth) {
     if(depth == 0) return 1;
 
     int numPos = 0;
-    string fen = b.GetFen();
-    multimap<int, pair<int, char>> m = b.GetMapMoves();
-    for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-        int sq = it->first;
-        int end = it->second.first;
-        char promo = it->second.second;
+    Moves move_list;
+    b.GeneratebbMoves(move_list);
+
+    for(int i = 0; i < move_list.GetCount(); i++){
         U64Bitboard temp = b;
-        bool mademove = temp.MakeMove(sq, end, promo);
+        bool mademove = temp.MakeMove(move_list.GetMove(i));
         if(mademove) {
             numPos += moveGenerationTest(temp, depth-1);
         }
-
     }
     return numPos;
 }
-
 
 int main() {
     InitAll();
@@ -29,8 +25,8 @@ int main() {
     // 3 - 62,379
     // 4 - 2,103,487
     // 5 - 89,941,194
-    U64Bitboard b;
-    b.LoadFen(testPos);
+    U64Bitboard b(startFen);
+    //b.LoadFen(testPos);
 
     // 1	20
     // 2	400

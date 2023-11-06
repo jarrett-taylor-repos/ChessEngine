@@ -2,82 +2,43 @@
 
 int main () {
     InitAll();
-    U64Bitboard b;
+    U64Bitboard b, temp;
     U64 occboard = b.GetOccBoard();
-    //move generation time 
-    U64 test = aFile;
-    U64 temp = aFile;
 
     auto start = high_resolution_clock::now();
-    b.GetMapMoves();
+    Moves move_list;
+    b.GenerateMoves(move_list);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Get map moves: " + to_string(duration.count()) << endl;
+    cout << "Get moves old: " + to_string(duration.count()) << endl;
 
 
     start = high_resolution_clock::now();
-    b.wBishopPsuedoMoves();
-    b.wRookPsuedoMoves();
-    b.wQueenPsuedoMoves();
-
-    b.wBishopPsuedoMoves();
-    b.wRookPsuedoMoves();
-    b.wQueenPsuedoMoves();
-
-    b.wBishopPsuedoMoves();
-    b.wRookPsuedoMoves();
-    b.wQueenPsuedoMoves();
-
-    b.wBishopPsuedoMoves();
-    b.wRookPsuedoMoves();
-    b.wQueenPsuedoMoves();
-
-    b.wBishopPsuedoMoves();
-    b.wRookPsuedoMoves();
-    b.wQueenPsuedoMoves();
-
-    b.wBishopPsuedoMoves();
-    b.wRookPsuedoMoves();
-    U64 queen = b.wQueenPsuedoMoves();
+    Moves move_list2;
+    b.GeneratebbMoves(move_list2);
     stop = high_resolution_clock::now();
     duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Get psuedo moves: " + to_string(duration.count()) << endl;
+    cout << "get move new: " + to_string(duration.count()) << endl;
+
 
     start = high_resolution_clock::now();
-    b.wMagicRookMoves();
-    b.wMagicBishopMoves();
-    U64 magicq = b.wMagicQueenMoves();
-
-    b.wMagicRookMoves();
-    b.wMagicBishopMoves();
-    b.wMagicQueenMoves();
-
-    b.wMagicRookMoves();
-    b.wMagicBishopMoves();
-    b.wMagicQueenMoves();
-
-    b.wMagicRookMoves();
-    b.wMagicBishopMoves();
-    b.wMagicQueenMoves();
-
-    b.wMagicRookMoves();
-    b.wMagicBishopMoves();
-    b.wMagicQueenMoves();
-
-    b.wMagicRookMoves();
-    b.wMagicBishopMoves();
-    b.wMagicQueenMoves();
-
-    b.wMagicRookMoves();
-    b.wMagicBishopMoves();
-    b.wMagicQueenMoves();
+    b.CopyBoard();
     stop = high_resolution_clock::now();
     duration = duration_cast<nanoseconds>(stop - start);
-    cout << "Get magic moves: " + to_string(duration.count()) << endl;
+    cout << "CopyBoard: " + to_string(duration.count()) << endl;
 
-    Print(queen);
-    Print(magicq);
-
-
+    int move = move_list.GetMove(1);
+    start = high_resolution_clock::now();
+    int source = getMoveSource(move);
+    int target = getMoveTarget(move);
+    int piece = getMovePiece(move);
+    int promoted = getMovePromoted(move);
+    int capture = getMoveCapture(move);
+    int doublePush = getMoveDouble(move);
+    int enpass = getMoveEnpassant(move);
+    int castling = getMoveCastling(move);
+    stop = high_resolution_clock::now();
+    duration = duration_cast<nanoseconds>(stop - start);
+    cout << "Get move info: " + to_string(duration.count()) << endl;
 
 }
