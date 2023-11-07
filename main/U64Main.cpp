@@ -7,12 +7,6 @@ int main () {
     Moves movesList;
     b.GenerateMoves(movesList);
     int move = movesList.GetMove(13);
+    cout << GetMoveUci(move);
     //PrintMoveListUci(movesList, true);
-    PrintMoveUci(move);
-    b.MakeMove(move);
-    b.PrintPretty();
-    cout << b.GetFen() << endl;
-
-    b.GenerateMoves(movesList);
-    PrintMoveListUci(movesList, true);
 }

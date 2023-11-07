@@ -26,7 +26,6 @@ class U64Bitboard {
     map<U64, int> zobristFenHash;
 
     public:
-
     U64Bitboard() { ClearBoard(); };
     U64Bitboard(string fen) { LoadFen(fen); };
 
@@ -276,10 +275,12 @@ class U64Bitboard {
     U64 GetbRook() { return bb[r]; };
     U64 GetbQueen() { return bb[q]; };
     U64 GetbKing() { return bb[k]; };
+    U64* GetBitBoards() {return bb; };
 
     U64 GetwBoard() { return occ[WHITE]; };
     U64 GetbBoard() { return occ[BLACK]; };
-    U64 GetOccBoard() { return occ[BOTH]; };
+    U64 GetBothBoard() { return occ[BOTH]; };
+    U64* GetOccupancies() { return occ; };
 
     U64 EmptyBoard() { return ~occ[BOTH]; };
     U64 NotbBoard() { return ~occ[BLACK]; };
@@ -788,14 +789,9 @@ class U64Bitboard {
         }
 
         SetZobristHash(zobrist, enPassantTarget);
-        if(enpass) {
-            isWhiteMove ? PopBit(bb[p], target+8) : PopBit(bb[P], target-8); 
-        }
+        if(enpass) isWhiteMove ? PopBit(bb[p], target+8) : PopBit(bb[P], target-8); 
         enPassantTarget = 0;
-
-        if(doublePush) {
-            isWhiteMove ? enPassantTarget = target+8 : enPassantTarget = target-8;
-        }
+        if(doublePush) isWhiteMove ? enPassantTarget = target+8 : enPassantTarget = target-8;
         SetZobristHash(zobrist, enPassantTarget);
 
         if(castling) {

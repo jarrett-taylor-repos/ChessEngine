@@ -301,8 +301,8 @@ namespace U64Extensions {
     }
 
     string GetMoveUci(int move) {
-        string start = to_string(*squares_to_coordinates[getMoveSource(move)]);
-        string end = to_string(*squares_to_coordinates[getMoveTarget(move)]);
+        string start = squares_to_coordinates[getMoveSource(move)];
+        string end = squares_to_coordinates[getMoveTarget(move)];
         string str = start + end + GetPromoPieceChar(move);
         return str;
     }
