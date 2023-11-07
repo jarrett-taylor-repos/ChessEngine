@@ -274,6 +274,19 @@ namespace U64Extensions {
         cout << endl << endl;
     }
 
+    int GetPromoPiece(int promoP, bool isWhiteMove) {
+        if(!promoP) return 0;
+
+        switch(promoP) {
+            case 1: return isWhiteMove ? Q : q;
+            case 2: return isWhiteMove ? R : r; 
+            case 4: return isWhiteMove ? B : b; 
+            case 8: return isWhiteMove ? N : n; 
+            default: return 0;
+        }
+        return 0;
+    }
+
     char GetPromoPieceChar(int move) {
         int promoM = getMovePromoted(move);
         if(!promoM) return ' ';
@@ -296,9 +309,10 @@ namespace U64Extensions {
         cout << endl;
     }
 
-    void PrintMoveListUci(Moves movesList) {
+    void PrintMoveListUci(Moves movesList, bool withNumbers = false) {
         cout << "Move Count: " << movesList.GetCount() << endl;
         for(int i = 0; i < movesList.GetCount(); i++){
+            if(withNumbers) cout << i << " - ";
             PrintMoveUci(movesList.GetMove(i));
         }
     }
@@ -382,27 +396,18 @@ namespace U64Extensions {
         return temp;
     }
 
-    int CastlingRightsToZobristIndex(char c) {
-        switch(c) {
-            case 'K': return 0;
-            case 'Q': return 1;
-            case 'k': return 2;
-            case 'q': return 3;
-        }
+    int CastlingRightsToZobristIndex(int piece) {
+        if(piece == K) return 0;
+        if(piece == Q) return 1;
+        if(piece == k) return 2;
+        if(piece == q) return 3;
         return -1;
     }
 
-    void SetCastlingZobritst(int &castling, char c, U64 &zobrist) {
-        int index = CastlingRightsToZobristIndex(c);
+    void SetCastlingZobritst(int piece, U64 &zobrist) {
+        int index = CastlingRightsToZobristIndex(piece);
+        if(index == -1) return;
         zobrist ^= castlingNumbers[index];
-
-        switch (c) {
-            case 'K': castling ^ wk; return;
-            case 'Q': castling ^ wq; return;
-            case 'k': castling ^ bk; return;
-            case 'q': castling ^ bq; return;
-            default: return;
-        }
     }
 
     vector<string> Split(string str, const char token = ' '){

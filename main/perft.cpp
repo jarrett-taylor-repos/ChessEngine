@@ -53,8 +53,8 @@ int main() {
     // 5 - 89,941,194
     U64Bitboard b;
     //b.LoadFen(startFen);
-    b.LoadFen("rnbqkbnr/p1pppppp/8/1N6/8/8/PPPPPPPP/R1BQKBNR b KQkq - 0 2");
-    //b.LoadFen(testPos);
+    //b.LoadFen("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPPKNnPP/RNBQ3R b - - 2 8");//e1d2
+    b.LoadFen(testPos);
 
     // 1	20
     // 2	400
@@ -66,6 +66,6 @@ int main() {
     // 8	84,998,978,956
     // 9	2,439,530,234,167
     // 10	69,352,859,712,417
-    int depth = 1;
+    int depth = 4;
     perft_test(b, depth);
 }
