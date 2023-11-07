@@ -682,7 +682,7 @@ class U64Bitboard {
         }
     }
 
-    void GeneratebbMoves(Moves &movesList) {
+    void GenerateMoves(Moves &movesList) {
         movesList.Clear();
 
         if(isWhiteMove) {

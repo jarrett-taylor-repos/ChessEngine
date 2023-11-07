@@ -22,12 +22,11 @@ void main() {
             b.LoadFen(FEN);
             outFile<<b.GetFen()<<"|";
 
-            multimap<int, pair<int, char>> m = b.GetMapMoves();
-            for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-                int sq = it->first;
-                int end = it->second.first;
-                char promo = it->second.second;
-                outFile<<IndexToSquare(sq)<<IndexToSquare(end)<<promo<<", ";
+            Moves allMoves;
+            b.GenerateMoves(allMoves);
+            for(int i = 0; i < allMoves.GetCount(); i++){
+                int move = allMoves.GetMove(i);
+                outFile<<GetMoveUci(move)<<", ";
             }
 
             outFile<<endl;

@@ -8,7 +8,7 @@ static inline void perft_driver(U64Bitboard b, int depth) {
     if (depth == 0) { nodes++; return; }
     
     Moves move_list;
-    b.GeneratebbMoves(move_list); 
+    b.GenerateMoves(move_list); 
 
     for (int i = 0; i < move_list.GetCount(); i++) { 
         U64Bitboard temp = b;
@@ -23,7 +23,7 @@ void perft_test(U64Bitboard b, int depth) {
     printf("\n     Performance test\n\n");
     
     Moves move_list;
-    b.GeneratebbMoves(move_list); 
+    b.GenerateMoves(move_list); 
     
     long start = clock();
 

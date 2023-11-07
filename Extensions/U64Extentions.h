@@ -300,6 +300,13 @@ namespace U64Extensions {
         }
     }
 
+    string GetMoveUci(int move) {
+        string start = to_string(*squares_to_coordinates[getMoveSource(move)]);
+        string end = to_string(*squares_to_coordinates[getMoveTarget(move)]);
+        string str = start + end + GetPromoPieceChar(move);
+        return str;
+    }
+
     void PrintMoveUci(int move, int nodes = 0) {
         cout << squares_to_coordinates[getMoveSource(move)] 
             << squares_to_coordinates[getMoveTarget(move)] 
