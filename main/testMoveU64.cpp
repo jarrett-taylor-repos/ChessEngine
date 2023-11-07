@@ -26,7 +26,7 @@ int main() {
     // 4 - 2,103,487
     // 5 - 89,941,194
     U64Bitboard b(startFen);
-    //b.LoadFen(testPos);
+    b.LoadFen(testPos);
 
     // 1	20
     // 2	400
@@ -38,7 +38,7 @@ int main() {
     // 8	84,998,978,956
     // 9	2,439,530,234,167
     // 10	69,352,859,712,417
-    int depth = 4;
+    int depth = 5;
     int nummoves = 0;
     clock_t tStart = clock();
     cout << "Depth - num" << endl;

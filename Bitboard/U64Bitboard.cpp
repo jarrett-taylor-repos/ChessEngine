@@ -733,129 +733,6 @@ class U64Bitboard {
     };
 
     //make move helpers
-    void GetwBoardandResetIndex(int index) {
-        PopBit(occ[WHITE], index); PopBit(occ[BOTH], index);
-        if(TestBit(bb[P], index)) { PopBit(bb[P], index); RemoveMaterialValue('P'); SetZobristHash(zobrist, index,P); return;}
-        if(TestBit(bb[N], index)) { PopBit(bb[N], index); RemoveMaterialValue('N'); SetZobristHash(zobrist, index,N); return;}
-        if(TestBit(bb[B], index)) { PopBit(bb[B], index); RemoveMaterialValue('B'); SetZobristHash(zobrist, index,B);return;} 
-        if(TestBit(bb[R], index)) { PopBit(bb[R], index); RemoveMaterialValue('R'); SetZobristHash(zobrist, index,R);return;}
-        if(TestBit(bb[Q], index)) { PopBit(bb[Q], index); RemoveMaterialValue('Q'); SetZobristHash(zobrist, index,Q);return;}
-        if(TestBit(bb[K], index)) { PopBit(bb[K], index); RemoveMaterialValue('K'); SetZobristHash(zobrist, index,K);return;} 
-    };
-
-    void GetbBoardandResetIndex(int index) {
-        PopBit(occ[BLACK], index); PopBit(occ[BOTH], index);
-        if(TestBit(bb[p], index))  { PopBit(bb[p], index); RemoveMaterialValue('p'); SetZobristHash(zobrist, index,p); return; } 
-        if(TestBit(bb[n], index))  { PopBit(bb[n], index); RemoveMaterialValue('n'); SetZobristHash(zobrist, index,n); return; } 
-        if(TestBit(bb[b], index))  { PopBit(bb[b], index); RemoveMaterialValue('b'); SetZobristHash(zobrist, index,b); return; } 
-        if(TestBit(bb[r], index))  { PopBit(bb[r], index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,r); return; } 
-        if(TestBit(bb[q], index))  { PopBit(bb[q], index); RemoveMaterialValue('q'); SetZobristHash(zobrist, index,q); return; }  
-        if(TestBit(bb[k], index))  { PopBit(bb[k], index); RemoveMaterialValue('k'); SetZobristHash(zobrist, index,k); return; } 
-    };
-
-    void GetwBoardResetStartandSetTarget(int start, int target) {
-        PopBit(occ[WHITE], start); SetBit(occ[WHITE], target);
-        PopBit(occ[BOTH], start); SetBit(occ[BOTH], target);
-        if(TestBit(bb[P], start)) { PopBit(bb[P], start); SetBit(bb[P], target); SetZobristHash(zobrist, start,P); SetZobristHash(zobrist, target,P);return;}
-        if(TestBit(bb[N], start)) { PopBit(bb[N], start); SetBit(bb[N], target); SetZobristHash(zobrist, start,N); SetZobristHash(zobrist, target,N); return;}
-        if(TestBit(bb[B], start)) { PopBit(bb[B], start); SetBit(bb[B], target); SetZobristHash(zobrist, start,B); SetZobristHash(zobrist, target,B); return;}
-        if(TestBit(bb[R], start)) { PopBit(bb[R], start); SetBit(bb[R], target); SetZobristHash(zobrist, start,R); SetZobristHash(zobrist, target,R);return;}
-        if(TestBit(bb[Q], start)) { PopBit(bb[Q], start); SetBit(bb[Q], target); SetZobristHash(zobrist, start,Q); SetZobristHash(zobrist, target,Q);return;}
-        if(TestBit(bb[K], start)) { PopBit(bb[K], start); SetBit(bb[K], target); SetZobristHash(zobrist, start,K); SetZobristHash(zobrist, target,K);return;}
-    };
-
-    void GetbBoardResetStartandSetTarget(int start, int target) {
-        PopBit(occ[BLACK], start); SetBit(occ[BLACK], target);
-        PopBit(occ[BOTH], start); SetBit(occ[BOTH], target);
-        if(TestBit(bb[p], start)) { PopBit(bb[p], start); SetBit(bb[p], target); SetZobristHash(zobrist, start,p); SetZobristHash(zobrist, target,p);return;}
-        if(TestBit(bb[n], start)) { PopBit(bb[n], start); SetBit(bb[n], target); SetZobristHash(zobrist, start,n); SetZobristHash(zobrist, target,n);return;}
-        if(TestBit(bb[b], start)) { PopBit(bb[b], start); SetBit(bb[b], target); SetZobristHash(zobrist, start,b); SetZobristHash(zobrist, target,b);return;}
-        if(TestBit(bb[r], start)) { PopBit(bb[r], start); SetBit(bb[r], target); SetZobristHash(zobrist, start,r); SetZobristHash(zobrist, target,r);return;}
-        if(TestBit(bb[q], start)) { PopBit(bb[q], start); SetBit(bb[q], target); SetZobristHash(zobrist, start,q); SetZobristHash(zobrist, target,q);return;}
-        if(TestBit(bb[k], start)) { PopBit(bb[k], start); SetBit(bb[k], target); SetZobristHash(zobrist, start,k); SetZobristHash(zobrist, target,k);return;}
-    };
-
-    void GetwBoardandSetPromoIndex(int index, int promoP) {
-        SetBit(occ[WHITE], index); SetBit(occ[BOTH], index);
-        switch(promoP){
-            case 1: SetBit(bb[Q], index); AddMaterialValue('Q'); SetZobristHash(zobrist, index,Q); return;
-            case 2: SetBit(bb[R], index); AddMaterialValue('R'); SetZobristHash(zobrist, index,R); return;
-            case 3: SetBit(bb[B], index); AddMaterialValue('B'); SetZobristHash(zobrist, index,B); return;
-            case 4: SetBit(bb[N], index); AddMaterialValue('N'); SetZobristHash(zobrist, index,N); return;
-        } 
-    };
-
-    void GetbBoardandSetPromoIndex(int index, int promoP) {
-        SetBit(occ[BLACK], index); SetBit(occ[BOTH], index);
-        switch(promoP){
-            case 1: SetBit(bb[q], index); AddMaterialValue('q'); SetZobristHash(zobrist, index,q); return;
-            case 2: SetBit(bb[r], index); AddMaterialValue('r'); SetZobristHash(zobrist, index,r); return;
-            case 3: SetBit(bb[b], index); AddMaterialValue('b'); SetZobristHash(zobrist, index,b); return;
-            case 4: SetBit(bb[n], index); AddMaterialValue('n'); SetZobristHash(zobrist, index,n); return;
-        } 
-    };
-
-    void GetBoardandResetIndex(int index, bool isCapture) {
-        if(isWhiteMove && isCapture) return GetbBoardandResetIndex(index);
-        if(isWhiteMove && !isCapture) return GetwBoardandResetIndex(index);
-
-        if(!isWhiteMove && isCapture) return GetwBoardandResetIndex(index);
-        if(!isWhiteMove && !isCapture) return GetbBoardandResetIndex(index);
-    };
-
-    void GetBoardandSetPromoIndex(int index, int promoP) { return isWhiteMove ? GetwBoardandSetPromoIndex(index, promoP) : GetbBoardandSetPromoIndex(index, promoP); };
-    void GetBoardResetStartandSetTarget(int start, int target) { return isWhiteMove ? GetwBoardResetStartandSetTarget(start, target) : GetbBoardResetStartandSetTarget(start, target); };
-
-    void EnpassantMoveUpdate(int startIndex, int targetIndex, int enpassantPawnIndex) {
-        GetBoardandResetIndex(enpassantPawnIndex, true);
-        GetBoardResetStartandSetTarget(startIndex, targetIndex);
-    };
-
-    void CaptureMoveUpdate(int startIndex, int targetIndex) {
-        GetBoardandResetIndex(targetIndex, true);
-        GetBoardResetStartandSetTarget(startIndex, targetIndex);
-    };
-
-    void QuietMoveUpdate(int startIndex, int targetIndex) {
-        GetBoardResetStartandSetTarget(startIndex, targetIndex);
-    };
-
-    void CapturePromoUpdate(int startIndex, int targetIndex, int promoP) {
-        GetBoardandResetIndex(targetIndex, true);
-        GetBoardandResetIndex(startIndex, false);
-        GetBoardandSetPromoIndex(targetIndex, promoP);
-    };
-
-    void QuietPromoUpdate(int startIndex, int targetIndex, int promoP) {
-        GetBoardandResetIndex(startIndex, false);
-        GetBoardandSetPromoIndex(targetIndex, promoP);
-    };
-
-    void PromotionUpdate(bool isCap, int startIndex, int targetIndex, int promoP) { return isCap ? CapturePromoUpdate(startIndex, targetIndex, promoP) : QuietPromoUpdate(startIndex, targetIndex, promoP); };
-    
-    void CastleUpdateHelper(U64 &color, U64 &b, int start, int end) { PopBit(color, start); SetBit(color, end); PopBit(b, start); SetBit(b, end); PopBit(occ[BOTH], start); SetBit(occ[BOTH], end); };
-    void wCastleLongUpdate() { CastleUpdateHelper(occ[WHITE], bb[R], a1, d1); CastleUpdateHelper(occ[WHITE], bb[K], e1, c1); };
-    void wCastleShortUpdate() { CastleUpdateHelper(occ[WHITE], bb[R], g1, e1); CastleUpdateHelper(occ[WHITE], bb[K], e1, g1); };
-
-    void wCastleUpdate(int targetMinusStart) { return (targetMinusStart > 0) ? wCastleShortUpdate() : wCastleLongUpdate(); };
-
-    void bCastleLongUpdate() { CastleUpdateHelper(occ[BLACK], bb[r], a8, d8); CastleUpdateHelper(occ[BLACK], bb[k], e8, c8); };
-    void bCastleShortUpdate() { CastleUpdateHelper(occ[BLACK], bb[r], g8, e8); CastleUpdateHelper(occ[BLACK], bb[k], e8, g8); };
-
-    void bCastleUpdate(int targetMinusStart) { return (targetMinusStart > 0) ? bCastleShortUpdate() : bCastleLongUpdate(); };
-    void CastleUpdate(int targetMinusStart) { return (isWhiteMove) ? wCastleUpdate(targetMinusStart) : bCastleUpdate(targetMinusStart); };
-
-
-    bool isPromotionSquare(int sq) { if(isWhiteMove) return (sq < 8); return (sq > 55); };
-    bool isCapture(int targetSq) { return TestBit(occ[BOTH], targetSq); };
-    bool isKingCapture(int targetSq) { U64 kingb = AllKing(); return TestBit(kingb, targetSq); };
-    bool isEnpassant(int startSq, int targetSq) { return isPawnMove(startSq) && (targetSq == enPassantTarget); };
-    bool isKingMove(int startSq) { U64 king = isWhiteMove ? bb[K] : bb[k]; return TestBit(king, startSq); };
-    bool isCastle(int startSq, int targetSq) { bool isKing = isKingMove(startSq); bool isCastle = abs(startSq-targetSq) == 2; return isCastle && isKing; };
-    bool isPawnMove(int startSq) { U64 pawn = isWhiteMove ? bb[P] : bb[p]; return TestBit(pawn, startSq); };
-    int enPassantOffset(int enPassantTarget) { return isWhiteMove ? enPassantTarget + 8 : enPassantTarget - 8; };
-    bool isDoublePawnMove(int startSq, int targetSq) { return isPawnMove(startSq) && (abs(startSq-targetSq) == 16); };
-
     bool StartOrTargetEqaul(int start, int target, int sq) { return start == sq || target == sq; };
 
     void UpdateCastlingRights(int startSq, int targetSq) {
@@ -866,11 +743,11 @@ class U64Bitboard {
     };
 
     //making moves 
-    bool PossibleMoveIsACapture(int startSq, int targetSq) { return isCapture(targetSq) || isEnpassant(startSq, targetSq); }; 
+    bool PossibleMoveIsACapture(int move) { return getMoveCapture(move); }; 
     bool isPawn(int sq) { return isWhiteMove ? TestBit(bb[P], sq): TestBit(bb[p], sq); };
 
     bool MakeMove(int move) {
-        U64Bitboard copy = CopyBoard();
+        //U64Bitboard copy = CopyBoard();
 
         //move data
         int source = getMoveSource(move);
@@ -979,58 +856,9 @@ class U64Bitboard {
         bool isKingInCheck = isWhiteMove ? WhiteAttacksSquare(bKingSq) : BlackAttacksSquare(wKingSq);
         if (!isKingInCheck) return 1;
 
-        SetBoardToCopy(copy);
+        //SetBoardToCopy(copy);
         return 0;
     };
-
-    bool MakeMoveOld(int move) {
-        U64Bitboard copy = CopyBoard();
-
-        //move data
-        int source = getMoveSource(move);
-        int target = getMoveTarget(move);
-        int piece = getMovePiece(move);
-        int promoted = getMovePromoted(move);
-        int capture = getMoveCapture(move);
-        int doublePush = getMoveDouble(move);
-        int enpass = getMoveEnpassant(move);
-        int castling = getMoveCastling(move);
-
-        //board updates 
-        if(promoted) { PromotionUpdate(capture, source, target, promoted); }
-        else if(capture) { CastleUpdate(target - source); }
-        else if(enpass) { EnpassantMoveUpdate(source, target, enPassantOffset(enPassantTarget)); }
-        else if(capture) { CaptureMoveUpdate(source, target); }
-        else { QuietMoveUpdate(source, target); }
-
-        //castling right update
-        UpdateCastlingRights(source, target);
-
-        //update king sq
-        if(piece == K) wKingSq = target;
-        if(piece == k) bKingSq = target;
-    
-        //enpassant target 
-        SetZobristHash(zobrist, enPassantTarget);
-        if(doublePush && isWhiteMove) { enPassantTarget = source-8; }
-        if(doublePush && !isWhiteMove) { enPassantTarget = source+8; }
-        if(!doublePush) { enPassantTarget = 0; }
-        SetZobristHash(zobrist, enPassantTarget);
-
-        //move side, move num and half clock num 
-        (piece == P || piece == p) || capture ? halfMoveClock = 0: halfMoveClock++;
-        isWhiteMove = !isWhiteMove;
-        if(isWhiteMove) { fullTurnNum++; }
-        SetZobristHash(zobrist, isWhiteMove);
-        isMoveRepition = UpdateAndCheckZobristHash(zobristFenHash, zobrist);
-                
-        //if king is in check after move
-        bool isKingInCheck = isWhiteMove ? WhiteAttacksSquare(bKingSq) : BlackAttacksSquare(wKingSq);
-        if (!isKingInCheck) return 1;
-
-        SetBoardToCopy(copy);
-        return 0;
-    }
 
     //misc
     void PrintAllBoards() {
