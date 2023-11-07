@@ -886,13 +886,11 @@ class U64Bitboard {
 
     void PrintPretty() {
         for(int i = 0; i < 64; i++) {
-
             if(i != 0 && (i % 8) == 0) { cout << "   " << to_string(9 - i/8) <<  endl; }
             string piece = GetPieceAtIndex(i) != "" ? GetPieceAtIndex(i) : ".";
             cout << piece << " ";
 
         }
-
         cout << "   " << 1;
         cout << endl << endl << "A B C D E F G H " << endl;
         cout << endl << endl;
