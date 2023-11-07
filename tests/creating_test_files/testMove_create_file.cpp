@@ -5,6 +5,7 @@
 using namespace std;
 
 void main() {
+    InitAll();
     ifstream FENfile;
     ofstream outFile;
 
@@ -26,6 +27,8 @@ void main() {
             b.GenerateMoves(allMoves);
             for(int i = 0; i < allMoves.GetCount(); i++){
                 int move = allMoves.GetMove(i);
+                U64Bitboard temp = b;
+                if (!temp.MakeMove(move)) continue;
                 outFile<<GetMoveUci(move)<<", ";
             }
 
@@ -38,14 +41,10 @@ void main() {
 }
 
 // void main() {
+//     InitAll();
 //     U64Bitboard b;
-//     b.LoadFen("r1bq1rk1/pp1p1ppp/2n2n2/4p3/1b2P3/2NB1N2/PPP2PPP/R1BQK2R w KQ - 6 8");
-
-//     multimap<int, pair<int, char>> m = b.GetMapMoves();
-//     for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-//         int sq = it->first;
-//         int end = it->second.first;
-//         char promo = it->second.second;
-//         cout<<IndexToSquare(sq)<<IndexToSquare(end)<<promo<<endl;
-//     }
+//     b.LoadFen("r2qkbnr/ppp1pppp/2n5/3p4/3P1B2/4Pb2/PPP2PPP/RN1QKB1R w KQkq - 0 5");
+//     Moves allMoves;
+//     b.GenerateMoves(allMoves);
+//     PrintMoveListUci(allMoves);
 // }

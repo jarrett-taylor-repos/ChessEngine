@@ -35,7 +35,7 @@ int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, st
 
   multimap<int, pair<int, char>> moves;
   b.GetMapMoves(moves);
-  MoveList allmoves(moves, b, alpha, standPat, logging, log, logtab);
+  MoveList allmoves(moves, b, alpha, standPat, logging, log, logtab)`11;
   allmoves.setEvals(b);
   allmoves.sortmoves();
   for(auto & move : allmoves.movelist){//|| b.isMoveCheck(it->first, it->second.first, it->second.second)) {
