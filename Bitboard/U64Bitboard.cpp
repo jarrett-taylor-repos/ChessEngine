@@ -573,7 +573,7 @@ class U64Bitboard {
         while(board != Empty) {
             source = GetLSBIndex(board);
             moves = bSinglePushTargets(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, true, false, 0, Empty);
+            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, false, false, 0, Empty);
             PopBit(board, source);
         }
 
@@ -582,7 +582,7 @@ class U64Bitboard {
         while(board != Empty) {
             source = GetLSBIndex(board);
             moves = bDoublePushTargets(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, true, false, 0, Empty);
+            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, false, false, 0, Empty);
             PopBit(board, source);
         }
 

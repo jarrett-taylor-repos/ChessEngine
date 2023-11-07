@@ -54,7 +54,7 @@ int main() {
     U64Bitboard b;
     b.LoadFen(testPos);
     //b.LoadFen("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPPKNnPP/RNBQ3R b - - 2 8");//e1d2
-    //b.LoadFen(testPos);
+    b.LoadFen(testPos);
 
     // 1	20
     // 2	400
