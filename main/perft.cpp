@@ -45,14 +45,14 @@ void perft_test(U64Bitboard b, int depth) {
 
 int main() {
     InitAll();
-    string testPos = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
+    string testPos = "2k5/2p5/4P1K1/1p6/3P2p1/8/p7/8 b - - 1 45";
     // 1 - 44
     // 2 - 1,486
     // 3 - 62,379
     // 4 - 2,103,487
     // 5 - 89,941,194
     U64Bitboard b;
-    //b.LoadFen(startFen);
+    b.LoadFen(testPos);
     //b.LoadFen("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPPKNnPP/RNBQ3R b - - 2 8");//e1d2
     b.LoadFen(testPos);
 
@@ -66,6 +66,6 @@ int main() {
     // 8	84,998,978,956
     // 9	2,439,530,234,167
     // 10	69,352,859,712,417
-    int depth = 5;
+    int depth = 1;
     perft_test(b, depth);
 }
