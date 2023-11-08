@@ -467,24 +467,6 @@ namespace U64Extensions {
     }
 
     //zobrist 
-    int PieceToZobristIndex(char c) {
-        switch(c) {
-            case 'p': return 0;
-            case 'b': return 1;
-            case 'n': return 2;
-            case 'r': return 3;
-            case 'q': return 4;
-            case 'k': return 5;
-            case 'P': return 6;
-            case 'B': return 7;
-            case 'N': return 8;
-            case 'R': return 9;
-            case 'Q': return 10;
-            case 'K': return 11;
-            default: return -1;
-        }
-    }
-
     int EnpassantZobristIndex(int enPassantTarget) {
         if(enPassantTarget < 16 || enPassantTarget > 47) return -1;
         if(enPassantTarget > 23) return enPassantTarget -16;

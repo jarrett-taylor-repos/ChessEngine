@@ -129,20 +129,20 @@ class U64Bitboard {
         }
     }
 
-    void RemoveMaterialValue(char c) {
-        switch(c) {
-            case 'p': materialValue += 100; return;
-            case 'b': materialValue += 325;return;
-            case 'n': materialValue += 300;return;
-            case 'r': materialValue += 500;return;
-            case 'q': materialValue += 900;return;
-            case 'k': materialValue += 100000;return;
-            case 'P': materialValue -= 100;return;
-            case 'B': materialValue -= 325;return;
-            case 'N': materialValue -= 300;return;
-            case 'R': materialValue -= 500;return;
-            case 'Q': materialValue -= 900;return;
-            case 'K': materialValue -= 100000;return;
+    void RemoveMaterialValue(int piece) {
+        switch(piece) {
+            case p: materialValue += 100; return;
+            case b: materialValue += 325;return;
+            case n: materialValue += 300;return;
+            case r: materialValue += 500;return;
+            case q: materialValue += 900;return;
+            case k: materialValue += 100000;return;
+            case P: materialValue -= 100;return;
+            case B: materialValue -= 325;return;
+            case N: materialValue -= 300;return;
+            case R: materialValue -= 500;return;
+            case Q: materialValue -= 900;return;
+            case K: materialValue -= 100000;return;
         }
     }
 
@@ -524,27 +524,18 @@ class U64Bitboard {
         int source, target;
         U64 board, att, moves;
 
-        //pawn single pushes
+        //pawn pushes
         board = bb[P];
         while(board != Empty) {
             source = GetLSBIndex(board);
-            moves = wSinglePushTargets(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, P, true, false, 0, Empty);
-            PopBit(board, source);
-        }
-
-        //pawn double pushes
-        board = bb[P];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            moves = wDoublePushTargets(precomputtedSingleBit[source]);
+            moves = wPawnPushes(precomputtedSingleBit[source]);
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, P, true, false, 0, Empty);
             PopBit(board, source);
         }
 
         //pawn captures 
-        if(wPawnAllCaptures(bb[P]) == Empty) return;
-
+        if(wPawnAllCaptures(bb[p]) == Empty) return;
+        
         board = bb[P];
         while(board != Empty) {
             source = GetLSBIndex(board);
@@ -572,16 +563,7 @@ class U64Bitboard {
         board = bb[p];
         while(board != Empty) {
             source = GetLSBIndex(board);
-            moves = bSinglePushTargets(precomputtedSingleBit[source]);
-            if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, false, false, 0, Empty);
-            PopBit(board, source);
-        }
-
-        //pawn double pushes
-        board = bb[p];
-        while(board != Empty) {
-            source = GetLSBIndex(board);
-            moves = bDoublePushTargets(precomputtedSingleBit[source]);
+            moves = bPawnPushes(precomputtedSingleBit[source]);
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, false, false, 0, Empty);
             PopBit(board, source);
         }
@@ -776,6 +758,7 @@ class U64Bitboard {
             for(int bbPiece = startP; bbPiece <= endP; bbPiece++) {
                 if(TestBit(bb[bbPiece], target)) {
                     PopBit(bb[bbPiece], target);
+                    RemoveMaterialValue(bbPiece);
                     break;
                 }
             }
@@ -785,7 +768,7 @@ class U64Bitboard {
             isWhiteMove ? PopBit(bb[P], target) : PopBit(bb[p], target);
             int promoToPiece = GetPromoPiece(promotedP, isWhiteMove);
             SetBit(bb[promoToPiece], target);
-            
+            AddMaterialValue(*ascii_pieces[promoToPiece]);            
         }
 
         SetZobristHash(zobrist, enPassantTarget);
