@@ -329,11 +329,11 @@ class U64Bitboard {
     U64 bPawnWestAtt(U64 b) { return (b << 9) & notAFile; };
     U64 bPawnEastAtt(U64 b) { return (b << 7) & notHFile; };
     U64 bPawnAllAtt(U64 b) { return bPawnEastAtt(b) | bPawnWestAtt(b); };
-    U64 wPawnWestCaptures(U64 b) { return wPawnWestAtt(b) & (occ[BLACK] | precomputtedSingleBit[enPassantTarget]); };
-    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & (occ[BLACK] | precomputtedSingleBit[enPassantTarget]); };
+    U64 wPawnWestCaptures(U64 b) { return wPawnWestAtt(b) & (occ[BLACK] | (enPassantTarget == 0 ? Empty : precomputtedSingleBit[enPassantTarget]) ); };
+    U64 wPawnEastCaptures(U64 b) { return wPawnEastAtt(b) & (occ[BLACK] | (enPassantTarget == 0 ? Empty : precomputtedSingleBit[enPassantTarget]) ); };
     U64 wPawnAllCaptures(U64 b) { return wPawnEastCaptures(b) | wPawnWestCaptures(b); };
-    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & (occ[WHITE] | precomputtedSingleBit[enPassantTarget]); };
-    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & (occ[WHITE] | precomputtedSingleBit[enPassantTarget]); };
+    U64 bPawnWestCaptures(U64 b) { return bPawnWestAtt(b) & (occ[WHITE] | (enPassantTarget == 0 ? Empty : precomputtedSingleBit[enPassantTarget]) ); };
+    U64 bPawnEastCaptures(U64 b) { return bPawnEastAtt(b) & (occ[WHITE] | (enPassantTarget == 0 ? Empty : precomputtedSingleBit[enPassantTarget]) ); };
     U64 bPawnAllCaptures(U64 b) { return bPawnEastCaptures(b) | bPawnWestCaptures(b); };
 
     U64 wPawnPsuedoMoves(U64 b) { return wPawnAllCaptures(b) | wPawnPushes(b); };
