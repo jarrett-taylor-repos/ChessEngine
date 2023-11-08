@@ -706,6 +706,8 @@ class U64Bitboard {
 
     bool isSquareAttacked(int sq) { return isWhiteMove ? BlackAttacksSquare(sq) : WhiteAttacksSquare(sq); };
 
+    bool isInCheck() { return isSquareAttacked(isWhiteMove ? wKingSq : bKingSq); };
+
     void PrintAttackedSquares() {
         for(int i = 0; i < 64; i++) {
             if(i != 0 && (i % 8) == 0) cout << endl; 
