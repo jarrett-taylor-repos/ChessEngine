@@ -24,6 +24,7 @@ class U64Bitboard {
     int materialValue;
 
     public:
+    ~U64Bitboard() { ClearBoard(); };
     U64Bitboard() { ClearBoard(); };
     U64Bitboard(string fen) { LoadFen(fen); };
     U64Bitboard(const U64Bitboard& other) {
@@ -68,6 +69,7 @@ class U64Bitboard {
         this->zobrist = other.zobrist;
         return *this;
     };
+
 
     bool operator==(const U64Bitboard& other) {
         for(int i = P; i <= k; i++) {
@@ -552,8 +554,6 @@ class U64Bitboard {
         }
 
         //pawn captures 
-        if(wPawnAllCaptures(bb[p]) == Empty) return;
-        
         board = bb[P];
         while(board != Empty) {
             source = GetLSBIndex(board);
@@ -587,8 +587,6 @@ class U64Bitboard {
         }
 
         //pawn captures 
-        if(bPawnAllCaptures(bb[p]) == Empty) return;
-
         board = bb[p];
         while(board != Empty) {
             source = GetLSBIndex(board);

@@ -3,16 +3,8 @@
 int main () {
     InitAll();
     U64Bitboard b;
-    b.LoadFen(startFen);
+    b.LoadFen("rnbq1k1r/1B1Pbp1p/p1p5/6p1/8/8/PPP1NnPP/RNBQK2R w KQ - 0 10");
     Moves move_list;
     b.GenerateMoves(move_list); 
-
-    U64Bitboard temp = b;
-    bool tester = temp == b;
-    cout << tester << endl;
-    int move = move_list.GetMove(0);
-    PrintMoveUci(move);
-    temp.MakeMove(move);
-    tester = temp == b;
-    cout << tester;
+    PrintMoveListUci(move_list);
 }
