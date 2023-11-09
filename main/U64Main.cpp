@@ -2,10 +2,17 @@
 
 int main () {
     InitAll();
-    //U64Bitboard b("1R6/1P1bq1bk/p2p2pp/1r1Pp3/8/6NP/1B2QPP1/6K1 w - - 1 35");
-    U64Bitboard b(startFen);
-    Moves movesList;
-    b.PrintPretty();
-    b.GenerateMoves(movesList);
-    //PrintMoveListUci(movesList, true);
+    U64Bitboard b;
+    b.LoadFen(startFen);
+    Moves move_list;
+    b.GenerateMoves(move_list); 
+
+    U64Bitboard temp = b;
+    bool tester = temp == b;
+    cout << tester << endl;
+    int move = move_list.GetMove(0);
+    PrintMoveUci(move);
+    temp.MakeMove(move);
+    tester = temp == b;
+    cout << tester;
 }

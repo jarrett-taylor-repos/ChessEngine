@@ -23,11 +23,29 @@ class U64Bitboard {
     bool isMoveRepition;
     int materialValue;
 
-    map<U64, int> zobristFenHash;
-
     public:
     U64Bitboard() { ClearBoard(); };
     U64Bitboard(string fen) { LoadFen(fen); };
+    U64Bitboard(const U64Bitboard& other) {
+        // Copy the scalar members
+        this->halfMoveClock = other.halfMoveClock;
+        this->fullTurnNum = other.fullTurnNum;
+        this->enPassantTarget = other.enPassantTarget;
+        this->isWhiteMove = other.isWhiteMove;
+        this->materialValue = other.materialValue;
+        this->isMoveRepition = other.isMoveRepition;
+        this->castlingRights = other.castlingRights;
+
+        // Copy King squares
+        this->wKingSq = other.wKingSq;
+        this->bKingSq = other.bKingSq;
+
+        // Copy the U64 members
+        for(int i = P; i <= k; i++) this->bb[i] = other.bb[i];
+        for(int i = WHITE; i <= BOTH; i++) this->occ[i] = other.occ[i]; 
+
+        this->zobrist = other.zobrist;
+    };
 
     U64Bitboard& operator=(const U64Bitboard& other) {
         // Copy the scalar members
@@ -39,45 +57,45 @@ class U64Bitboard {
         this->isMoveRepition = other.isMoveRepition;
         this->castlingRights = other.castlingRights;
 
-        // Copy the map members
-        this->zobristFenHash = other.zobristFenHash;
-
-        // Copy King squarea
+        // Copy King squares
         this->wKingSq = other.wKingSq;
         this->bKingSq = other.bKingSq;
 
         // Copy the U64 members
-        for(int i = P; i < k; i++) this->bb[i] = other.bb[i];
-        for(int i = WHITE; i < BOTH; i++) this->bb[i] = other.bb[i]; 
+        for(int i = P; i <= k; i++) this->bb[i] = other.bb[i];
+        for(int i = WHITE; i <= BOTH; i++) this->occ[i] = other.occ[i]; 
 
         this->zobrist = other.zobrist;
+        return *this;
     };
 
-    void SetBoardToCopy(const U64Bitboard& other) {
-        // Copy the scalar members
-        this->halfMoveClock = other.halfMoveClock;
-        this->fullTurnNum = other.fullTurnNum;
-        this->enPassantTarget = other.enPassantTarget;
-        this->isWhiteMove = other.isWhiteMove;
-        this->materialValue = other.materialValue;
-        this->isMoveRepition = other.isMoveRepition;
-        this->castlingRights = other.castlingRights;
+    bool operator==(const U64Bitboard& other) {
+        for(int i = P; i <= k; i++) {
+            bool boardsEqual = this->bb[i] == other.bb[i];
+            if(!boardsEqual) return false;
+        }
+        for(int i = WHITE; i <= BOTH; i++) {
+            bool boardsEqual = this->occ[i] == other.occ[i]; 
+            if(!boardsEqual) return false;
+        }
 
-        // Copy the map members
-        this->zobristFenHash = other.zobristFenHash;
+        bool scalarsMatch = 
+            this->halfMoveClock == other.halfMoveClock && 
+            this->fullTurnNum == other.fullTurnNum && 
+            this->enPassantTarget == other.enPassantTarget && 
+            this->isWhiteMove == other.isWhiteMove && 
+            this->materialValue == other.materialValue &&
+            this->isMoveRepition == other.isMoveRepition && 
+            this->castlingRights == other.castlingRights;
 
-        // Copy King squarea
-        this->wKingSq = other.wKingSq;
-        this->bKingSq = other.bKingSq;
+        bool kingSqMatch = 
+            this->wKingSq == other.wKingSq && 
+            this->bKingSq == other.bKingSq;
 
-        // Copy the U64 members
-        for(int i = P; i < k; i++) this->bb[i] = other.bb[i];
-        for(int i = WHITE; i < BOTH; i++) this->bb[i] = other.bb[i]; 
+        bool zobristMatch = this->zobrist == other.zobrist;
 
-        this->zobrist = other.zobrist;
-    };
-
-    U64Bitboard CopyBoard() { return *this; };
+        return scalarsMatch && kingSqMatch && zobristMatch;
+    }
     
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
@@ -167,7 +185,7 @@ class U64Bitboard {
             }
         }
 
-        UpdateAndCheckZobristHash(zobristFenHash, zobrist);
+        //UpdateAndCheckZobristHash(zobristFenHash, zobrist);
     };
 
     string GetFenHelper() {
@@ -259,7 +277,7 @@ class U64Bitboard {
         memset(bb, 0, sizeof(bb));
         memset(occ, 0, sizeof(occ));
 
-        Reset(zobrist); zobristFenHash.clear();
+        Reset(zobrist);
         wKingSq = -1; bKingSq = -1;
     };
 
