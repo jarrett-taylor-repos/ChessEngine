@@ -23,6 +23,9 @@ class U64Bitboard {
     bool isMoveRepition;
     int materialValue;
 
+    U64 repetitionTable[150];
+    int repetitionIndex;
+
     public:
     ~U64Bitboard() { ClearBoard(); };
     U64Bitboard() { ClearBoard(); };
@@ -68,6 +71,14 @@ class U64Bitboard {
 
         this->zobrist = other.zobrist;
         return *this;
+    };
+
+    void ClearBoard() {
+        memset(bb, 0, sizeof(bb));
+        memset(occ, 0, sizeof(occ));
+
+        Reset(zobrist);
+        wKingSq = -1; bKingSq = -1;
     };
 
 
@@ -274,14 +285,6 @@ class U64Bitboard {
 
     int GetMaterialValue() { return materialValue; };
     string GetCastlingRights() { return CastlingRightsString(castlingRights); };
-
-    void ClearBoard() {
-        memset(bb, 0, sizeof(bb));
-        memset(occ, 0, sizeof(occ));
-
-        Reset(zobrist);
-        wKingSq = -1; bKingSq = -1;
-    };
 
     U64 GetwPawn() { return bb[P]; };
     U64 GetwKnight() { return bb[N]; };
@@ -514,7 +517,7 @@ class U64Bitboard {
         while(temp != Empty) {
             int sq = GetLSBIndex(temp);
             PopBit(temp, sq);
-            moves |= GetBishopAttacks(sq, occupied);
+            moves |= GetRookAttacks(sq, occupied);
         }
         return moves;
     };
@@ -721,17 +724,7 @@ class U64Bitboard {
     };
 
     bool isSquareAttacked(int sq) { return isWhiteMove ? BlackAttacksSquare(sq) : WhiteAttacksSquare(sq); };
-
     bool isInCheck() { return isSquareAttacked(isWhiteMove ? wKingSq : bKingSq); };
-
-    void PrintAttackedSquares() {
-        for(int i = 0; i < 64; i++) {
-            if(i != 0 && (i % 8) == 0) cout << endl; 
-            string value = isSquareAttacked(i) ? "1 " :  ". "; 
-            cout << value;
-        }
-        cout << endl << endl;
-    };
 
     //make move helpers
     bool StartOrTargetEqaul(int start, int target, int sq) { return start == sq || target == sq; };
@@ -748,8 +741,6 @@ class U64Bitboard {
     bool isPawn(int sq) { return isWhiteMove ? TestBit(bb[P], sq): TestBit(bb[p], sq); };
 
     bool MakeMove(int move) {
-        //U64Bitboard copy = CopyBoard();
-
         //move data
         int source = getMoveSource(move);
         int target = getMoveTarget(move);
@@ -853,7 +844,6 @@ class U64Bitboard {
         bool isKingInCheck = isWhiteMove ? WhiteAttacksSquare(bKingSq) : BlackAttacksSquare(wKingSq);
         if (!isKingInCheck) return 1;
 
-        //SetBoardToCopy(copy);
         return 0;
     };
 
@@ -881,15 +871,28 @@ class U64Bitboard {
         Print(occ[BOTH], "BothBoard");
     }
 
-    void PrintPretty() {
+    void PrintAttackedSquares() {
         for(int i = 0; i < 64; i++) {
-            if(i != 0 && (i % 8) == 0) { cout << "   " << to_string(9 - i/8) <<  endl; }
-            string piece = GetPieceAtIndex(i) != "" ? GetPieceAtIndex(i) : ".";
-            cout << piece << " ";
-
+            if(i != 0 && (i % 8) == 0) cout << endl; 
+            string value = isSquareAttacked(i) ? "1 " :  ". "; 
+            cout << value;
         }
-        cout << "   " << 1;
-        cout << endl << endl << "A B C D E F G H " << endl;
+        cout << endl << endl;
+    };
+
+    void PrintPretty() {
+        for(int file = 0; file < 8; file++) {
+            cout << horizontalPrint << endl;
+            for(int rank = 0; rank < 8; rank++) {
+                int square = file*8 + rank;
+                string piece = GetPieceAtIndex(square);
+                cout << "| ";
+                string temp = piece != "" ? piece: ".";
+                cout << temp << " ";
+            }
+            cout << "|  " << 8-file << endl;
+        }
+        cout << horizontalPrint << endl << filesPrint << endl;
         cout << endl << endl;
     }
 };

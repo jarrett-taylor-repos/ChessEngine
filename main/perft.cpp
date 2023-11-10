@@ -1,7 +1,7 @@
 #include "..\Bitboard\U64Bitboard.cpp"
 
 
-long nodes;
+long long nodes;
 
 
 static inline void perft_driver(U64Bitboard b, int depth) {
@@ -52,9 +52,8 @@ int main() {
     // 4 - 2,103,487
     // 5 - 89,941,194
     U64Bitboard b;
-    //c4a6 g7g5 a6b7 a7a6
+    //b.LoadFen(testPos);
     b.LoadFen(startFen);
-    //b.LoadFen(startFen);
 
     // 1	20
     // 2	400

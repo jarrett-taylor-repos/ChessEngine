@@ -19,6 +19,9 @@ namespace U64BitboardConstants {
     const char* uci_pieces[] = { "p", "n", "b", "r", "q", "k", "p", "n", "b", "r", "q", "k" };
     enum { wk = 1, wq = 2, bk = 4, bq = 8 };
 
+
+    string horizontalPrint = "+---+---+---+---+---+---+---+---+";
+    string filesPrint = "  a   b   c   d   e   f   g   h";
     string promotionUci = "qrbn";
     string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
