@@ -1,20 +1,23 @@
 #include "../evaluation.h"
-class Move {
+class MoveEval {
   public:
-  int from;
-  int to;
-  char promo;
+  int move;
   int eval = -999999;
   bool hasBoard = false;
   U64Bitboard b;
-  Move(int fromInput, int toInput, char promoInput) {
-    from = fromInput;
-    to=toInput;
-    promo = promoInput;
+  MoveEval(int moveInput) {
+    move = moveInput;
+  }
+
+  MoveEval(int moveInput, U64Bitboard &inputb, int inputeval) {
+    move = moveInput;
+    b = inputb;
+    hasBoard=true;
+    eval=inputeval;
   }
 
   void assignBoard(U64Bitboard &inputb) {
     b = inputb;
     hasBoard=true;
-  }
+  };
 };

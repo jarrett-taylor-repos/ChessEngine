@@ -10,20 +10,28 @@ using namespace std;
 int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, string logtab, ZTable &ztable) {
   if (logging) {log<<logtab<<"quiesce search for FEN: "<<b.GetFen()<<endl;}
 
-  if (b.isGameOver()) {
-    if (logging) log<<logtab<<"game is over, returning score of ";
-    if (b.isDraw()) {
-      if (logging) log<<"0"<<endl;
-      return -1;
-    }
-    if (logging) log<<"-9999999"<<endl;
-    return -9999999;
-  }
+  bool shouldReturn = false;
+  //TODO: ztable
 
   int ogalpha = alpha;
 
-  int standPat = getEval(b);
+  Moves moves;
+  b.GenerateMoves(moves);
 
+  if (!moves.GetCount()) { //game is over
+    if (logging) log<<logtab<<"game is over, returning score of ";
+
+    if (b.isInCheck()) { //checkmate
+      if (logging) log<<"-9999999"<<endl;
+      return -9999999;
+    }
+
+    //game is draw
+    if (logging) log<<"-1"<<endl;
+    return -1;
+  }
+
+  int standPat = getEval(b);
   if (logging) {log<<logtab<<"retrieved standPat score of "<<standPat<<endl;}
   if (!b.isInCheck()) {
     if (standPat>=beta) {
@@ -33,20 +41,12 @@ int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, st
     if (standPat>alpha) alpha = standPat;
   }
 
-  multimap<int, pair<int, char>> moves;
-  b.GetMapMoves(moves);
-  MoveList allmoves(moves, b, alpha, standPat, logging, log, logtab)`11;
-  allmoves.setEvals(b);
-  allmoves.sortmoves();
+  MoveList allmoves(moves, b, alpha, false, standPat, ztable, logging, log, logtab);
   for(auto & move : allmoves.movelist){//|| b.isMoveCheck(it->first, it->second.first, it->second.second)) {
-    if (logging) {log<<logtab<<"testing move: "<<IndexToSquare(move.from)<<IndexToSquare(move.to)<<move.promo<<endl;}
-    U64Bitboard bCopy;
-    if (move.hasBoard) {
-      bCopy = move.b;
-    } else {
-      U64Bitboard bCopy = b;
-      bCopy.MakeMove(move.from, move.to, move.promo);
-    }
+    if (logging) {log<<logtab<<"testing move: "<<GetMoveUci(move.move)<<endl;}
+    // U64Bitboard bCopy = move.b;
+    U64Bitboard bCopy = b;
+    bCopy.MakeMove(move.move);
     int score = -quiesce(bCopy, -beta, -alpha, log, logging, logtab+"\t", ztable);
     if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
     if (score >= beta ) {
@@ -74,34 +74,32 @@ int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool
     log<<logtab<<"starting search for depth "<<depth<<" FEN: "<<b.GetFen()<<" alpha: "<<alpha<<" beta: "<<beta<<endl;
   }
 
-  if (b.isGameOver()) {
-    if (logging) log<<logtab<<"game is over, returning score of ";
-    if (b.isDraw()) {
-      if (logging) log<<"0"<<endl;
-      return -1;
-    }
-    if (logging) log<<"-9999999"<<endl;
-    return -9999999;
-  }
-
   int ogalpha = alpha;
 
-  multimap<int, pair<int, char>> moves;
-  b.GetMapMoves(moves);
-  MoveList allmoves(moves, logging, log, logtab);
-  allmoves.setEvals(b);
-  allmoves.sortmoves();
+  Moves moves;
+  b.GenerateMoves(moves);
+
+  if (!moves.GetCount()) { //game is over
+    if (logging) log<<logtab<<"game is over, returning score of ";
+
+    if (b.isInCheck()) { //checkmate
+      if (logging) log<<"-9999999"<<endl;
+      return -9999999;
+    }
+
+    //game is draw
+    if (logging) log<<"-1"<<endl;
+    return -1;
+  }
+
+  MoveList allmoves(moves, b, alpha, true, 0, ztable, logging, log, logtab);
   for(auto & move : allmoves.movelist){
     if (logging) {
-      log<<logtab<<"testing move "<<IndexToSquare(move.from)<<IndexToSquare(move.to)<<move.promo<<endl;
+      log<<logtab<<"testing move "<<GetMoveUci(move.move)<<endl;
     }
-    U64Bitboard bCopy;
-    if (move.hasBoard) {
-      bCopy = move.b;
-    } else {
-      U64Bitboard bCopy = b;
-      bCopy.MakeMove(move.from, move.to, move.promo);
-    }
+    // U64Bitboard bCopy = move.b;
+    U64Bitboard bCopy = b;
+    bCopy.MakeMove(move.move);
     int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable);
     if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
     if (score >= beta ) {
@@ -120,55 +118,50 @@ int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool
   return alpha;
 }
 
-void rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable) {
-  int DEPTH = 1;
-
-  multimap<int, pair<int, char>> m;
-  b.GetMapMoves(m);
-  MoveList allmoves(m, logging, log, "\t");
-  allmoves.setEvals(b);
-  allmoves.sortmoves();
+bool rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable) {
+  int DEPTH = 2;
   int alpha = -9999999;
   int beta = 9999999;
-  int bestfrom = -1;
-  int bestto = -1;
-  char promo = ' ';
+  int bestMove = 0;
+
+  Moves moves;
+  b.GenerateMoves(moves);
+
+  if (!moves.GetCount()) return false; //game is over 
+
+  MoveList allmoves(moves, b, alpha, true, 0, ztable, logging, log, "\t");
   for(auto & move : allmoves.movelist){
     if (logging) {
-      log<<"\trootsearch move "<<IndexToSquare(move.from)<<IndexToSquare(move.to)<<move.promo<<endl;
+      log<<"\trootsearch move "<<GetMoveUci(move.move)<<endl;
     }
-    U64Bitboard bCopy;
-    if (move.hasBoard) {
-      bCopy = move.b;
-    } else {
-      U64Bitboard bCopy = b;
-      bCopy.MakeMove(move.from, move.to, move.promo);
-    }
+    // U64Bitboard bCopy = currentMove.b;
+    U64Bitboard bCopy = b;
+    bCopy.MakeMove(move.move);
     int eval = -alphabeta(bCopy, alpha, beta, DEPTH, log, logging, "\t\t", ztable);
     if (eval > alpha) {
       alpha = eval;
-      bestfrom = move.from;
-      bestto = move.to;
-      promo = move.promo;
+      bestMove = move.move;
     }
   }
-  if (logging) {log<<"making move "<<bestfrom<<" "<<bestto<<" "<<promo; log<<" OR "<<IndexToSquare(bestfrom)<<IndexToSquare(bestto)<<promo<<" with evaluation of: "<<alpha<<endl;}
-  bool movemade = b.MakeMove(bestfrom, bestto, promo);
+  if (logging) {log<<"making move "<<GetMoveUci(bestMove)<<" with evaluation of: "<<alpha<<endl;}
+  bool movemade = b.MakeMove(bestMove);
   if (!movemade==1) {
     cout<<"ERROR FOR FEN: "<<b.GetFen();
-    cout<<" with from num: "<<bestfrom<<" and to num: "<< bestto;
-    cout<<"or uci move: "<<IndexToSquare(bestfrom)<<IndexToSquare(bestto)<<promo<<endl<<endl;
+    cout<<" with num: "<<bestMove;
+    cout<<"or uci move: "<<GetMoveUci(bestMove)<<endl<<endl;
   } else {
-  simgames<<IndexToSquare(bestfrom)<<IndexToSquare(bestto)<<promo<<endl;
+    simgames<<GetMoveUci(bestMove)<<endl;
   }
 
   ztable.setValue(b.GetZobrist(), DEPTH, alpha, 0);
+  return true;
   // cout<<movemade<<endl<<b.GetFen()<<endl;;
 }
 
 void main() {
-  U64Bitboard b("r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4");
-  // freopen("simgames.txt","w",stdout);
+  InitAll();
+  // U64Bitboard b("r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4");
+  U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   ofstream log;
   ofstream simgames;
   simgames.open("simgames.txt");
@@ -177,31 +170,46 @@ void main() {
   
   bool logging = true;
   int i = 0;
-  while (!b.isGameOver()) {
+  bool isGameOngoing = true;
+  while (isGameOngoing  && i < 250) {
     log.open("logs\\log_"+to_string(i)+".md");
     if (logging) {log<<"NEW MOVE, half move num "<<i<<" FEN: "<<b.GetFen()<<endl;}
-    rootsearch(b, log, logging, simgames, *ztable);
+    isGameOngoing = rootsearch(b, log, logging, simgames, *ztable);
     log.close();
     i++;
   }
   cout<<endl;
 }
 
-typedef uint64_t u64;
-void main2() {
-  U64Bitboard b;
-  b.LoadFen("3k3r/2p1pp1p/7R/8/8/8/4B3/1N2K1q1 w - - 0 37");
-  cout<<b.GetFen()<<endl;
-  multimap<int, pair<int, char>> m;
-  m = b.GetMapMoves();
-  for(multimap<int, pair<int, char>>::const_iterator it = m.begin(); it != m.end(); ++it){
-    cout<<IndexToSquare(it->first)<<IndexToSquare(it->second.first)<<it->second.second<<endl;
-  }
-}
-
 void main3() {
-  U64Bitboard b1;
-  cout<<b1.isGameOver()<<endl;
-  U64Bitboard b2 = b1;
-  cout<<b2.isGameOver()<<endl;
+  cout<<"_____________________________________________"<<endl;
+  cout<<"_____________________________________________"<<endl;
+  U64Bitboard b("rnbqkbnr/8/1p1p4/1P1P3P/5p2/2K5/8/RNBQ1BNR w - - 5 20");
+  
+  Moves moves1;
+  b.GenerateMoves(moves1);
+  for(int i = 0; i < moves1.GetCount(); i++) {
+    if (GetMoveUci(moves1.GetMove(i))=="c3b4 ") {
+      b.MakeMove(moves1.GetMove(i));
+      Moves moves2;
+      b.GenerateMoves(moves2);
+      for(int j = 0; j < moves2.GetCount(); j++) {
+        if (GetMoveUci(moves2.GetMove(j))=="e8d7 ") {
+          b.MakeMove(moves2.GetMove(j));
+          Moves moves3;
+          b.GenerateMoves(moves3);
+          PrintMoveListUci(moves3);
+          cout<<"----------------------"<<endl;
+          for(int k = 0; k < moves3.GetCount(); k++) {
+            U64Bitboard b4 = b;
+            if (b4.MakeMove(moves3.GetMove(k))) {
+              cout<<"move "<<GetMoveUci(moves3.GetMove(k))<<" is legal"<<endl;
+            } else {
+              cout<<"move "<<GetMoveUci(moves3.GetMove(k))<<" is NOT legal"<<endl;
+            }
+          }
+        }
+      }
+    }
+  }
 }

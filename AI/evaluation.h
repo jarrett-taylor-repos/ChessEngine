@@ -3,5 +3,5 @@
 using namespace std;
 
 int getEval(U64Bitboard &b) {
-  return b.GetMoveMultiplier()*(b.GetMaterialValue());
+  return b.GetMoveMultiplier()*(b.GetMaterialValue())+rand()%20;
 }
