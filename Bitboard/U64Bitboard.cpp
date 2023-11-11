@@ -118,7 +118,7 @@ class U64Bitboard {
             zobristTableIndex++;
             return;
         }
-        
+
         for(int i = zobristTableIndex; i >= 0; i--) {
             if(zobrist == zobristTable[i]) {
                 isMoveRepetition = true;
@@ -141,6 +141,7 @@ class U64Bitboard {
         halfMoveClock = stoi(arguments[4]);
         fullTurnNum = stoi(arguments[5]);
 
+        SetCastlingZobritst(zobrist, castlingRights);
         SetZobristHash(zobrist, enPassantTarget);
         SetZobristHash(zobrist, isWhiteMove);
     };
@@ -775,6 +776,7 @@ class U64Bitboard {
 
         //board updates 
         PopBit(bb[piece], source); SetBit(bb[piece], target);
+        SetZobristHash(zobrist, source, piece); SetZobristHash(zobrist, target, piece);
 
         if(capture) {
             int startP, endP;
@@ -789,6 +791,7 @@ class U64Bitboard {
             for(int bbPiece = startP; bbPiece <= endP; bbPiece++) {
                 if(TestBit(bb[bbPiece], target)) {
                     PopBit(bb[bbPiece], target);
+                    SetZobristHash(zobrist, target, bbPiece);
                     RemoveMaterialValue(bbPiece);
                     break;
                 }
@@ -799,6 +802,7 @@ class U64Bitboard {
             isWhiteMove ? PopBit(bb[P], target) : PopBit(bb[p], target);
             int promoToPiece = GetPromoPiece(promotedP, isWhiteMove);
             SetBit(bb[promoToPiece], target);
+            SetZobristHash(zobrist, target, promoToPiece);
             AddMaterialValue(*ascii_pieces[promoToPiece]);            
         }
 
@@ -813,29 +817,29 @@ class U64Bitboard {
                 // white castles king side
                 case (g1):
                     // move H rook
-                    PopBit(bb[R], h1);
-                    SetBit(bb[R], f1);
+                    PopBit(bb[R], h1); SetBit(bb[R], f1);
+                    SetZobristHash(zobrist, h1, R);SetZobristHash(zobrist, f1, R);
                     break;
                 
                 // white castles queen side
                 case (c1):
                     // move A rook
-                    PopBit(bb[R], a1);
-                    SetBit(bb[R], d1);
+                    PopBit(bb[R], a1); SetBit(bb[R], d1);
+                    SetZobristHash(zobrist, a1, R);SetZobristHash(zobrist, d1, R);
                     break;
                 
                 // black castles king side
                 case (g8):
                     // move H rook
-                    PopBit(bb[r], h8);
-                    SetBit(bb[r], f8);
+                    PopBit(bb[r], h8); SetBit(bb[r], f8);
+                    SetZobristHash(zobrist, h8, r);SetZobristHash(zobrist, f8, r);
                     break;
                 
                 // black castles queen side
                 case (c8):
                     // move A rook
-                    PopBit(bb[r], a8);
-                    SetBit(bb[r], d8);
+                    PopBit(bb[r], a8); SetBit(bb[r], d8);
+                    SetZobristHash(zobrist, a8, r);SetZobristHash(zobrist, d8, r);
                     break;
             }
         }

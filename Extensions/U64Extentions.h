@@ -421,6 +421,15 @@ namespace U64Extensions {
         zobrist ^= castlingNumbers[index];
     }
 
+    void SetCastlingZobritst(U64 &zobrist, int castlingRights) {
+        if(!castlingRights) return;
+
+        if(castlingRights && wk) zobrist ^= castlingNumbers[0];
+        if(castlingRights && wq) zobrist ^= castlingNumbers[1];
+        if(castlingRights && bk) zobrist ^= castlingNumbers[2];
+        if(castlingRights && bq) zobrist ^= castlingNumbers[3];
+    }
+
     vector<string> Split(string str, const char token = ' '){
         string tmp; 
         stringstream ss(str);

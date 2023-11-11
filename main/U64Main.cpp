@@ -2,8 +2,8 @@
 
 int main () {
     InitAll();
-    U64Bitboard b;
-    b.LoadFen("1k1q2K1/8/8/8/8/8/8/8 w - - 1 107");
+    U64Bitboard b(startFen);
+    //b.LoadFen("1k1q2K1/8/8/8/8/8/8/8 w - - 1 107");
     Moves move_list;
     b.GenerateMoves(move_list);
     cout << b.IsDraw() << endl;
