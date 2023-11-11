@@ -1,8 +1,4 @@
 #include "..\Extensions\U64Extentions.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <unordered_map>
 using namespace U64Extensions;     
 
 class U64Bitboard {
@@ -20,11 +16,12 @@ class U64Bitboard {
     int enPassantTarget;
     int castlingRights;
     bool isWhiteMove;
-    bool isMoveRepition;
+    bool isMoveRepetition;
     int materialValue;
 
-    U64 repetitionTable[150];
-    int repetitionIndex;
+
+    U64 zobristTable[50];
+    int zobristTableIndex;
 
     public:
     ~U64Bitboard() { ClearBoard(); };
@@ -37,7 +34,7 @@ class U64Bitboard {
         this->enPassantTarget = other.enPassantTarget;
         this->isWhiteMove = other.isWhiteMove;
         this->materialValue = other.materialValue;
-        this->isMoveRepition = other.isMoveRepition;
+        this->isMoveRepetition = other.isMoveRepetition;
         this->castlingRights = other.castlingRights;
 
         // Copy King squares
@@ -58,7 +55,7 @@ class U64Bitboard {
         this->enPassantTarget = other.enPassantTarget;
         this->isWhiteMove = other.isWhiteMove;
         this->materialValue = other.materialValue;
-        this->isMoveRepition = other.isMoveRepition;
+        this->isMoveRepetition = other.isMoveRepetition;
         this->castlingRights = other.castlingRights;
 
         // Copy King squares
@@ -72,15 +69,6 @@ class U64Bitboard {
         this->zobrist = other.zobrist;
         return *this;
     };
-
-    void ClearBoard() {
-        memset(bb, 0, sizeof(bb));
-        memset(occ, 0, sizeof(occ));
-
-        Reset(zobrist);
-        wKingSq = -1; bKingSq = -1;
-    };
-
 
     bool operator==(const U64Bitboard& other) {
         for(int i = P; i <= k; i++) {
@@ -98,7 +86,7 @@ class U64Bitboard {
             this->enPassantTarget == other.enPassantTarget && 
             this->isWhiteMove == other.isWhiteMove && 
             this->materialValue == other.materialValue &&
-            this->isMoveRepition == other.isMoveRepition && 
+            this->isMoveRepetition == other.isMoveRepetition && 
             this->castlingRights == other.castlingRights;
 
         bool kingSqMatch = 
@@ -109,10 +97,37 @@ class U64Bitboard {
 
         return scalarsMatch && kingSqMatch && zobristMatch;
     }
+
+    void ClearBoard() {
+        memset(bb, 0, sizeof(bb));
+        memset(occ, 0, sizeof(occ));
+
+        Reset(zobrist); ClearZobristTable();
+        wKingSq = -1; bKingSq = -1;
+    };
+
+
+    void ClearZobristTable() {
+        memset(zobristTable, 0, sizeof(zobristTable));
+        zobristTableIndex = 0;
+    };
+
+    void UpdateZobristTable() {
+        for(int i = zobristTableIndex; i >= 0; i--) {
+            if(zobrist == zobristTable[i]) {
+                isMoveRepetition = true;
+                break;
+            }
+        }
+        if(isMoveRepetition) return;
+
+        zobristTable[zobristTableIndex] = zobrist;
+        zobristTableIndex++;
+    };
     
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
-        isMoveRepition = false;
+        isMoveRepetition = false;
         materialValue = 0;
         isWhiteMove = arguments[1] == "w";
         castlingRights = SetCastlingRights(arguments[2]);
@@ -738,7 +753,7 @@ class U64Bitboard {
 
     //making moves 
     bool PossibleMoveIsACapture(int move) { return getMoveCapture(move); }; 
-    bool isPawn(int sq) { return isWhiteMove ? TestBit(bb[P], sq): TestBit(bb[p], sq); };
+    bool IsDraw() { return isMoveRepetition || (halfMoveClock >= 50); };
 
     bool MakeMove(int move) {
         //move data
@@ -750,6 +765,7 @@ class U64Bitboard {
         int doublePush = getMoveDouble(move);
         int enpass = getMoveEnpassant(move);
         int castling = getMoveCastling(move);
+        bool pawnMove = piece == P || piece == p;
 
         //board updates 
         PopBit(bb[piece], source); SetBit(bb[piece], target);
@@ -834,17 +850,18 @@ class U64Bitboard {
         occ[BOTH] |= occ[BLACK];
 
         //move side, move num and half clock num 
-        (piece == P || piece == p) || capture ? halfMoveClock = 0: halfMoveClock++;
+        (pawnMove) || capture ? halfMoveClock = 0: halfMoveClock++;
         isWhiteMove = !isWhiteMove;
         if(isWhiteMove) { fullTurnNum++; }
         SetZobristHash(zobrist, isWhiteMove);
-        //isMoveRepition = UpdateAndCheckZobristHash(zobristFenHash, zobrist);
                 
         //if king is in check after move
         bool isKingInCheck = isWhiteMove ? WhiteAttacksSquare(bKingSq) : BlackAttacksSquare(wKingSq);
-        if (!isKingInCheck) return 1;
+        if (isKingInCheck) return 0;
 
-        return 0;
+        //update zobrist for repetition 
+        pawnMove || castling || capture ? ClearZobristTable() : UpdateZobristTable();
+        return 1;
     };
 
     //misc

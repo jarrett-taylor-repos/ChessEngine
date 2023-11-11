@@ -3,7 +3,7 @@
 int main () {
     InitAll();
     U64Bitboard b(startFen);
-
+    
     auto start = high_resolution_clock::now();
     Moves move_list;
     b.GenerateMoves(move_list);

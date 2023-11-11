@@ -3,8 +3,25 @@
 int main () {
     InitAll();
     U64Bitboard b;
-    b.LoadFen("rnbq1k1r/1B1Pbp1p/p1p5/6p1/8/8/PPP1NnPP/RNBQK2R w KQ - 0 10");
+    b.LoadFen("1k1q2K1/8/8/8/8/8/8/8 w - - 1 107");
     Moves move_list;
-    b.GenerateMoves(move_list); 
-    b.PrintPretty();
+    b.GenerateMoves(move_list);
+    cout << b.IsDraw() << endl;
+
+    int move = move_list.GetMove(4);
+    b.MakeMove(move);
+    b.GenerateMoves(move_list);
+    cout << b.IsDraw() << endl;
+
+    move = move_list.GetMove(20);
+    b.MakeMove(move);
+    b.GenerateMoves(move_list);
+    cout << b.IsDraw() << endl;
+
+    move = move_list.GetMove(0);
+    b.MakeMove(move);
+    b.GenerateMoves(move_list);
+    cout << b.IsDraw() << endl;
+    
+    
 }

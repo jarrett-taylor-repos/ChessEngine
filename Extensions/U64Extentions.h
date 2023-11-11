@@ -1,6 +1,10 @@
 #include "U64BitboardConstants.h"
 #include "Moves.cpp"
 #include <chrono>
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <unordered_set>
 using namespace chrono;
 using namespace std;
 using namespace U64BitboardConstants;
