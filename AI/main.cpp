@@ -10,8 +10,9 @@ using namespace std;
 int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, string logtab, ZTable &ztable) {
   if (logging) {log<<logtab<<"quiesce search for FEN: "<<b.GetFen()<<endl;}
 
+  U64 zvalue = b.GetZobrist();
   bool shouldReturn = false;
-  //TODO: ztable
+  int returnValue = ztable.getValue(alpha, beta, shouldReturn, 0, zvalue, log, logtab, logging);
 
   int ogalpha = alpha;
 
@@ -75,11 +76,15 @@ int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool
   }
 
   int ogalpha = alpha;
+  U64 zvalue = b.GetZobrist();
+  bool shouldReturn = false;
+  int returnValue = ztable.getValue(alpha, beta, shouldReturn, depth, zvalue, log, logtab, logging);
+  if (shouldReturn) return returnValue;
 
   Moves moves;
   b.GenerateMoves(moves);
 
-  if (!moves.GetCount()) { //game is over
+  if (!moves.GetCount() || b.IsDraw()) { //game is over
     if (logging) log<<logtab<<"game is over, returning score of ";
 
     if (b.isInCheck()) { //checkmate
@@ -118,10 +123,7 @@ int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool
   return alpha;
 }
 
-bool rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable) {
-  int DEPTH = 2;
-  int alpha = -9999999;
-  int beta = 9999999;
+bool rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int depth=2, int alpha = -9999999, int beta = 9999999) {
   int bestMove = 0;
 
   Moves moves;
@@ -132,12 +134,12 @@ bool rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames
   MoveList allmoves(moves, b, alpha, true, 0, ztable, logging, log, "\t");
   for(auto & move : allmoves.movelist){
     if (logging) {
-      log<<"\trootsearch move "<<GetMoveUci(move.move)<<endl;
+      log<<"\trootsearch move "<<GetMoveUci(move.move)<<alpha<<"|"<<beta<<endl;
     }
     // U64Bitboard bCopy = currentMove.b;
     U64Bitboard bCopy = b;
     bCopy.MakeMove(move.move);
-    int eval = -alphabeta(bCopy, alpha, beta, DEPTH, log, logging, "\t\t", ztable);
+    int eval = -alphabeta(bCopy, -beta, -alpha, depth, log, logging, "\t\t", ztable);
     if (eval > alpha) {
       alpha = eval;
       bestMove = move.move;
@@ -153,15 +155,15 @@ bool rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames
     simgames<<GetMoveUci(bestMove)<<endl;
   }
 
-  ztable.setValue(b.GetZobrist(), DEPTH, alpha, 0);
+  ztable.setValue(b.GetZobrist(), depth, alpha, 0);
   return true;
   // cout<<movemade<<endl<<b.GetFen()<<endl;;
 }
 
 void main() {
   InitAll();
-  // U64Bitboard b("r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4");
-  U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
+  // U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   ofstream log;
   ofstream simgames;
   simgames.open("simgames.txt");
@@ -181,20 +183,21 @@ void main() {
   cout<<endl;
 }
 
-void main3() {
+void main2() {
+  InitAll();
   cout<<"_____________________________________________"<<endl;
   cout<<"_____________________________________________"<<endl;
-  U64Bitboard b("rnbqkbnr/8/1p1p4/1P1P3P/5p2/2K5/8/RNBQ1BNR w - - 5 20");
+  U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
   
   Moves moves1;
   b.GenerateMoves(moves1);
   for(int i = 0; i < moves1.GetCount(); i++) {
-    if (GetMoveUci(moves1.GetMove(i))=="c3b4 ") {
+    if (GetMoveUci(moves1.GetMove(i))=="c7c4 ") {
       b.MakeMove(moves1.GetMove(i));
       Moves moves2;
       b.GenerateMoves(moves2);
       for(int j = 0; j < moves2.GetCount(); j++) {
-        if (GetMoveUci(moves2.GetMove(j))=="e8d7 ") {
+        if (GetMoveUci(moves2.GetMove(j))=="d4e2 ") {
           b.MakeMove(moves2.GetMove(j));
           Moves moves3;
           b.GenerateMoves(moves3);
@@ -213,3 +216,12 @@ void main3() {
     }
   }
 }
+
+// void main() {
+//   InitAll();
+//   U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
+
+//   U64Bitboard b2 = b;
+
+  
+// }
