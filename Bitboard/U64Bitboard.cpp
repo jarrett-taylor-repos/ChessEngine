@@ -45,6 +45,9 @@ class U64Bitboard {
         for(int i = P; i <= k; i++) this->bb[i] = other.bb[i];
         for(int i = WHITE; i <= BOTH; i++) this->occ[i] = other.occ[i]; 
 
+        //zobrist
+        this->zobristTableIndex = other.zobristTableIndex;
+        for(int i = 0; i <= zobristTableIndex; i++) this->zobristTable[i] = other.zobristTable[i];
         this->zobrist = other.zobrist;
     };
 
@@ -66,6 +69,9 @@ class U64Bitboard {
         for(int i = P; i <= k; i++) this->bb[i] = other.bb[i];
         for(int i = WHITE; i <= BOTH; i++) this->occ[i] = other.occ[i]; 
 
+        //zobrist
+        this->zobristTableIndex = other.zobristTableIndex;
+        for(int i = 0; i <= zobristTableIndex; i++) this->zobristTable[i] = other.zobristTable[i];
         this->zobrist = other.zobrist;
         return *this;
     };

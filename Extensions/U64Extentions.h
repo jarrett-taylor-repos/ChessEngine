@@ -311,6 +311,15 @@ namespace U64Extensions {
         return str;
     }
 
+    int GetMoveByUci(Moves movesList, string uci) {
+        for(int i = 0; i < movesList.GetCount(); i++) {
+            int move = movesList.GetMove(i);
+            string ucimove = GetMoveUci(move);
+            if(ucimove == uci) return move;
+        }
+        return 0;
+    }
+
     void PrintMoveUci(int move, int nodes = 0) {
         cout << squares_to_coordinates[getMoveSource(move)] 
             << squares_to_coordinates[getMoveTarget(move)] 
