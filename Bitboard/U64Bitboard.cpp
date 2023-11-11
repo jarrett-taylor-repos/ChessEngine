@@ -113,6 +113,12 @@ class U64Bitboard {
     };
 
     void UpdateZobristTable() {
+        if(!zobristTableIndex) {
+            zobristTable[zobristTableIndex] = zobrist;
+            zobristTableIndex++;
+            return;
+        }
+        
         for(int i = zobristTableIndex; i >= 0; i--) {
             if(zobrist == zobristTable[i]) {
                 isMoveRepetition = true;
