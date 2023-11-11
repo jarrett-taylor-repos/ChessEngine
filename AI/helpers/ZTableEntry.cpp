@@ -1,6 +1,6 @@
 class ZTableEntry {
   public:
-  unsigned long long zvalue;
+  U64 zvalue;
   int depth;
   int score;
   int nodetype;

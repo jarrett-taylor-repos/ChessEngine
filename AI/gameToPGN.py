@@ -5,7 +5,7 @@ pgnf = open('AI/pgnFile.txt','w')
 
 with open('AI/simgames.txt') as f:
   game = chess.pgn.Game()
-  # game.setup("r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4")
+  game.setup("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8")
   movenum = 0
   for line in f:
     if line.strip()=="":
