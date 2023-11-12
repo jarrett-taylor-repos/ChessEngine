@@ -19,19 +19,6 @@ int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, st
   Moves moves;
   b.GenerateMoves(moves);
 
-  if (!moves.GetCount()) { //game is over
-    if (logging) log<<logtab<<"game is over, returning score of ";
-
-    if (b.isInCheck()) { //checkmate
-      if (logging) log<<"-9999999"<<endl;
-      return -9999999;
-    }
-
-    //game is draw
-    if (logging) log<<"-1"<<endl;
-    return -1;
-  }
-
   int standPat = getEval(b);
   if (logging) {log<<logtab<<"retrieved standPat score of "<<standPat<<endl;}
   if (!b.isInCheck()) {
@@ -42,7 +29,19 @@ int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, st
     if (standPat>alpha) alpha = standPat;
   }
 
-  MoveList allmoves(moves, b, alpha, false, standPat, ztable, logging, log, logtab);
+  bool isGameOver = true;
+  MoveList allmoves(moves, b, alpha, false, standPat, isGameOver, ztable, logging, log, logtab);
+  if (isGameOver) {
+    if (logging) log<<logtab<<"game is over, returning score of ";
+    if (b.isInCheck()) { //checkmate
+      if (logging) log<<"-999999"<<endl;
+      return -999999;
+    }
+    //game is draw
+    if (logging) log<<"-1"<<endl;
+    return -1;
+  }
+
   for(auto & move : allmoves.movelist){//|| b.isMoveCheck(it->first, it->second.first, it->second.second)) {
     if (logging) {log<<logtab<<"testing move: "<<GetMoveUci(move.move)<<endl;}
     // U64Bitboard bCopy = move.b;
@@ -67,9 +66,9 @@ int quiesce(U64Bitboard b, int alpha, int beta, ofstream &log, bool &logging, st
 }
 
 int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable){
-  if (depth == 0) {
-    return quiesce(b, alpha, beta, log, logging, logtab, ztable);
-  };
+  // if (depth == 0) {
+  //   return quiesce(b, alpha, beta, log, logging, logtab, ztable);
+  // };
 
   if (logging) {
     log<<logtab<<"starting search for depth "<<depth<<" FEN: "<<b.GetFen()<<" alpha: "<<alpha<<" beta: "<<beta<<endl;
@@ -84,20 +83,36 @@ int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool
   Moves moves;
   b.GenerateMoves(moves);
 
-  if (!moves.GetCount() || b.IsDraw()) { //game is over
-    if (logging) log<<logtab<<"game is over, returning score of ";
+  int standPat = 0;
+  if (depth<=0){
+    int standPat = getEval(b); //TODO: change stand pat to pull from ztable
 
-    if (b.isInCheck()) { //checkmate
-      if (logging) log<<"-9999999"<<endl;
-      return -9999999;
+    if (depth<=-3) {
+      if (logging) {log<<logtab<<"reached depth of "<<depth<<" returning score of "<<standPat<<endl;}
+      return standPat;
     }
+    if (logging) {log<<logtab<<"retrieved standPat score of "<<standPat<<endl;}
+    if (!b.isInCheck()) {
+      if (standPat>=beta) {
+        if (logging) {log<<logtab<<"standPat of "<<standPat<<" is greater than beta "<<beta<<" returning beta"<<endl;}
+        return beta;
+      }
+      if (standPat>alpha) alpha = standPat;
+    }
+  }
 
+  bool isGameOver = true;
+  MoveList allmoves(moves, b, alpha, depth<=0, standPat, isGameOver, ztable, logging, log, logtab);
+  if (isGameOver) {
+    if (logging) log<<logtab<<"game is over, returning score of ";
+    if (b.isInCheck()) { //checkmate
+      if (logging) log<<"-999999"<<endl;
+      return -999999;
+    }
     //game is draw
     if (logging) log<<"-1"<<endl;
     return -1;
   }
-
-  MoveList allmoves(moves, b, alpha, true, 0, ztable, logging, log, logtab);
   for(auto & move : allmoves.movelist){
     if (logging) {
       log<<logtab<<"testing move "<<GetMoveUci(move.move)<<endl;
@@ -127,11 +142,12 @@ bool rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames
   int bestMove = 0;
 
   Moves moves;
-  b.GenerateMoves(moves);
+  b.GenerateMoves(moves); 
 
-  if (!moves.GetCount()) return false; //game is over 
+  bool isGameOver = true;
+  MoveList allmoves(moves, b, alpha, true, 0, isGameOver, ztable, logging, log, "\t");
+  if (isGameOver) return false;
 
-  MoveList allmoves(moves, b, alpha, true, 0, ztable, logging, log, "\t");
   for(auto & move : allmoves.movelist){
     if (logging) {
       log<<"\trootsearch move "<<GetMoveUci(move.move)<<alpha<<"|"<<beta<<endl;
@@ -162,6 +178,7 @@ bool rootsearch(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames
 
 void main() {
   InitAll();
+  srand(5);
   U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
   // U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   ofstream log;
@@ -176,52 +193,9 @@ void main() {
   while (isGameOngoing  && i < 250) {
     log.open("logs\\log_"+to_string(i)+".md");
     if (logging) {log<<"NEW MOVE, half move num "<<i<<" FEN: "<<b.GetFen()<<endl;}
-    isGameOngoing = rootsearch(b, log, logging, simgames, *ztable);
+    isGameOngoing = rootsearch(b, log, logging, simgames, *ztable, 1);
     log.close();
     i++;
   }
   cout<<endl;
 }
-
-void main2() {
-  InitAll();
-  cout<<"_____________________________________________"<<endl;
-  cout<<"_____________________________________________"<<endl;
-  U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
-  
-  Moves moves1;
-  b.GenerateMoves(moves1);
-  for(int i = 0; i < moves1.GetCount(); i++) {
-    if (GetMoveUci(moves1.GetMove(i))=="c7c4 ") {
-      b.MakeMove(moves1.GetMove(i));
-      Moves moves2;
-      b.GenerateMoves(moves2);
-      for(int j = 0; j < moves2.GetCount(); j++) {
-        if (GetMoveUci(moves2.GetMove(j))=="d4e2 ") {
-          b.MakeMove(moves2.GetMove(j));
-          Moves moves3;
-          b.GenerateMoves(moves3);
-          PrintMoveListUci(moves3);
-          cout<<"----------------------"<<endl;
-          for(int k = 0; k < moves3.GetCount(); k++) {
-            U64Bitboard b4 = b;
-            if (b4.MakeMove(moves3.GetMove(k))) {
-              cout<<"move "<<GetMoveUci(moves3.GetMove(k))<<" is legal"<<endl;
-            } else {
-              cout<<"move "<<GetMoveUci(moves3.GetMove(k))<<" is NOT legal"<<endl;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-// void main() {
-//   InitAll();
-//   U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
-
-//   U64Bitboard b2 = b;
-
-  
-// }
