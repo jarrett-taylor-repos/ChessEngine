@@ -253,37 +253,25 @@ class U64Bitboard {
     };
 
     int GetValueAtIndex(int index) {
-        if(TestBit(bb[P], index)) return 1;
-        if(TestBit(bb[N], index)) return 3;
-        if(TestBit(bb[B], index)) return 3;
-        if(TestBit(bb[R], index)) return 5;
-        if(TestBit(bb[Q], index)) return 9;
-        if(TestBit(bb[K], index)) return 1000;
+        if(TestBit(bb[P], index)) return 100;
+        if(TestBit(bb[N], index)) return 300;
+        if(TestBit(bb[B], index)) return 325;
+        if(TestBit(bb[R], index)) return 500;
+        if(TestBit(bb[Q], index)) return 900;
+        if(TestBit(bb[K], index)) return 100000;
 
-        if(TestBit(bb[p], index)) return -1;
-        if(TestBit(bb[n], index)) return -3;
-        if(TestBit(bb[b], index)) return -3;
-        if(TestBit(bb[r], index)) return -5;
-        if(TestBit(bb[q], index)) return -9;
-        if(TestBit(bb[k], index)) return -1000;
+        if(TestBit(bb[p], index)) return -100;
+        if(TestBit(bb[n], index)) return -300;
+        if(TestBit(bb[b], index)) return -325;
+        if(TestBit(bb[r], index)) return -500;
+        if(TestBit(bb[q], index)) return -900;
+        if(TestBit(bb[k], index)) return -100000;
         return 0;
     };
 
     int GetAbsValueAtIndex(int index) {
-        if(TestBit(bb[P], index)) return 1;
-        if(TestBit(bb[N], index)) return 3;
-        if(TestBit(bb[B], index)) return 3;
-        if(TestBit(bb[R], index)) return 5;
-        if(TestBit(bb[Q], index)) return 9;
-        if(TestBit(bb[K], index)) return 1000;
-
-        if(TestBit(bb[p], index)) return 1;
-        if(TestBit(bb[n], index)) return 3;
-        if(TestBit(bb[b], index)) return 3;
-        if(TestBit(bb[r], index)) return 5;
-        if(TestBit(bb[q], index)) return 9;
-        if(TestBit(bb[k], index)) return 1000;
-        return 0;
+        int value = GetValueAtIndex(index);
+        return value >= 0 ? value : value*=-1; 
     };
 
     int GetEvaluation() { return evaluation; };
