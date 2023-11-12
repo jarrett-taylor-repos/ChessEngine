@@ -76,11 +76,13 @@ class U64Bitboard {
         return *this;
     };
 
+    //need to update for zobrist
     bool operator==(const U64Bitboard& other) {
         for(int i = P; i <= k; i++) {
             bool boardsEqual = this->bb[i] == other.bb[i];
             if(!boardsEqual) return false;
         }
+
         for(int i = WHITE; i <= BOTH; i++) {
             bool boardsEqual = this->occ[i] == other.occ[i]; 
             if(!boardsEqual) return false;
@@ -107,11 +109,11 @@ class U64Bitboard {
     void ClearBoard() {
         memset(bb, 0, sizeof(bb));
         memset(occ, 0, sizeof(occ));
+        Reset(zobrist);
 
-        Reset(zobrist); ClearZobristTable();
+        ClearZobristTable();
         wKingSq = -1; bKingSq = -1;
     };
-
 
     void ClearZobristTable() {
         memset(zobristTable, 0, sizeof(zobristTable));
@@ -147,27 +149,26 @@ class U64Bitboard {
         halfMoveClock = stoi(arguments[4]);
         fullTurnNum = stoi(arguments[5]);
 
-        SetCastlingZobritst(zobrist, castlingRights);
+        SetCastlingZobrist(zobrist, castlingRights);
         SetZobristHash(zobrist, enPassantTarget);
         SetZobristHash(zobrist, isWhiteMove);
     };
 
     void SetBoard(char c, int sq) {
         SetBit(occ[BOTH], sq);
-        SetZobristHash(zobrist, sq, c);
         switch(c) {
-            case 'p': SetBit(bb[p], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); return;
-            case 'b': SetBit(bb[b], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); return;
-            case 'n': SetBit(bb[n], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); return;
-            case 'r': SetBit(bb[r], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); return;
-            case 'q': SetBit(bb[q], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); return;
-            case 'k': SetBit(bb[k], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); bKingSq = sq; return;
-            case 'P': SetBit(bb[P], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); return;
-            case 'B': SetBit(bb[B], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); return;
-            case 'N': SetBit(bb[N], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); return;
-            case 'R': SetBit(bb[R], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); return;
-            case 'Q': SetBit(bb[Q], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); return;
-            case 'K': SetBit(bb[K], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); wKingSq = sq; return;
+            case 'p': SetBit(bb[p], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, p); return;
+            case 'b': SetBit(bb[b], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, b); return;
+            case 'n': SetBit(bb[n], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, n); return;
+            case 'r': SetBit(bb[r], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, r); return;
+            case 'q': SetBit(bb[q], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, q); return;
+            case 'k': SetBit(bb[k], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, k); bKingSq = sq; return;
+            case 'P': SetBit(bb[P], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, P); return;
+            case 'B': SetBit(bb[B], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, B); return;
+            case 'N': SetBit(bb[N], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, N); return;
+            case 'R': SetBit(bb[R], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, R); return;
+            case 'Q': SetBit(bb[Q], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, Q); return;
+            case 'K': SetBit(bb[K], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, K); wKingSq = sq; return;
         }
     }
 
@@ -225,8 +226,7 @@ class U64Bitboard {
                 }
             }
         }
-
-        //UpdateAndCheckZobristHash(zobristFenHash, zobrist);
+        UpdateZobristTable();
     };
 
     string GetFenHelper() {
@@ -755,13 +755,13 @@ class U64Bitboard {
     bool isInCheck() { return isSquareAttacked(isWhiteMove ? wKingSq : bKingSq); };
 
     //make move helpers
-    bool StartOrTargetEqaul(int start, int target, int sq) { return start == sq || target == sq; };
+    bool StartOrTargetEqual(int start, int target, int sq) { return start == sq || target == sq; };
 
     void UpdateCastlingRights(int startSq, int targetSq) {
-        if((StartOrTargetEqaul(startSq, targetSq, a8) || StartOrTargetEqaul(startSq, targetSq, e8)) && (castlingRights & bq) ) { castlingRights ^= bq; SetCastlingZobritst(q, zobrist); }
-        if((StartOrTargetEqaul(startSq, targetSq, h8) || StartOrTargetEqaul(startSq, targetSq, e8)) && (castlingRights & bk) ) { castlingRights ^= bk; SetCastlingZobritst(k, zobrist); }
-        if((StartOrTargetEqaul(startSq, targetSq, a1) || StartOrTargetEqaul(startSq, targetSq, e1)) && (castlingRights & wq) ) { castlingRights ^= wq; SetCastlingZobritst(Q, zobrist); }
-        if((StartOrTargetEqaul(startSq, targetSq, h1) || StartOrTargetEqaul(startSq, targetSq, e1)) && (castlingRights & wk) ) { castlingRights ^= wk; SetCastlingZobritst(K, zobrist); }
+        if((StartOrTargetEqual(startSq, targetSq, a8) || StartOrTargetEqual(startSq, targetSq, e8)) && (castlingRights & bq) ) { castlingRights ^= bq; SetCastlingZobrist(q, zobrist); }
+        if((StartOrTargetEqual(startSq, targetSq, h8) || StartOrTargetEqual(startSq, targetSq, e8)) && (castlingRights & bk) ) { castlingRights ^= bk; SetCastlingZobrist(k, zobrist); }
+        if((StartOrTargetEqual(startSq, targetSq, a1) || StartOrTargetEqual(startSq, targetSq, e1)) && (castlingRights & wq) ) { castlingRights ^= wq; SetCastlingZobrist(Q, zobrist); }
+        if((StartOrTargetEqual(startSq, targetSq, h1) || StartOrTargetEqual(startSq, targetSq, e1)) && (castlingRights & wk) ) { castlingRights ^= wk; SetCastlingZobrist(K, zobrist); }
     };
 
     //making moves 
@@ -769,6 +769,7 @@ class U64Bitboard {
     bool IsDraw() { return isMoveRepetition || (halfMoveClock >= 50); };
 
     bool MakeMove(int move) {
+        if(!move) return 0;
         //move data
         int source = getMoveSource(move);
         int target = getMoveTarget(move);
@@ -813,7 +814,8 @@ class U64Bitboard {
         }
 
         SetZobristHash(zobrist, enPassantTarget);
-        if(enpass) isWhiteMove ? PopBit(bb[p], target+8) : PopBit(bb[P], target-8); 
+        if(enpass && isWhiteMove) { PopBit(bb[p], target+8); SetZobristHash(zobrist, target+8, p); }
+        if(enpass && !isWhiteMove) { PopBit(bb[P], target-8); SetZobristHash(zobrist, target-8, P); }
         enPassantTarget = 0;
         if(doublePush) isWhiteMove ? enPassantTarget = target+8 : enPassantTarget = target-8;
         SetZobristHash(zobrist, enPassantTarget);
@@ -866,7 +868,7 @@ class U64Bitboard {
         occ[BOTH] |= occ[BLACK];
 
         //move side, move num and half clock num 
-        (pawnMove) || capture ? halfMoveClock = 0: halfMoveClock++;
+        pawnMove || capture ? halfMoveClock = 0: halfMoveClock++;
         isWhiteMove = !isWhiteMove;
         if(isWhiteMove) { fullTurnNum++; }
         SetZobristHash(zobrist, isWhiteMove);
@@ -928,4 +930,9 @@ class U64Bitboard {
         cout << horizontalPrint << endl << filesPrint << endl;
         cout << endl << endl;
     }
+
+    void PrintZobristAndFields() {
+        cout << "Zobrist: " << zobrist << ", IsWhiteMove: " << isWhiteMove << ", enPassantTarget: " << enPassantTarget << ", CastlingRights: " << GetCastlingRights() << ", IsDraw: " << IsDraw() << endl;
+        cout << "   Fen: " << GetFen() << endl << endl;
+    };
 };

@@ -15,7 +15,7 @@ namespace U64Extensions {
     bool TestBit(U64 &b, int sq) { return (b & precomputtedSingleBit[sq]); }
     void ResetBit(U64 &b, int sq) {  b &= ~precomputtedSingleBit[sq]; }
     void PopBit(U64 &b, int sq) { TestBit(b, sq) ? b ^= precomputtedSingleBit[sq] : 0; }
-    void Reset(U64 &b) { b = 0; }
+    void Reset(U64 &b) { b = Empty; }
     U64 GetLSB(U64 b) { return b & -b; }
     void RemoveLSB(U64 &b) { b ^= GetLSB(b); }
 
@@ -416,29 +416,6 @@ namespace U64Extensions {
         return temp;
     }
 
-    int CastlingRightsToZobristIndex(int piece) {
-        if(piece == K) return 0;
-        if(piece == Q) return 1;
-        if(piece == k) return 2;
-        if(piece == q) return 3;
-        return -1;
-    }
-
-    void SetCastlingZobritst(int piece, U64 &zobrist) {
-        int index = CastlingRightsToZobristIndex(piece);
-        if(index == -1) return;
-        zobrist ^= castlingNumbers[index];
-    }
-
-    void SetCastlingZobritst(U64 &zobrist, int castlingRights) {
-        if(!castlingRights) return;
-
-        if(castlingRights && wk) zobrist ^= castlingNumbers[0];
-        if(castlingRights && wq) zobrist ^= castlingNumbers[1];
-        if(castlingRights && bk) zobrist ^= castlingNumbers[2];
-        if(castlingRights && bq) zobrist ^= castlingNumbers[3];
-    }
-
     vector<string> Split(string str, const char token = ' '){
         string tmp; 
         stringstream ss(str);
@@ -489,13 +466,13 @@ namespace U64Extensions {
     }
 
     //zobrist 
+    void SetZobristHash(U64 &zobrist, int boardSq, int piece) { zobrist ^= pieceNumbers[boardSq][piece]; }
+    
     int EnpassantZobristIndex(int enPassantTarget) {
         if(enPassantTarget < 16 || enPassantTarget > 47) return -1;
-        if(enPassantTarget > 23) return enPassantTarget -16;
+        if(enPassantTarget < 24) return enPassantTarget - 16;
         return enPassantTarget - 32;
     }
-
-    void SetZobristHash(U64 &zobrist, int boardSq, int piece) { zobrist ^= pieceNumbers[boardSq][piece]; }
 
     void SetZobristHash(U64 &zobrist, int enpassantTarget) {
         int index = EnpassantZobristIndex(enpassantTarget);
@@ -504,17 +481,29 @@ namespace U64Extensions {
     }
 
     void SetZobristHash(U64 &zobrist, bool isWhiteMove) {
-        if(isWhiteMove) return;
-        zobrist ^= whiteMoveNumber;
+        if(isWhiteMove) zobrist ^= whiteMoveNumber;
     }
 
-    bool UpdateAndCheckZobristHash(map<U64, int> &z, U64 key) {
-        if (z.find(key) != z.end()) {
-            z[key]++;
-            return z[key] == 3;
-        } else {
-            z.insert(make_pair(key, 1));
-        }
-        return false;
+    int CastlingRightsToZobristIndex(int piece) {
+        if(piece == K) return 0;
+        if(piece == Q) return 1;
+        if(piece == k) return 2;
+        if(piece == q) return 3;
+        return -1;
+    }
+
+    void SetCastlingZobrist(int piece, U64 &zobrist) {
+        int index = CastlingRightsToZobristIndex(piece);
+        if(index == -1) return;
+        zobrist ^= castlingNumbers[index];
+    }
+
+    void SetCastlingZobrist(U64 &zobrist, int castlingRights) {
+        if(!castlingRights) return;
+
+        if(castlingRights & wk) zobrist ^= castlingNumbers[0];
+        if(castlingRights & wq) zobrist ^= castlingNumbers[1];
+        if(castlingRights & bk) zobrist ^= castlingNumbers[2];
+        if(castlingRights & bq) zobrist ^= castlingNumbers[3];
     }
 }
