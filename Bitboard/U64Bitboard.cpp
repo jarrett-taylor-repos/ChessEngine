@@ -17,7 +17,7 @@ class U64Bitboard {
     int castlingRights;
     bool isWhiteMove;
     bool isMoveRepetition;
-    int materialValue;
+    int evaluation;
 
 
     U64 zobristTable[50];
@@ -33,7 +33,7 @@ class U64Bitboard {
         this->fullTurnNum = other.fullTurnNum;
         this->enPassantTarget = other.enPassantTarget;
         this->isWhiteMove = other.isWhiteMove;
-        this->materialValue = other.materialValue;
+        this->evaluation = other.evaluation;
         this->isMoveRepetition = other.isMoveRepetition;
         this->castlingRights = other.castlingRights;
 
@@ -57,7 +57,7 @@ class U64Bitboard {
         this->fullTurnNum = other.fullTurnNum;
         this->enPassantTarget = other.enPassantTarget;
         this->isWhiteMove = other.isWhiteMove;
-        this->materialValue = other.materialValue;
+        this->evaluation = other.evaluation;
         this->isMoveRepetition = other.isMoveRepetition;
         this->castlingRights = other.castlingRights;
 
@@ -93,7 +93,7 @@ class U64Bitboard {
             this->fullTurnNum == other.fullTurnNum && 
             this->enPassantTarget == other.enPassantTarget && 
             this->isWhiteMove == other.isWhiteMove && 
-            this->materialValue == other.materialValue &&
+            this->evaluation == other.evaluation &&
             this->isMoveRepetition == other.isMoveRepetition && 
             this->castlingRights == other.castlingRights;
 
@@ -142,7 +142,7 @@ class U64Bitboard {
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
         isMoveRepetition = false;
-        materialValue = 0;
+        evaluation = 0;
         isWhiteMove = arguments[1] == "w";
         castlingRights = SetCastlingRights(arguments[2]);
         enPassantTarget = (arguments[3] == "-") ? 0 : StringtoIndex(arguments[3]);
@@ -156,54 +156,29 @@ class U64Bitboard {
 
     void SetBoard(char c, int sq) {
         SetBit(occ[BOTH], sq);
-        switch(c) {
-            case 'p': SetBit(bb[p], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, p); return;
-            case 'b': SetBit(bb[b], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, b); return;
-            case 'n': SetBit(bb[n], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, n); return;
-            case 'r': SetBit(bb[r], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, r); return;
-            case 'q': SetBit(bb[q], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, q); return;
-            case 'k': SetBit(bb[k], sq); SetBit(occ[BLACK], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, k); bKingSq = sq; return;
-            case 'P': SetBit(bb[P], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, P); return;
-            case 'B': SetBit(bb[B], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, B); return;
-            case 'N': SetBit(bb[N], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, N); return;
-            case 'R': SetBit(bb[R], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, R); return;
-            case 'Q': SetBit(bb[Q], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, Q); return;
-            case 'K': SetBit(bb[K], sq); SetBit(occ[WHITE], sq); AddMaterialValue(c); SetZobristHash(zobrist, sq, K); wKingSq = sq; return;
-        }
+        
+        int piece = CharToPiece(c);
+
+        SetBit(bb[piece], sq);
+        piece > K ? SetBit(occ[BLACK], sq): SetBit(occ[WHITE], sq);
+
+        if(piece == K) wKingSq = sq;
+        if(piece == k) bKingSq = sq;
+        
+        AddMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece);
+
+        if(piece == K) wKingSq = sq;
+        if(piece == k) bKingSq = sq;
     }
 
-    void AddMaterialValue(char c) {
-        switch(c) {
-            case 'p': materialValue -= 100; return;
-            case 'b': materialValue -= 325;return;
-            case 'n': materialValue -= 300;return;
-            case 'r': materialValue -= 500;return;
-            case 'q': materialValue -= 900;return;
-            case 'k': materialValue -= 100000;return;
-            case 'P': materialValue += 100;return;
-            case 'B': materialValue += 325;return;
-            case 'N': materialValue += 300;return;
-            case 'R': materialValue += 500;return;
-            case 'Q': materialValue += 900;return;
-            case 'K': materialValue += 100000;return;
-        }
+    void AddMaterialValue(int piece, int sq) {
+        evaluation += PieceValue[piece];
+        evaluation += PieceSquareTables[piece][sq];
     }
 
-    void RemoveMaterialValue(int piece) {
-        switch(piece) {
-            case p: materialValue += 100; return;
-            case b: materialValue += 325;return;
-            case n: materialValue += 300;return;
-            case r: materialValue += 500;return;
-            case q: materialValue += 900;return;
-            case k: materialValue += 100000;return;
-            case P: materialValue -= 100;return;
-            case B: materialValue -= 325;return;
-            case N: materialValue -= 300;return;
-            case R: materialValue -= 500;return;
-            case Q: materialValue -= 900;return;
-            case K: materialValue -= 100000;return;
-        }
+    void RemoveMaterialValue(int piece, int sq) {
+        evaluation -= PieceValue[piece];
+        evaluation -= PieceSquareTables[piece][sq];
     }
 
     void LoadFen(string fen) {
@@ -311,7 +286,7 @@ class U64Bitboard {
         return 0;
     };
 
-    int GetMaterialValue() { return materialValue; };
+    int GetEvaluation() { return evaluation; };
     string GetCastlingRights() { return CastlingRightsString(castlingRights); };
 
     U64 GetwPawn() { return bb[P]; };
@@ -799,7 +774,7 @@ class U64Bitboard {
                 if(TestBit(bb[bbPiece], target)) {
                     PopBit(bb[bbPiece], target);
                     SetZobristHash(zobrist, target, bbPiece);
-                    RemoveMaterialValue(bbPiece);
+                    RemoveMaterialValue(bbPiece, target);
                     break;
                 }
             }
@@ -807,15 +782,17 @@ class U64Bitboard {
 
         if(promotedP) {
             isWhiteMove ? PopBit(bb[P], target) : PopBit(bb[p], target);
+            isWhiteMove ? RemoveMaterialValue(P, target) : RemoveMaterialValue(p, target);
+
             int promoToPiece = GetPromoPiece(promotedP, isWhiteMove);
             SetBit(bb[promoToPiece], target);
             SetZobristHash(zobrist, target, promoToPiece);
-            AddMaterialValue(*ascii_pieces[promoToPiece]);            
+            AddMaterialValue(promoToPiece, target);            
         }
 
         SetZobristHash(zobrist, enPassantTarget);
-        if(enpass && isWhiteMove) { PopBit(bb[p], target+8); SetZobristHash(zobrist, target+8, p); }
-        if(enpass && !isWhiteMove) { PopBit(bb[P], target-8); SetZobristHash(zobrist, target-8, P); }
+        if(enpass && isWhiteMove) { PopBit(bb[p], target+8); RemoveMaterialValue(p, target+8); SetZobristHash(zobrist, target+8, p); }
+        if(enpass && !isWhiteMove) { PopBit(bb[P], target-8); RemoveMaterialValue(P, target-8); SetZobristHash(zobrist, target-8, P); }
         enPassantTarget = 0;
         if(doublePush) isWhiteMove ? enPassantTarget = target+8 : enPassantTarget = target-8;
         SetZobristHash(zobrist, enPassantTarget);

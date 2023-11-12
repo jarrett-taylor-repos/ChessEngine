@@ -431,6 +431,23 @@ namespace U64Extensions {
 
     int StringtoIndex(string str) {return SquaretoIntMap.at(str); }
 
+    int CharToPiece(char c) {
+        switch(c) {
+            case 'p': return p;
+            case 'b': return b;
+            case 'n': return n;
+            case 'r': return r;
+            case 'q': return q;
+            case 'k': return k;
+            case 'P': return P;
+            case 'B': return B;
+            case 'N': return N;
+            case 'R': return R;
+            case 'Q': return Q;
+            case 'K': return K;
+        }
+    }
+
     string EnpassantTargetToString(int index) { 
         if(index == 0) return "-";
         return squares_to_coordinates[index];
@@ -467,7 +484,7 @@ namespace U64Extensions {
 
     //zobrist 
     void SetZobristHash(U64 &zobrist, int boardSq, int piece) { zobrist ^= pieceNumbers[boardSq][piece]; }
-    
+
     int EnpassantZobristIndex(int enPassantTarget) {
         if(enPassantTarget < 16 || enPassantTarget > 47) return -1;
         if(enPassantTarget < 24) return enPassantTarget - 16;
