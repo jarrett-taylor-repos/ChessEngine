@@ -498,7 +498,7 @@ namespace U64Extensions {
     }
 
     void SetZobristHash(U64 &zobrist, bool isWhiteMove) {
-        if(isWhiteMove) zobrist ^= whiteMoveNumber;
+        if(!isWhiteMove) zobrist ^= whiteMoveNumber;
     }
 
     int CastlingRightsToZobristIndex(int piece) {
