@@ -19,7 +19,6 @@ class U64Bitboard {
     bool isMoveRepetition;
     int evaluation;
 
-
     U64 zobristTable[50];
     int zobristTableIndex;
 
@@ -76,8 +75,14 @@ class U64Bitboard {
         return *this;
     };
 
-    //need to update for zobrist
     bool operator==(const U64Bitboard& other) {
+        bool zobIndexMatch = this->zobristTableIndex == other.zobristTableIndex;
+        if(!zobIndexMatch) return false;
+        for(int i = 0; i <= this->zobristTableIndex; i++) {
+            bool zobristTableEqual = this->zobristTable[i] == other.zobristTable[i];
+            if(!zobristTableEqual) return false;
+        }
+
         for(int i = P; i <= k; i++) {
             bool boardsEqual = this->bb[i] == other.bb[i];
             if(!boardsEqual) return false;
@@ -727,7 +732,14 @@ class U64Bitboard {
         if((StartOrTargetEqual(startSq, targetSq, h1) || StartOrTargetEqual(startSq, targetSq, e1)) && (castlingRights & wk) ) { castlingRights ^= wk; SetCastlingZobrist(K, zobrist); }
     };
 
-    //making moves 
+    //making move helpers
+    void AddToBoard(int piece, int sq) {
+        SetBit(bb[piece], sq); AddMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece);
+    };
+    void RemoveFromBoard(int piece, int sq) {
+        PopBit(bb[piece], sq); RemoveMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece);
+    };
+
     bool PossibleMoveIsACapture(int move) { return getMoveCapture(move); }; 
     bool IsDraw() { return isMoveRepetition || (halfMoveClock >= 50); };
 
@@ -745,8 +757,7 @@ class U64Bitboard {
         bool pawnMove = piece == P || piece == p;
 
         //board updates 
-        PopBit(bb[piece], source); SetBit(bb[piece], target);
-        SetZobristHash(zobrist, source, piece); SetZobristHash(zobrist, target, piece);
+        RemoveFromBoard(piece, source); AddToBoard(piece, target);
 
         if(capture) {
             int startP, endP;
@@ -760,27 +771,24 @@ class U64Bitboard {
 
             for(int bbPiece = startP; bbPiece <= endP; bbPiece++) {
                 if(TestBit(bb[bbPiece], target)) {
-                    PopBit(bb[bbPiece], target);
-                    SetZobristHash(zobrist, target, bbPiece);
-                    RemoveMaterialValue(bbPiece, target);
+                    RemoveFromBoard(bbPiece, target);
                     break;
                 }
             }
         }
 
         if(promotedP) {
-            isWhiteMove ? PopBit(bb[P], target) : PopBit(bb[p], target);
-            isWhiteMove ? RemoveMaterialValue(P, target) : RemoveMaterialValue(p, target);
+            //remove pawn
+            isWhiteMove ? RemoveFromBoard(P, target) : RemoveFromBoard(p, target);
 
+            //add promotoed piece to board
             int promoToPiece = GetPromoPiece(promotedP, isWhiteMove);
-            SetBit(bb[promoToPiece], target);
-            SetZobristHash(zobrist, target, promoToPiece);
-            AddMaterialValue(promoToPiece, target);            
+            AddToBoard(promoToPiece, target);    
         }
 
         SetZobristHash(zobrist, enPassantTarget);
-        if(enpass && isWhiteMove) { PopBit(bb[p], target+8); RemoveMaterialValue(p, target+8); SetZobristHash(zobrist, target+8, p); }
-        if(enpass && !isWhiteMove) { PopBit(bb[P], target-8); RemoveMaterialValue(P, target-8); SetZobristHash(zobrist, target-8, P); }
+        if(enpass && isWhiteMove) { RemoveFromBoard(p, target+8); }
+        if(enpass && !isWhiteMove) { RemoveFromBoard(P, target-8); }
         enPassantTarget = 0;
         if(doublePush) isWhiteMove ? enPassantTarget = target+8 : enPassantTarget = target-8;
         SetZobristHash(zobrist, enPassantTarget);
