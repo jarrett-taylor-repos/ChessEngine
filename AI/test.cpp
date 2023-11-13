@@ -9,12 +9,18 @@ using namespace std;
 
 void main() {
   InitAll();
-  // U64Bitboard b("r1b3k1/1r4pp/p1np4/4p3/p2B4/P2P4/5NPP/1R2KB1R b K - 0 30");
-  U64Bitboard b("7k/8/8/4K3/8/8/8/8 b - - 0 1");
-  Moves moves1;
-  b.GenerateMoves(moves1);
-  MoveList ml(moves1);
-  for(auto & move : ml.movelist){
-    cout<<GetMoveUci(move.move)<<endl;
-  }
+  srand(5);
+  U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
+  // U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  ofstream log;
+
+
+
+  ZTable* ztable = new ZTable;
+  bool shouldReturn = false;
+  int alpha = 999;
+  int beta = -999;
+  U64 zvalue = b.GetZobrist();
+  int ans = ztable->getValue(alpha, beta, shouldReturn, 0, zvalue, log, "\t", false);
+  cout<<ans;
 }

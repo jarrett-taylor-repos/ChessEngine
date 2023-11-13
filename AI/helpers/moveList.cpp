@@ -7,7 +7,7 @@
 using namespace std;
 
 bool compareMoves(MoveEval move1, MoveEval move2) {
-  return (move1.eval>move2.eval);
+  return (move1.eval<move2.eval);
 }
 
 class MoveList {
@@ -18,7 +18,7 @@ class MoveList {
     sort(movelist.begin(), movelist.end(), compareMoves);
   }
 
-  MoveList(Moves &moves, U64Bitboard b, int alpha, bool isAlphaBeta, int standPat, bool &isGameOver, ZTable &ztable, bool logging, ofstream &log, string logtab) {
+  MoveList(Moves &moves, U64Bitboard &b, int alpha, bool isAlphaBeta, int standPat, bool &isGameOver, ZTable &ztable, bool logging, ofstream &log, string logtab) {
     isGameOver = true;
     if (logging) {log<<logtab<<"starting making move list, isAlphaBeta is "<<isAlphaBeta<<endl;}
     if (isAlphaBeta) movelist.reserve(moves.GetCount());
@@ -28,7 +28,7 @@ class MoveList {
         if (!bCopy.MakeMove(moves.GetMove(i))) {if (logging) {log<<logtab+'\t'<<"removing move "<<GetMoveUci(moves.GetMove(i))<<" for illegality"<<endl;}  continue;}
         isGameOver=false;
         int eval;
-        unsigned long long zvalue = b.GetZobrist();
+        unsigned long long zvalue = bCopy.GetZobrist();
         ZTableEntry z = ztable.getEntry(zvalue);
         if (z.zvalue==zvalue && z.nodetype == 0) {
           eval = z.score;
