@@ -1,17 +1,17 @@
-#include "..\Bitboard\U64Bitboard.cpp"
+#include "..\Bitboard\Bitboard.cpp"
 
 
 long long nodes;
 
 
-static inline void perft_driver(U64Bitboard b, int depth) {
+static inline void perft_driver(Bitboard b, int depth) {
     if (depth == 0) { nodes++; return; }
     
     Moves move_list;
     b.GenerateMoves(move_list); 
 
     for (int i = 0; i < move_list.GetCount(); i++) { 
-        U64Bitboard temp = b;
+        Bitboard temp = b;
         if (!temp.MakeMove(move_list.GetMove(i))) continue;
         
         perft_driver(temp, depth - 1);
@@ -19,7 +19,7 @@ static inline void perft_driver(U64Bitboard b, int depth) {
 }
 
 // perft test
-void perft_test(U64Bitboard b, int depth) {
+void perft_test(Bitboard b, int depth) {
     printf("\n     Performance test\n\n");
     
     Moves move_list;
@@ -28,7 +28,7 @@ void perft_test(U64Bitboard b, int depth) {
     long start = clock();
 
     for (int i = 0; i < move_list.GetCount(); i++) { 
-        U64Bitboard temp = b;
+        Bitboard temp = b;
         if (!temp.MakeMove(move_list.GetMove(i))) continue;
         
         long cummulative_nodes = nodes;
@@ -51,9 +51,9 @@ int main() {
     // 3 - 62,379
     // 4 - 2,103,487
     // 5 - 89,941,194
-    U64Bitboard b;
-    b.LoadFen(testPos);
-    //b.LoadFen(startFen);
+    Bitboard b;
+    //b.LoadFen(testPos);
+    b.LoadFen(startFen);
 
     // 1	20
     // 2	400

@@ -1,4 +1,4 @@
-// #include "..\Bitboard\U64Bitboard.cpp"
+// #include "..\Bitboard\Bitboard.cpp"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -8,7 +8,7 @@
 #include "./helpers/moveList.cpp"
 using namespace std;
 
-int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable){
+int alphabeta(Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable){
 
   if (logging) {
     log<<logtab<<"starting search for depth "<<depth<<" FEN: "<<b.GetFen()<<" alpha: "<<alpha<<" beta: "<<beta<<endl;
@@ -53,8 +53,8 @@ int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool
     if (logging) {
       log<<logtab<<"testing move "<<GetMoveUci(move.move)<<endl;
     }
-    // U64Bitboard bCopy = move.b;
-    U64Bitboard bCopy = b;
+    // Bitboard bCopy = move.b;
+    Bitboard bCopy = b;
     bCopy.MakeMove(move.move);
     int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable);
     if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
@@ -74,7 +74,7 @@ int alphabeta(U64Bitboard b, int alpha, int beta, int depth, ofstream &log, bool
   return alpha;
 }
 
-bool rootSearchwMake(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int depth=2, int alpha = -9999999, int beta = 9999999) {
+bool rootSearchwMake(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int depth=2, int alpha = -9999999, int beta = 9999999) {
   int bestMove = 0;
 
   Moves moves;
@@ -88,8 +88,8 @@ bool rootSearchwMake(U64Bitboard &b, ofstream &log, bool &logging, ofstream &sim
     if (logging) {
       log<<"\trootsearch move "<<GetMoveUci(move.move)<<alpha<<"|"<<beta<<endl;
     }
-    // U64Bitboard bCopy = currentMove.b;
-    U64Bitboard bCopy = b;
+    // Bitboard bCopy = currentMove.b;
+    Bitboard bCopy = b;
     bCopy.MakeMove(move.move);
     int eval = -alphabeta(bCopy, -beta, -alpha, depth, log, logging, "\t\t", ztable);
     if (eval > alpha) {
@@ -115,8 +115,8 @@ bool rootSearchwMake(U64Bitboard &b, ofstream &log, bool &logging, ofstream &sim
 void oldmain() {
   InitAll();
   srand(5);
-  U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
-  // U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
+  // Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   ofstream log;
   ofstream simgames;
   simgames.open("simgames.txt");
@@ -136,7 +136,7 @@ void oldmain() {
   cout<<endl;
 }
 
-int rootsearch(U64Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int depth=2, int alpha = -9999999, int beta = 9999999) {
+int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int depth=2, int alpha = -9999999, int beta = 9999999) {
   if (logging) {
     log<<logtab<<"starting root search with alpha: "<<alpha<<" and beta: "<<beta<<endl;
   }
@@ -150,8 +150,8 @@ int rootsearch(U64Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging,
     if (logging) {
       log<<logtab<<"rootsearch move "<<GetMoveUci(move.move)<<alpha<<"|"<<beta<<endl;
     }
-    // U64Bitboard bCopy = currentMove.b;
-    U64Bitboard bCopy = b;
+    // Bitboard bCopy = currentMove.b;
+    Bitboard bCopy = b;
     bCopy.MakeMove(move.move);
     int eval = -alphabeta(bCopy, -beta, -alpha, depth, log, logging, logtab+"\t\t", ztable);
     if (eval > alpha) {
@@ -169,7 +169,7 @@ int rootsearch(U64Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging,
   return bestMove;
 }
 
-int bestMoveAtDepth(U64Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int depth=2) {
+int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int depth=2) {
   if (logging) log<<"\tsearch for depth "<<depth<<endl;
   bool isGameOver = true;
   Moves moves;
@@ -221,7 +221,7 @@ int bestMoveAtDepth(U64Bitboard &b, ofstream &log, bool &logging, ZTable &ztable
   return bestMove;
 }
 
-bool makeMoveSetDepth(U64Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int depth=1) {
+bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int depth=1) {
   if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
   int bestMove = 0;
   bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
@@ -251,8 +251,8 @@ bool makeMoveSetDepth(U64Bitboard &b, ofstream &log, bool &logging, ofstream &si
 void main() {
   InitAll();
   srand(5);
-  U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
-  // U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
+  // Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   ofstream log;
   ofstream simgames;
   simgames.open("simgames.txt");

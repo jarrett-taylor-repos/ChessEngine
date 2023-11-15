@@ -1,4 +1,4 @@
-// #include "..\Bitboard\U64Bitboard.cpp"
+// #include "..\Bitboard\Bitboard.cpp"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -10,8 +10,8 @@ using namespace std;
 void main() {
   InitAll();
   srand(5);
-  U64Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
-  // U64Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
+  // Bitboard b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   ofstream log;
 
 

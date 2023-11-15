@@ -50,3 +50,95 @@ class Moves {
 
     void SetCount(int value) { count = value; };
 };
+
+namespace MoveExtensions {
+    int GetPromoPiece(int promoP, bool isWhiteMove) {
+        if(!promoP) return 0;
+
+        switch(promoP) {
+            case 1: return isWhiteMove ? Q : q;
+            case 2: return isWhiteMove ? R : r; 
+            case 4: return isWhiteMove ? B : b; 
+            case 8: return isWhiteMove ? N : n; 
+            default: return 0;
+        }
+        return 0;
+    }
+
+    char GetPromoPieceChar(int move) {
+        int promoM = getMovePromoted(move);
+        if(!promoM) return ' ';
+
+        switch (promoM) {
+            case 1: return 'q';
+            case 2: return 'r';
+            case 4: return 'b';
+            case 8: return 'n';
+            default: return ' ';
+        }
+    }
+
+    string GetMoveUci(int move) {
+        string start = squares_to_coordinates[getMoveSource(move)];
+        string end = squares_to_coordinates[getMoveTarget(move)];
+        string str = start + end + GetPromoPieceChar(move);
+        return str;
+    }
+
+    int GetMoveByUci(Moves movesList, string uci) {
+        for(int i = 0; i < movesList.GetCount(); i++) {
+            int move = movesList.GetMove(i);
+            string ucimove = GetMoveUci(move);
+            if(ucimove == uci) return move;
+        }
+        return 0;
+    }
+
+    void PrintMoveUci(int move, int nodes = 0) {
+        cout << squares_to_coordinates[getMoveSource(move)] 
+            << squares_to_coordinates[getMoveTarget(move)] 
+            << GetPromoPieceChar(move);
+
+        if(nodes) cout << ": " << nodes;
+        cout << endl;
+    }
+
+    void PrintMoveListUci(Moves movesList, bool withNumbers = false) {
+        cout << "Move Count: " << movesList.GetCount() << endl;
+        for(int i = 0; i < movesList.GetCount(); i++){
+            if(withNumbers) cout << i << " - ";
+            PrintMoveUci(movesList.GetMove(i));
+        }
+    }
+
+    void PrintMove(int move) {
+        int source = getMoveSource(move);
+        int target = getMoveTarget(move);
+        int piece = getMovePiece(move);
+        int promoted = getMovePromoted(move);
+        int capture = getMoveCapture(move);
+        int doublePush = getMoveDouble(move);
+        int enpassant = getMoveEnpassant(move);
+        int castling = getMoveCastling(move);
+
+
+        string str_start = squares_to_coordinates[source];
+        string str_target = squares_to_coordinates[target];
+        char str_piece = *ascii_pieces[piece];
+        char str_promoted = GetPromoPieceChar(move);
+        char str_capture = capture ? '1' : '0';
+        char str_double = doublePush ? '1' : '0';
+        char str_enpassant = enpassant ? '1' : '0';
+        char str_castling = castling ? '1' : '0';
+
+        cout << str_start 
+            << str_target 
+            << str_piece
+            << str_promoted
+            << str_capture
+            << str_double
+            << str_enpassant
+            << str_castling
+            << endl;
+    }
+}

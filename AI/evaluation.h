@@ -1,9 +1,9 @@
-#include "..\Bitboard\U64Bitboard.cpp"
+#include "..\Bitboard\Bitboard.cpp"
 
 using namespace std;
 
 
 
-int getEval(U64Bitboard &b) {
+int getEval(Bitboard &b) {
   return b.GetMoveMultiplier()*(b.GetEvaluation());
 }

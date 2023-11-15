@@ -1,19 +1,23 @@
-#include "..\Bitboard\U64Bitboard.cpp"
+#include "..\Bitboard\Bitboard.cpp"
 
 int main () {
     InitAll();
-    // U64Bitboard b("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2");
-    // cout << b.GetZobrist() <<  " " << b.GetFen() << endl;
-    U64Bitboard test(startFen);
-    Moves move_list;
-    test.GenerateMoves(move_list);
-    int move = GetMoveByUci(move_list, "e2e3 ");
-    test.MakeMove(move);
-    test.PrintZobristAndFields();
+    Bitboard b("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2");
+    b.PrintPretty();
+    b.PrintAttackedSquares();
+    b.PrintZobristAndFields();
 
-    U64Bitboard test2("rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
-    test2.PrintZobristAndFields();
+    /* Zobirst same value by move and load fen
+        U64Bitboard test(startFen);
+        Moves move_list;
+        test.GenerateMoves(move_list);
+        int move = GetMoveByUci(move_list, "e2e3 ");
+        test.MakeMove(move);
+        test.PrintZobristAndFields();
 
+        U64Bitboard test2("rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+        test2.PrintZobristAndFields();
+    */
     /* ZOBRIST DRAW 
         U64Bitboard temp(startFen);
         temp.PrintZobristAndFields();

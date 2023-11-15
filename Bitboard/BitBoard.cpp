@@ -1,7 +1,7 @@
-#include "..\Extensions\U64Extentions.h"
-using namespace U64Extensions;     
+#include "..\Extensions\Extensions.h"
+using namespace Extensions;     
 
-class U64Bitboard {
+class Bitboard {
     private:
     U64 bb[12];
     U64 occ[3];
@@ -23,10 +23,10 @@ class U64Bitboard {
     int zobristTableIndex;
 
     public:
-    ~U64Bitboard() { ClearBoard(); };
-    U64Bitboard() { ClearBoard(); };
-    U64Bitboard(string fen) { LoadFen(fen); };
-    U64Bitboard(const U64Bitboard& other) {
+    ~Bitboard() { ClearBoard(); };
+    Bitboard() { ClearBoard(); };
+    Bitboard(string fen) { LoadFen(fen); };
+    Bitboard(const Bitboard& other) {
         // Copy the scalar members
         this->halfMoveClock = other.halfMoveClock;
         this->fullTurnNum = other.fullTurnNum;
@@ -50,7 +50,7 @@ class U64Bitboard {
         this->zobrist = other.zobrist;
     };
 
-    U64Bitboard& operator=(const U64Bitboard& other) {
+    Bitboard& operator=(const Bitboard& other) {
         // Copy the scalar members
         this->halfMoveClock = other.halfMoveClock;
         this->fullTurnNum = other.fullTurnNum;
@@ -75,9 +75,10 @@ class U64Bitboard {
         return *this;
     };
 
-    bool operator==(const U64Bitboard& other) {
+    bool operator==(const Bitboard& other) {
         bool zobIndexMatch = this->zobristTableIndex == other.zobristTableIndex;
         if(!zobIndexMatch) return false;
+
         for(int i = 0; i <= this->zobristTableIndex; i++) {
             bool zobristTableEqual = this->zobristTable[i] == other.zobristTable[i];
             if(!zobristTableEqual) return false;
@@ -537,7 +538,8 @@ class U64Bitboard {
     U64 MagicRookPsuedoMoves() { return isWhiteMove ? wMagicRookPsuedoMoves() : bMagicRookPsuedoMoves(); };
     U64 MagicQueenPsuedoMoves() { return isWhiteMove ? wMagicQueenPsuedoMoves() : bMagicQueenPsuedoMoves(); };
 
-
+    U64 wPsuedoMoves() { return wPawnPsuedoMoves(bb[P]) | wKnightPsuedoMoves() | wMagicBishopPsuedoMoves() | wMagicRookPsuedoMoves() | wMagicQueenPsuedoMoves(); };
+    U64 bPsuedoMoves() { return bPawnPsuedoMoves(bb[p]) | bKnightPsuedoMoves() | bMagicBishopPsuedoMoves() | bMagicRookPsuedoMoves() | bMagicQueenPsuedoMoves(); };
     //Moves
     void GenerateWhitePawnMoves(Moves &movesList) {
         int source, target;
@@ -650,7 +652,7 @@ class U64Bitboard {
         U64 unableToCapture = isWhiteToMove ? occ[WHITE] : occ[BLACK];
         U64 ableToCapture = isWhiteToMove ? occ[BLACK] : occ[WHITE];
 
-        //bishop moves
+        //rook moves
         board = bb[piece];
         while(board != Empty) {
             source = GetLSBIndex(board);
@@ -669,7 +671,7 @@ class U64Bitboard {
         U64 unableToCapture = isWhiteToMove ? occ[WHITE] : occ[BLACK];
         U64 ableToCapture = isWhiteToMove ? occ[BLACK] : occ[WHITE];
 
-        //bishop moves
+        //queen moves
         board = bb[piece];
         while(board != Empty) {
             source = GetLSBIndex(board);
@@ -695,7 +697,6 @@ class U64Bitboard {
         GenerateBishopMoves(movesList, isWhiteMove);
         GenerateRookMoves(movesList, isWhiteMove);
         GenerateQueenMoves(movesList, isWhiteMove);
-
     }
 
     //attacks
@@ -703,9 +704,8 @@ class U64Bitboard {
         if(precomputtedWhitePawnAttacks[sq] & bb[p]) return true;
         if(precomputtedKnights[sq] & bb[n]) return true;
         if(precomputtedKings[sq] & bb[k]) return true;
-        if(GetBishopAttacks(sq, occ[BOTH]) & bb[b]) return true;
-        if(GetRookAttacks(sq, occ[BOTH]) & bb[r]) return true;
-        if(GetQueenAttacks(sq, occ[BOTH]) & bb[q]) return true;
+        if(GetBishopAttacks(sq, occ[BOTH]) & (bb[b] || bb[q])) return true;
+        if(GetRookAttacks(sq, occ[BOTH]) & (bb[r] || bb[q])) return true;
         return false;
     };
 
@@ -713,9 +713,8 @@ class U64Bitboard {
         if(precomputtedBlackPawnAttacks[sq] & bb[P]) return true;
         if(precomputtedKnights[sq] & bb[N]) return true;
         if(precomputtedKings[sq] & bb[K]) return true;
-        if(GetBishopAttacks(sq, occ[BOTH]) & bb[B]) return true;
-        if(GetRookAttacks(sq, occ[BOTH]) & bb[R]) return true;
-        if(GetQueenAttacks(sq, occ[BOTH]) & bb[Q]) return true;
+        if(GetBishopAttacks(sq, occ[BOTH]) & (bb[B] || bb[Q])) return true;
+        if(GetRookAttacks(sq, occ[BOTH]) & (bb[R] || bb[Q])) return true;
         return false;
     };
 
@@ -733,13 +732,8 @@ class U64Bitboard {
     };
 
     //making move helpers
-    void AddToBoard(int piece, int sq) {
-        SetBit(bb[piece], sq); AddMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece);
-    };
-    void RemoveFromBoard(int piece, int sq) {
-        PopBit(bb[piece], sq); RemoveMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece);
-    };
-
+    void AddToBoard(int piece, int sq) { SetBit(bb[piece], sq); AddMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece); };
+    void RemoveFromBoard(int piece, int sq) { PopBit(bb[piece], sq); RemoveMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece); };
     bool PossibleMoveIsACapture(int move) { return getMoveCapture(move); }; 
     bool IsDraw() { return isMoveRepetition || (halfMoveClock >= 50); };
 
@@ -881,31 +875,32 @@ class U64Bitboard {
 
     void PrintAttackedSquares() {
         for(int i = 0; i < 64; i++) {
-            if(i != 0 && (i % 8) == 0) cout << endl; 
-            string value = isSquareAttacked(i) ? "1 " :  ". "; 
-            cout << value;
+            if(i != 0 && (i % 8) == 0) printf("\n");
+            char value = isSquareAttacked(i) ? '1' :  '.';
+            printf("%c ",value);
         }
-        cout << endl << endl;
+        printf("\n\n");
     };
 
     void PrintPretty() {
         for(int file = 0; file < 8; file++) {
-            cout << horizontalPrint << endl;
+            printf("%s \n", horizontalPrint);
             for(int rank = 0; rank < 8; rank++) {
                 int square = file*8 + rank;
                 string piece = GetPieceAtIndex(square);
-                cout << "| ";
                 string temp = piece != "" ? piece: ".";
-                cout << temp << " ";
+                printf("| %c ", temp);
             }
-            cout << "|  " << 8-file << endl;
+            int filenum = 8-file;
+            printf("| %d \n", filenum);
         }
-        cout << horizontalPrint << endl << filesPrint << endl;
-        cout << endl << endl;
+        printf("%s \n", horizontalPrint);
+        printf("%s \n\n\n", filesPrint);
     }
 
     void PrintZobristAndFields() {
-        cout << "Zobrist: " << zobrist << ", IsWhiteMove: " << isWhiteMove << ", enPassantTarget: " << enPassantTarget << ", CastlingRights: " << GetCastlingRights() << ", IsDraw: " << IsDraw() << endl;
-        cout << "   Fen: " << GetFen() << endl << endl;
+        string castlingStr = GetCastlingRights();
+        string fenStr = GetFen();
+        printf("Zobrist: %llu, IsWhiteMove: %d, enPassantTarget: %d, CastlingRights %s, IsDraw: %d \n    Fen: %s\n\n", zobrist, isWhiteMove, enPassantTarget, castlingStr.c_str(), IsDraw(), fenStr.c_str());
     };
 };

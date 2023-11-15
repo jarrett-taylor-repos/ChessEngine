@@ -4,12 +4,12 @@ class MoveEval {
   int move;
   int eval = -999999;
   bool hasBoard = false;
-  // U64Bitboard b;
+  // Bitboard b;
   MoveEval(int moveInput) {
     move = moveInput;
   }
 
-  MoveEval(int moveInput, U64Bitboard &inputb, int inputeval) {
+  MoveEval(int moveInput, Bitboard &inputb, int inputeval) {
     move = moveInput;
     // b = inputb;
     hasBoard=true;
@@ -23,7 +23,7 @@ class MoveEval {
     eval=inputeval;
   }
 
-  void assignBoard(U64Bitboard &inputb) {
+  void assignBoard(Bitboard &inputb) {
     // b = inputb;
     hasBoard=true;
   };

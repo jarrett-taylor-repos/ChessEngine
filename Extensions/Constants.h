@@ -11,9 +11,12 @@ using namespace std;
 
 typedef unsigned long long U64; 
 #define C64(constantU64) constantU64##ULL
+#define SetBit(b, sq) (b |= precomputtedSingleBit[sq])
+#define TestBit(b, sq) (b & precomputtedSingleBit[sq])
+#define PopBit(b, sq) (b &= ~precomputtedSingleBit[sq])
+#define Reset(b) (b = Empty)
 
-
-namespace U64BitboardConstants {
+namespace Constants {
     enum { WHITE, BLACK, BOTH };
     enum { P, N, B, R, Q, K, p, n, b, r, q, k };
     const char* ascii_pieces[] = { "P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k" };
@@ -21,7 +24,6 @@ namespace U64BitboardConstants {
     enum { wk = 1, wq = 2, bk = 4, bq = 8 };
 
     const int PieceValue[12] = { 100, 300, 325, 500, 900, 100000, -100, -300, -325, -500, -900, -100000 };
-
 
     const int whitePawnsPieceSquare[64] = {
         0,  0,  0,  0,  0,  0,  0,  0,
@@ -173,7 +175,7 @@ namespace U64BitboardConstants {
 
 
     string horizontalPrint = "+---+---+---+---+---+---+---+---+";
-    string filesPrint = "  a   b   c   d   e   f   g   h";
+    string filesPrint = "  A   B   C   D   E   F   G   H";
     string promotionUci = "qrbn";
     string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
