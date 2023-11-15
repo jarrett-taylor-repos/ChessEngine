@@ -1,6 +1,6 @@
-#include "..\Bitboard\U64Bitboard.cpp"
+#include "..\Bitboard\Bitboard.cpp"
 
-int moveGenerationTest(U64Bitboard b, int depth) {
+int moveGenerationTest(Bitboard b, int depth) {
     if(depth == 0) return 1;
 
     int numPos = 0;
@@ -8,7 +8,7 @@ int moveGenerationTest(U64Bitboard b, int depth) {
     b.GenerateMoves(move_list);
 
     for(int i = 0; i < move_list.GetCount(); i++){
-        U64Bitboard temp = b;
+        Bitboard temp = b;
         bool mademove = temp.MakeMove(move_list.GetMove(i));
         if(mademove) {
             numPos += moveGenerationTest(temp, depth-1);
@@ -25,7 +25,7 @@ int main() {
     // 3 - 62,379
     // 4 - 2,103,487
     // 5 - 89,941,194
-    U64Bitboard b(startFen);
+    Bitboard b(startFen);
     //b.LoadFen(testPos);
 
     // 1	20

@@ -110,7 +110,7 @@ class Bitboard {
         bool zobristMatch = this->zobrist == other.zobrist;
 
         return scalarsMatch && kingSqMatch && zobristMatch;
-    }
+    };
 
     void ClearBoard() {
         memset(bb, 0, sizeof(bb));
@@ -161,17 +161,14 @@ class Bitboard {
     };
 
     void SetBoard(char c, int sq) {
-        SetBit(occ[BOTH], sq);
         
         int piece = CharToPiece(c);
-
-        SetBit(bb[piece], sq);
+        AddToBoard(piece, sq);
+        SetBit(occ[BOTH], sq);
         piece > K ? SetBit(occ[BLACK], sq): SetBit(occ[WHITE], sq);
 
         if(piece == K) wKingSq = sq;
         if(piece == k) bKingSq = sq;
-        
-        AddMaterialValue(piece, sq); SetZobristHash(zobrist, sq, piece);
 
         if(piece == K) wKingSq = sq;
         if(piece == k) bKingSq = sq;
