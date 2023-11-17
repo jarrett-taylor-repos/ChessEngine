@@ -1,3 +1,6 @@
+#include "..\Constants\Constants.h"
+using namespace Constants;
+
 #include <stdio.h>
 #include <string.h>
 /*
@@ -50,7 +53,6 @@ class Moves {
 
     void SetCount(int value) { count = value; };
 };
-
 
 namespace MoveExtensions {
     int GetPromoPiece(int promoP, bool isWhiteMove) {

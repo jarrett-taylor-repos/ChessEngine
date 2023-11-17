@@ -1,4 +1,4 @@
-#include "..\Extensions\Extensions.h"
+#include "..\Utils\Extensions\Extensions.h"
 using namespace Extensions;     
 
 class Bitboard {

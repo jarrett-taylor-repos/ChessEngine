@@ -1,7 +1,7 @@
 #pragma once
 #include "AIConstants.h"
 #include "BoardConstants.h"
-#include "PrecomputtedMoveData.h"
+#include "PrecomputtedMoveDataConstants.h"
 #include <iostream>
 #include <string>
 #include <ctype.h>
@@ -14,7 +14,7 @@
 using namespace std;
 using namespace AIConstants;
 using namespace BoardConstants;
-using namespace PrecomputtedMoveData;
+using namespace PrecomputtedMoveDataConstants;
 
 typedef unsigned long long U64; 
 #define C64(constantU64) constantU64##ULL
