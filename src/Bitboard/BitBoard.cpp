@@ -144,21 +144,6 @@ class Bitboard {
         zobristTable[zobristTableIndex] = zobrist;
         zobristTableIndex++;
     };
-    
-    void LoadFenHelper(vector<string> arguments) {
-        ClearBoard();
-        isMoveRepetition = false;
-        evaluation = 0;
-        isWhiteMove = arguments[1] == "w";
-        castlingRights = SetCastlingRights(arguments[2]);
-        enPassantTarget = (arguments[3] == "-") ? 0 : StringtoIndex(arguments[3]);
-        halfMoveClock = stoi(arguments[4]);
-        fullTurnNum = stoi(arguments[5]);
-
-        SetCastlingZobrist(zobrist, castlingRights);
-        SetZobristHash(zobrist, enPassantTarget);
-        SetZobristHash(zobrist, isWhiteMove);
-    };
 
     void SetBoard(char c, int sq) {
         
@@ -183,6 +168,21 @@ class Bitboard {
         evaluation -= PieceValue[piece];
         evaluation -= PieceSquareTables[piece][sq];
     }
+
+    void LoadFenHelper(vector<string> arguments) {
+        ClearBoard();
+        isMoveRepetition = false;
+        evaluation = 0;
+        isWhiteMove = arguments[1] == "w";
+        castlingRights = SetCastlingRights(arguments[2]);
+        enPassantTarget = (arguments[3] == "-") ? 0 : StringtoIndex(arguments[3]);
+        halfMoveClock = stoi(arguments[4]);
+        fullTurnNum = stoi(arguments[5]);
+
+        SetCastlingZobrist(zobrist, castlingRights);
+        SetZobristHash(zobrist, enPassantTarget);
+        SetZobristHash(zobrist, isWhiteMove);
+    };
 
     void LoadFen(string fen) {
         vector<string> fenArgs = Split(fen);

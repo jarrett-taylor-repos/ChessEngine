@@ -93,21 +93,4 @@ namespace Extensions {
         cout << endl << endl << "A B C D E F G H " << endl;
         cout << endl << endl;
     }
-
-    void Print(vector<int> vect, string name = "") {
-        if(name.length() != 0) { cout << name << endl; }
-        for(int i = 0; i < vect.size(); i++) {
-            cout << to_string(vect[i]) << " ";
-        }
-        cout << endl << endl;
-    }
-
-    void Print(vector<string> uci, string name = "") {
-        if(name.length() != 0) { cout << name << endl;}
-        
-        for(string move : uci) {
-            cout << move << endl;
-        }
-        cout << endl << endl;
-    }
 }
