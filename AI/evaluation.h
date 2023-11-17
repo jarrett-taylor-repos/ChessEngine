@@ -1,4 +1,4 @@
-#include "..\Bitboard\Bitboard.cpp"
+#include "..\src\Bitboard\Bitboard.cpp"
 
 using namespace std;
 

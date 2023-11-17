@@ -1,11 +1,10 @@
 
-#include "..\Bitboard\U64Bitboard.cpp"
+#include "..\src\Bitboard\Bitboard.cpp"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <typeinfo>
 #include <bitset>
-// #include "..\Extensions\U64Extentions.h"
 using namespace std;
 
 int main() {
@@ -14,7 +13,7 @@ int main() {
   freopen("wrong_pseudo_moves.txt","w",stdout);
   if (FENfile.is_open()) {
     int linenum = 0;
-    U64Bitboard b;
+    Bitboard b;
     string FEN = "";
     while (getline(FENfile, line)) {
       switch (linenum) {

@@ -1,4 +1,4 @@
-// #include "..\Bitboard\Bitboard.cpp"
+// #include "..\src\Bitboard\Bitboard.cpp"
 #include <iostream>
 #include <string>
 #include <fstream>

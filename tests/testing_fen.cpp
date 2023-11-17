@@ -1,5 +1,5 @@
 
-#include "..\Bitboard\Bitboard.cpp"
+#include "..\src\Bitboard\Bitboard.cpp"
 #include <iostream>
 #include <fstream>
 #include <string>
