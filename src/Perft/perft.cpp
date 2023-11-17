@@ -1,8 +1,6 @@
 #include "..\Bitboard\Bitboard.cpp"
 
-
 long long nodes;
-
 
 static inline void perft_driver(Bitboard b, int depth) {
     if (depth == 0) { nodes++; return; }

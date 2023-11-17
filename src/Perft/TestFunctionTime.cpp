@@ -1,8 +1,8 @@
-#include "..\Bitboard\U64Bitboard.cpp"
+#include "..\Bitboard\Bitboard.cpp"
 
 int main () {
     InitAll();
-    U64Bitboard b(startFen);
+    Bitboard b(startFen);
     
     auto start = high_resolution_clock::now();
     Moves move_list;
