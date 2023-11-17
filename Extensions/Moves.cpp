@@ -51,6 +51,7 @@ class Moves {
     void SetCount(int value) { count = value; };
 };
 
+
 namespace MoveExtensions {
     int GetPromoPiece(int promoP, bool isWhiteMove) {
         if(!promoP) return 0;

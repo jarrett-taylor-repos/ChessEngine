@@ -1,57 +1,18 @@
 #include "MagicExtensions.h"
+#include "ZobristExtensions.h"
+#include "CastlingExtensions.h"
 #include "Moves.cpp"
 #include <chrono>
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <unordered_set>
 using namespace chrono;
-using namespace std;
 using namespace MagicExtensions;
+using namespace ZobristExtensions;
 using namespace MoveExtensions;
+using namespace CastlingExtensions;
 
 namespace Extensions { 
     //common U64 
     U64 GetLSB(U64 b) { return b & -b; }
     void RemoveLSB(U64 &b) { b ^= GetLSB(b); }
-
-    //castling helper
-    int SetCastlingRightsHelper(char ch) {
-        switch (ch) {
-            case 'K': return wk; 
-            case 'Q': return wq;
-            case 'k': return bk; 
-            case 'q': return bq;
-            default: return 0;
-        }
-    }
-
-    int SetCastlingRights(string str) {
-        int result = 0;
-        if(str == "" || str == "-") return 0;
-        for(int i = 0; i < str.size(); i++) {
-            char ch = str[i];
-            result |= SetCastlingRightsHelper(ch);
-        }
-        return result;
-    }
-    
-    string CastlingRightsString(int castling) {
-        if(castling == 0) return "-";
-
-        string temp = "";
-        if(castling & wk) temp += "K";
-        if(castling & wq) temp += "Q";
-        if(castling & bk) temp += "k";
-        if(castling & bq) temp += "Q";
-        return temp;
-    }
-
-    //enpassant 
-    string EnpassantTargetToString(int index) { 
-        if(index == 0) return "-";
-        return squares_to_coordinates[index];
-    }
 
     //move insert
     void FindAndInsertMoves(Moves &movesList, int source, U64 moves, int piece, bool isWhite, bool isPawnCap, int enpassantTarget, U64 possibleCaptures) {
@@ -81,6 +42,12 @@ namespace Extensions {
 
             PopBit(moves, target);
         }
+    }
+
+    //enpassant 
+    string EnpassantTargetToString(int index) { 
+        if(index == 0) return "-";
+        return squares_to_coordinates[index];
     }
 
     //common helpers 
@@ -142,47 +109,5 @@ namespace Extensions {
             cout << move << endl;
         }
         cout << endl << endl;
-    }
-
-    //zobrist 
-    void SetZobristHash(U64 &zobrist, int boardSq, int piece) { zobrist ^= pieceNumbers[boardSq][piece]; }
-
-    int EnpassantZobristIndex(int enPassantTarget) {
-        if(enPassantTarget < 16 || enPassantTarget > 47) return -1;
-        if(enPassantTarget < 24) return enPassantTarget - 16;
-        return enPassantTarget - 32;
-    }
-
-    void SetZobristHash(U64 &zobrist, int enpassantTarget) {
-        int index = EnpassantZobristIndex(enpassantTarget);
-        if(index == -1) return;
-        zobrist ^= enpassantNumbers[index];
-    }
-
-    void SetZobristHash(U64 &zobrist, bool isWhiteMove) {
-        if(!isWhiteMove) zobrist ^= whiteMoveNumber;
-    }
-
-    int CastlingRightsToZobristIndex(int piece) {
-        if(piece == K) return 0;
-        if(piece == Q) return 1;
-        if(piece == k) return 2;
-        if(piece == q) return 3;
-        return -1;
-    }
-
-    void SetCastlingZobrist(int piece, U64 &zobrist) {
-        int index = CastlingRightsToZobristIndex(piece);
-        if(index == -1) return;
-        zobrist ^= castlingNumbers[index];
-    }
-
-    void SetCastlingZobrist(U64 &zobrist, int castlingRights) {
-        if(!castlingRights) return;
-
-        if(castlingRights & wk) zobrist ^= castlingNumbers[0];
-        if(castlingRights & wq) zobrist ^= castlingNumbers[1];
-        if(castlingRights & bk) zobrist ^= castlingNumbers[2];
-        if(castlingRights & bq) zobrist ^= castlingNumbers[3];
     }
 }
