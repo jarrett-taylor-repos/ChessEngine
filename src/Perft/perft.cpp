@@ -18,7 +18,7 @@ static inline void perft_driver(Bitboard b, int depth) {
 
 // perft test
 void perft_test(Bitboard b, int depth) {
-    printf("\n     Performance test\n\n");
+    printf("Performance test\n\n");
     
     Moves move_list;
     b.GenerateMoves(move_list); 
@@ -36,9 +36,9 @@ void perft_test(Bitboard b, int depth) {
         PrintMoveUci(move_list.GetMove(i), old_nodes);
     }
     
-    printf("\n    Depth: %d\n", depth);
-    printf("    Nodes: %ld\n", nodes);
-    printf("    Time(ms): %ld\n\n", clock() - start);
+    printf("\nDepth: %d\n", depth);
+    printf("Nodes: %ld\n", nodes);
+    printf("Time(ms): %ld\n\n", clock() - start);
 }
 
 int main() {

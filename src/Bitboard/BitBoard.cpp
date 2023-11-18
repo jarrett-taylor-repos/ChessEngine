@@ -696,6 +696,12 @@ class Bitboard {
         GenerateQueenMoves(movesList, isWhiteMove);
     }
 
+    Moves GenerateMoves() {
+        Moves movesList; 
+        GenerateMoves(movesList);
+        return movesList;
+    };
+
     //attacks
     bool BlackAttacksSquare(int sq) {
         if(precomputtedWhitePawnAttacks[sq] & bb[p]) return true;
