@@ -47,3 +47,87 @@
         cout << "Move made: " << GetMoveUci(move) << " " << temp.MakeMove(move) << endl;
         temp.PrintZobristAndFields();
     */
+
+    /* ZOBRIST repition and is draw shown
+        Bitboard b("3r2k1/1b3ppp/p3p3/1p2P3/4pP2/PQ5P/KPP3q1/8 w - - 1 31");
+        b.PrintPretty();
+        b.PrintZobristAndFields();
+
+        Moves moveslist;
+        b.GenerateMoves(moveslist);
+        int move = GetMoveByUci(moveslist, "a2b1 ");
+        b.MakeMove(move);
+        b.PrintZobristAndFields();
+
+        b.GenerateMoves(moveslist);
+        move = GetMoveByUci(moveslist, "d8d1 ");
+        b.MakeMove(move);
+        b.PrintZobristAndFields();
+
+        b.GenerateMoves(moveslist);
+        move = GetMoveByUci(moveslist, "b1a2 ");
+        b.MakeMove(move);
+        b.PrintZobristAndFields();
+
+        b.GenerateMoves(moveslist);
+        move = GetMoveByUci(moveslist, "d1d8 ");
+        b.MakeMove(move);
+        b.PrintZobristAndFields();
+
+        b.PrintPretty();
+
+        OUTPUT: 
+        +---+---+---+---+---+---+---+---+ 
+        | . | . | . | r | . | . | k | . | 8
+        +---+---+---+---+---+---+---+---+
+        | . | b | . | . | . | p | p | p | 7
+        +---+---+---+---+---+---+---+---+
+        | p | . | . | . | p | . | . | . | 6
+        +---+---+---+---+---+---+---+---+
+        | . | p | . | . | P | . | . | . | 5
+        +---+---+---+---+---+---+---+---+
+        | . | . | . | . | p | P | . | . | 4
+        +---+---+---+---+---+---+---+---+
+        | P | Q | . | . | . | . | . | P | 3
+        +---+---+---+---+---+---+---+---+
+        | K | P | P | . | . | . | q | . | 2
+        +---+---+---+---+---+---+---+---+
+        | . | . | . | . | . | . | . | . | 1
+        +---+---+---+---+---+---+---+---+
+        A   B   C   D   E   F   G   H
+
+
+        Zobrist: 8073720998204645079, IsWhiteMove: 1, enPassantTarget: 0, CastlingRights -, IsDraw: 0 
+            Fen: 3r2k1/1b3ppp/p3p3/1p2P3/4pP2/PQ5P/KPP3q1/8 w - - 1 31
+
+        Zobrist: 8258017846993472595, IsWhiteMove: 0, enPassantTarget: 0, CastlingRights -, IsDraw: 0 
+            Fen: 3r2k1/1b3ppp/p3p3/1p2P3/4pP2/PQ5P/1PP3q1/1K6 b - - 2 31
+
+        Zobrist: 5376958210484804642, IsWhiteMove: 1, enPassantTarget: 0, CastlingRights -, IsDraw: 0 
+            Fen: 6k1/1b3ppp/p3p3/1p2P3/4pP2/PQ5P/1PP3q1/1K1r4 w - - 3 32
+
+        Zobrist: 5192379903976754854, IsWhiteMove: 0, enPassantTarget: 0, CastlingRights -, IsDraw: 0 
+            Fen: 6k1/1b3ppp/p3p3/1p2P3/4pP2/PQ5P/KPP3q1/3r4 b - - 4 32
+
+        Zobrist: 8073720998204645079, IsWhiteMove: 1, enPassantTarget: 0, CastlingRights -, IsDraw: 1 
+            Fen: 3r2k1/1b3ppp/p3p3/1p2P3/4pP2/PQ5P/KPP3q1/8 w - - 5 33
+
+        +---+---+---+---+---+---+---+---+
+        | . | . | . | r | . | . | k | . | 8
+        +---+---+---+---+---+---+---+---+
+        | . | b | . | . | . | p | p | p | 7
+        +---+---+---+---+---+---+---+---+
+        | p | . | . | . | p | . | . | . | 6
+        +---+---+---+---+---+---+---+---+
+        | . | p | . | . | P | . | . | . | 5
+        +---+---+---+---+---+---+---+---+
+        | . | . | . | . | p | P | . | . | 4
+        +---+---+---+---+---+---+---+---+
+        | P | Q | . | . | . | . | . | P | 3
+        +---+---+---+---+---+---+---+---+
+        | K | P | P | . | . | . | q | . | 2
+        +---+---+---+---+---+---+---+---+
+        | . | . | . | . | . | . | . | . | 1
+        +---+---+---+---+---+---+---+---+
+        A   B   C   D   E   F   G   H
+    */
