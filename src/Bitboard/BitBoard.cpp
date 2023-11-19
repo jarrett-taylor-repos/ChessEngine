@@ -742,6 +742,12 @@ class Bitboard {
     bool PossibleMoveIsACapture(int move) { return getMoveCapture(move); }; 
     bool IsDraw() { return isMoveRepetition || (halfMoveClock >= 50); };
 
+    bool MakeMoveFromUci(string uci) {
+        Moves movesList = GenerateMoves();
+        int move = GetMoveByUci(movesList, uci);
+        return MakeMove(move);
+    }
+
     bool MakeMove(int move) {
         if(!move) return 0;
         //move data
