@@ -229,6 +229,7 @@ class Bitboard {
                 temp++;
             }
         }
+        if(temp) fen += to_string(temp);
         return fen;
     }
 
@@ -459,7 +460,7 @@ class Bitboard {
             if(bit & blocks) break;
         }
         return attacks;
-    }
+    };
 
     U64 RookAttacksOnTheFly(int sq, U64 blocks) {
         U64 attacks = Empty;
@@ -489,7 +490,7 @@ class Bitboard {
             if(bit & blocks) break;
         }
         return attacks;
-    }
+    };
 
     //sliding moves
     U64 MagicBishopAttacks(U64 bishop, U64 occupied) {
@@ -537,6 +538,7 @@ class Bitboard {
 
     U64 wPsuedoMoves() { return wPawnPsuedoMoves(bb[P]) | wKnightPsuedoMoves() | wMagicBishopPsuedoMoves() | wMagicRookPsuedoMoves() | wMagicQueenPsuedoMoves(); };
     U64 bPsuedoMoves() { return bPawnPsuedoMoves(bb[p]) | bKnightPsuedoMoves() | bMagicBishopPsuedoMoves() | bMagicRookPsuedoMoves() | bMagicQueenPsuedoMoves(); };
+
     //Moves
     void GenerateWhitePawnMoves(Moves &movesList) {
         int source, target;
@@ -559,7 +561,7 @@ class Bitboard {
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, P, true, true, enPassantTarget, occ[BLACK]);
             PopBit(board, source);
         }
-    }
+    };
 
     void GenerateWhiteKingMoves(Moves &movesList) {
         int source, target;
@@ -569,7 +571,7 @@ class Bitboard {
         att = wKingPsuedoMoves();
         moves = GetMovesFromPieceAttacks(att, occ[WHITE]);
         if(moves != Empty) FindAndInsertMoves(movesList, wKingSq, moves, K, true, false, 0, occ[BLACK]);
-    }
+    };
 
     void GenerateBlackPawnMoves(Moves &movesList) {
         int source, target;
@@ -592,7 +594,7 @@ class Bitboard {
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, p, false, true, enPassantTarget, occ[WHITE]);
             PopBit(board, source);
         }
-    }
+    };
 
     void GenerateBlackKingMoves(Moves &movesList) {
         int source, target;
@@ -602,7 +604,7 @@ class Bitboard {
         att = bKingPsuedoMoves();
         moves = GetMovesFromPieceAttacks(att, occ[BLACK]);
         if(moves != Empty) FindAndInsertMoves(movesList, bKingSq, moves, k, false, false, 0, occ[WHITE]);
-    }
+    };
 
     void GenerareKnightMoves(Moves &movesList, bool isWhiteToMove) {
         int source, target;
@@ -620,7 +622,7 @@ class Bitboard {
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, piece, false, false, 0, ableToCapture);
             PopBit(board, source);
         }
-    } 
+    };
 
     void GenerateBishopMoves(Moves &movesList, bool isWhiteToMove) { 
         int source, target;
@@ -639,7 +641,7 @@ class Bitboard {
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, piece, false, false, 0, ableToCapture);
             PopBit(board, source);
         }
-    }
+    };
 
     void GenerateRookMoves(Moves &movesList, bool isWhiteToMove) { 
         int source, target;
@@ -658,7 +660,7 @@ class Bitboard {
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, piece, false, false, 0, ableToCapture);
             PopBit(board, source);
         }
-    }
+    };
 
     void GenerateQueenMoves(Moves &movesList, bool isWhiteToMove) { 
         int source, target;
@@ -677,7 +679,7 @@ class Bitboard {
             if(moves != Empty) FindAndInsertMoves(movesList, source, moves, piece, false, false, 0, ableToCapture);
             PopBit(board, source);
         }
-    }
+    };
 
     void GenerateMoves(Moves &movesList) {
         movesList.Clear();
@@ -694,7 +696,7 @@ class Bitboard {
         GenerateBishopMoves(movesList, isWhiteMove);
         GenerateRookMoves(movesList, isWhiteMove);
         GenerateQueenMoves(movesList, isWhiteMove);
-    }
+    };
 
     Moves GenerateMoves() {
         Moves movesList; 
