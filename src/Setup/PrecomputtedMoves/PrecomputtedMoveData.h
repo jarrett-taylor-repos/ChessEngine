@@ -1,8 +1,8 @@
-#include "..\Extensions\U64Extentions.h"
+#include "..\..\Utils\Extensions\Extensions.h"
 #include <stdlib.h>
 #include <time.h>
 #include <fstream>
-using namespace U64Extensions;
+using namespace Extensions;
 
 
 namespace PrecomputtedMoveData {
@@ -43,7 +43,7 @@ namespace PrecomputtedMoveData {
     void GenerateSingleBitBoards(ofstream &of) {
         of << "U64 precomputtedSingleBit[64] = {";
         for(int i = 0; i < 64; i++) {
-            U64 single = SingleBitBoard(i);
+            U64 single = precomputtedSingleBit[i];
             of << single;
             if(i != 63) of << ", ";
         }
@@ -53,7 +53,7 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedKnights(ofstream &of) {
         of << "U64 precomputtedKnights[64] = {";
         for(int i = 0; i < 64; i++) {
-            U64 knightAtt = KnightAttacks(SingleBitBoard(i));
+            U64 knightAtt = KnightAttacks(precomputtedSingleBit[i]);
             of << knightAtt;
             if(i !=63) of << ", ";
         }
@@ -63,7 +63,7 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedKings(ofstream &of) {
         of << "U64 precomputtedKings[64] = {";
         for(int i = 0; i < 64; i++) {
-            U64 knightAtt = OneInAllDirection(SingleBitBoard(i));
+            U64 knightAtt = OneInAllDirection(precomputtedSingleBit[i]);
             of << knightAtt;
             if(i !=63) of << ", ";
         }
@@ -73,7 +73,7 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedWhitePawnAttacks(ofstream &of) {
         of << "U64 precomputtedWhitePawnAttacks[64] = {";
         for(int i = 0; i < 64; i++) {
-            U64 pawnAtt = wPawnAllAtt(SingleBitBoard(i));
+            U64 pawnAtt = wPawnAllAtt(precomputtedSingleBit[i]);
             of << pawnAtt;
             if(i !=63) of << ", ";
         }
@@ -83,7 +83,7 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedBlackPawnAttacks(ofstream &of) {
         of << "U64 precomputtedBlackPawnAttacks[64] = {";
         for(int i = 0; i < 64; i++) {
-            U64 pawnAtt = bPawnAllAtt(SingleBitBoard(i));
+            U64 pawnAtt = bPawnAllAtt(precomputtedSingleBit[i]);
             of << pawnAtt;
             if(i !=63) of << ", ";
         }
@@ -93,7 +93,7 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedWhitePawnSinglePush(ofstream &of) {
         of << "U64 precomputtedWhitePawnSinglePush[64] = {";
         for(int i = 0; i < 64; i++) {
-            U64 pawnPush = wSinglePushTargets(SingleBitBoard(i));
+            U64 pawnPush = wSinglePushTargets(precomputtedSingleBit[i]);
             of << pawnPush;
             if(i !=63) of << ", ";
         }
@@ -103,7 +103,7 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedBlackPawnSinglePush(ofstream &of) {
         of << "U64 precomputtedBlackPawnSinglePush[64] = {";
         for(int i = 0; i < 64; i++) {
-            U64 pawnPush = bSinglePushTargets(SingleBitBoard(i));
+            U64 pawnPush = bSinglePushTargets(precomputtedSingleBit[i]);
             of << pawnPush;
             if(i !=63) of << ", ";
         }
@@ -113,8 +113,8 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedWhitePawnAttackMap(ofstream &of) {
         of << "map<U64, U64> precomputtedWhitePawnAttackMap = {";
         for(int i = 0; i < 64; i++) {
-            U64 key = SingleBitBoard(i);
-            U64 pawnPush = wPawnAllAtt(SingleBitBoard(i));
+            U64 key = precomputtedSingleBit[i];
+            U64 pawnPush = wPawnAllAtt(precomputtedSingleBit[i]);
             of << "{" + to_string(key) + ", " + to_string(pawnPush) + "}";
             if(i !=63) of << ", ";
         }
@@ -124,8 +124,8 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedBlackPawnAttackMap(ofstream &of) {
         of << "map<U64, U64> precomputtedBlackPawnAttackMap = {";
         for(int i = 0; i < 64; i++) {
-            U64 key = SingleBitBoard(i);
-            U64 pawnPush = bPawnAllAtt(SingleBitBoard(i));
+            U64 key = precomputtedSingleBit[i];
+            U64 pawnPush = bPawnAllAtt(precomputtedSingleBit[i]);
             of << "{" + to_string(key) + ", " + to_string(pawnPush) + "}";
             if(i !=63) of << ", ";
         }
@@ -135,8 +135,8 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedKnightMap(ofstream &of) {
         of << "map<U64, U64> precomputtedKnightMap = {";
         for(int i = 0; i < 64; i++) {
-            U64 key = SingleBitBoard(i);
-            U64 knightAtt = KnightAttacks(SingleBitBoard(i));
+            U64 key = precomputtedSingleBit[i];
+            U64 knightAtt = KnightAttacks(precomputtedSingleBit[i]);
             of << "{" + to_string(key) + ", " + to_string(knightAtt) + "}";
             if(i !=63) of << ", ";
         }
@@ -146,8 +146,8 @@ namespace PrecomputtedMoveData {
     void GeneratePrecomputtedKingMap(ofstream &of) {
         of << "map<U64, U64> precomputtedKingMap = {";
         for(int i = 0; i < 64; i++) {
-            U64 key = SingleBitBoard(i);
-            U64 kingAtt = OneInAllDirection(SingleBitBoard(i));
+            U64 key = precomputtedSingleBit[i];
+            U64 kingAtt = OneInAllDirection(precomputtedSingleBit[i]);
             of << "{" + to_string(key) + ", " + to_string(kingAtt) + "}";
             if(i !=63) of << ", ";
         }

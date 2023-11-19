@@ -51,7 +51,7 @@ int main() {
     // 5 - 89,941,194
     Bitboard b;
     //b.LoadFen(testPos);
-    b.LoadFen(testPos);
+    b.LoadFen(startFen);
 
     // 1	20
     // 2	400

@@ -843,7 +843,7 @@ class Bitboard {
         pawnMove || capture ? halfMoveClock = 0: halfMoveClock++;
         isWhiteMove = !isWhiteMove;
         if(isWhiteMove) { fullTurnNum++; }
-        SetZobristHash(zobrist, isWhiteMove);
+        SetZobristHash(zobrist, isWhiteMove, true);
                 
         //if king is in check after move
         bool isKingInCheck = isWhiteMove ? WhiteAttacksSquare(bKingSq) : BlackAttacksSquare(wKingSq);

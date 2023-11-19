@@ -1,8 +1,8 @@
-#include "..\Extensions\U64Extentions.h"
+#include "..\..\Utils\Extensions\Extensions.h"
 #include <stdlib.h>
 #include <time.h>
 #include <fstream>
-using namespace U64Extensions;
+using namespace Extensions;
 
 namespace ZobristHashing {
     U64 rand64() {
@@ -11,7 +11,7 @@ namespace ZobristHashing {
 
     //12 pieces for 64 squares  
     void GeneratePieceNumbers(ofstream &of) {
-        of << "{" << endl;
+        of << "U64 zobristPieceSquareNumber[64][12] = {" << endl;
         for(int i = 0; i < 64; i++) {
             of<<"  {";
             for(int j = 0; j < 12; j++) {
@@ -24,12 +24,12 @@ namespace ZobristHashing {
             }
             of << "}" << endl;
         }
-        of << "}" << endl << endl;
+        of << "};" << endl;
     }
 
     //4 for castling rights
     void GenerateCastleNumbers(ofstream &of) {
-        of << "{";
+        of << "U64 castlingNumbers[4] = {";
         for(int i = 0; i < 16; i++) {
             U64 n = rand64();
             if(i + 1 == 4) {
@@ -38,20 +38,21 @@ namespace ZobristHashing {
                 of << n << ",";
             }
         }
-        of << "}" << endl << endl;
+        of << "};" << endl;
     }
 
 
     //is white to move
-    void GenerateWhiteNumber(ofstream &of) {
-        of << "{";
+    void GenerateColorNumbers(ofstream &of) {
+        of << "U64 moveNumbers[2] = {";
         U64 n = rand64();
-        of << n << "}" << endl << endl;
+        U64 n2 = rand64();
+        of << n  << ", " << n2 << "};" << endl;
     }
 
     //16 numbers for enpassant
     void GenerateEnpassantNumbers(ofstream &of) {
-        of << "{";
+        of << "U64 enpassantNumbers[16] = {";
         for(int i = 0; i < 16; i++) {
             U64 n = rand64();
             if(i + 1 == 16) {
@@ -60,25 +61,15 @@ namespace ZobristHashing {
                 of << n << ",";
             }
         }
-        of << "}" << endl << endl;
+        of << "};" << endl;
     }
 
     void GenerateZobristNumbers() {
         ofstream of("zobristHash.txt");
         GeneratePieceNumbers(of);
         GenerateCastleNumbers(of);
-        GenerateWhiteNumber(of);
         GenerateEnpassantNumbers(of);
+        GenerateColorNumbers(of);
         of.close();
-    }
-
-    void InitializeDefaults() {
-        for(int i = 0; i < 64; i++) {
-            for(int j = 0; j < 12; j ++) pieceNumbers[i][j] = C64(0);
-        }
-
-        for(int i = 0; i < 4; i++) castlingNumbers[i] = C64(0);
-        for(int i = 0; i < 16; i++) enpassantNumbers[i] = C64(0);
-        whiteMoveNumber = C64(0);
     }
 }
