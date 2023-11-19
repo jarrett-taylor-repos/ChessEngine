@@ -84,7 +84,8 @@ namespace MoveExtensions {
     string GetMoveUci(int move) {
         string start = squares_to_coordinates[getMoveSource(move)];
         string end = squares_to_coordinates[getMoveTarget(move)];
-        string str = start + end + GetPromoPieceChar(move);
+        char promo = GetPromoPieceChar(move);
+        string str = promo != ' ' ? start + end + GetPromoPieceChar(move) : start + end;
         return str;
     }
 
