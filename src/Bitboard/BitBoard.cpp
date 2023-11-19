@@ -119,6 +119,7 @@ class Bitboard {
 
         ClearZobristTable();
         wKingSq = -1; bKingSq = -1;
+        evaluation = 0;
     };
 
     void ClearZobristTable() {
@@ -146,14 +147,11 @@ class Bitboard {
     };
 
     void SetBoard(char c, int sq) {
-        
         int piece = CharToPiece(c);
+        
         AddToBoard(piece, sq);
         SetBit(occ[BOTH], sq);
         piece > K ? SetBit(occ[BLACK], sq): SetBit(occ[WHITE], sq);
-
-        if(piece == K) wKingSq = sq;
-        if(piece == k) bKingSq = sq;
 
         if(piece == K) wKingSq = sq;
         if(piece == k) bKingSq = sq;
@@ -161,12 +159,14 @@ class Bitboard {
 
     void AddMaterialValue(int piece, int sq) {
         evaluation += PieceValue[piece];
-        evaluation += PieceSquareTables[piece][sq];
+        if(piece > K) evaluation -= PieceSquareTables[piece][sq];
+        if(piece < K) evaluation += PieceSquareTables[piece][sq];
     }
 
     void RemoveMaterialValue(int piece, int sq) {
         evaluation -= PieceValue[piece];
-        evaluation -= PieceSquareTables[piece][sq];
+        if(piece < K) evaluation -= PieceSquareTables[piece][sq];
+        if(piece > K) evaluation += PieceSquareTables[piece][sq];
     }
 
     void LoadFenHelper(vector<string> arguments) {
@@ -257,19 +257,19 @@ class Bitboard {
     };
 
     int GetValueAtIndex(int index) {
-        if(TestBit(bb[P], index)) return 100;
-        if(TestBit(bb[N], index)) return 300;
-        if(TestBit(bb[B], index)) return 325;
-        if(TestBit(bb[R], index)) return 500;
-        if(TestBit(bb[Q], index)) return 900;
-        if(TestBit(bb[K], index)) return 100000;
+        if(TestBit(bb[P], index)) return PieceValue[P];
+        if(TestBit(bb[N], index)) return PieceValue[N];
+        if(TestBit(bb[B], index)) return PieceValue[B];
+        if(TestBit(bb[R], index)) return PieceValue[R];
+        if(TestBit(bb[Q], index)) return PieceValue[Q];
+        if(TestBit(bb[K], index)) return PieceValue[K];
 
-        if(TestBit(bb[p], index)) return -100;
-        if(TestBit(bb[n], index)) return -300;
-        if(TestBit(bb[b], index)) return -325;
-        if(TestBit(bb[r], index)) return -500;
-        if(TestBit(bb[q], index)) return -900;
-        if(TestBit(bb[k], index)) return -100000;
+        if(TestBit(bb[p], index)) return PieceValue[p];
+        if(TestBit(bb[n], index)) return PieceValue[n];
+        if(TestBit(bb[b], index)) return PieceValue[b];
+        if(TestBit(bb[r], index)) return PieceValue[r];
+        if(TestBit(bb[q], index)) return PieceValue[q];
+        if(TestBit(bb[k], index)) return PieceValue[k];
         return 0;
     };
 
