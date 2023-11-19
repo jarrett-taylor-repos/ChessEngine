@@ -51,7 +51,7 @@ int main() {
     // 5 - 89,941,194
     Bitboard b;
     //b.LoadFen(testPos);
-    b.LoadFen(startFen);
+    b.LoadFen(testPos);
 
     // 1	20
     // 2	400
@@ -63,6 +63,6 @@ int main() {
     // 8	84,998,978,956
     // 9	2,439,530,234,167
     // 10	69,352,859,712,417
-    int depth = 5;
+    int depth = 4;
     perft_test(b, depth);
 }

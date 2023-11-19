@@ -709,8 +709,8 @@ class Bitboard {
         if(precomputtedWhitePawnAttacks[sq] & bb[p]) return true;
         if(precomputtedKnights[sq] & bb[n]) return true;
         if(precomputtedKings[sq] & bb[k]) return true;
-        if(GetBishopAttacks(sq, occ[BOTH]) & (bb[b] || bb[q])) return true;
-        if(GetRookAttacks(sq, occ[BOTH]) & (bb[r] || bb[q])) return true;
+        if(GetBishopAttacks(sq, occ[BOTH]) & (bb[b] | bb[q])) return true;
+        if(GetRookAttacks(sq, occ[BOTH]) & (bb[r] | bb[q])) return true;
         return false;
     };
 
@@ -718,8 +718,8 @@ class Bitboard {
         if(precomputtedBlackPawnAttacks[sq] & bb[P]) return true;
         if(precomputtedKnights[sq] & bb[N]) return true;
         if(precomputtedKings[sq] & bb[K]) return true;
-        if(GetBishopAttacks(sq, occ[BOTH]) & (bb[B] || bb[Q])) return true;
-        if(GetRookAttacks(sq, occ[BOTH]) & (bb[R] || bb[Q])) return true;
+        if(GetBishopAttacks(sq, occ[BOTH]) & (bb[B] | bb[Q])) return true;
+        if(GetRookAttacks(sq, occ[BOTH]) & (bb[R] | bb[Q])) return true;
         return false;
     };
 
