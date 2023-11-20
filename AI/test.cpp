@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstdio>
 #include <stdlib.h>
+#include <windows.h>
 #include "./helpers/moveList.cpp"
 using namespace std;
 
@@ -15,12 +16,15 @@ void main() {
   ofstream log;
 
 
-
+  
   ZTable* ztable = new ZTable;
-  bool shouldReturn = false;
-  int alpha = 999;
-  int beta = -999;
   U64 zvalue = b.GetZobrist();
-  int ans = ztable->getValue(alpha, beta, shouldReturn, 0, zvalue, log, "\t", false);
-  cout<<ans;
+  cout<<zvalue<<endl;
+  ztable->setValue(zvalue, 10, 11, 0);
+  ZTableEntry ans = ztable->getEntry(zvalue);
+  cout<<ans.zvalue<<" "<<ans.score<<endl;
+  long t1 = clock();
+  Sleep(5000);
+  long t2 = clock();
+  cout<<t2-t1;
 }

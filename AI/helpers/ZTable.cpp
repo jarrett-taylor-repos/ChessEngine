@@ -3,11 +3,15 @@
 
 class ZTable {
   private:
-    int tableSize = 1000000;
+    int tableSize;
     ZTableEntry table[1000000];
   public:
 
     ZTable() {
+      tableSize = 1000000;
+      for (int i; i<tableSize; i++) {
+        table[i] = ZTableEntry();
+      }
     }
 
     ZTableEntry getEntry(U64 zvalue) { //TODO: change to return pointer to stuff?
@@ -16,10 +20,15 @@ class ZTable {
 
     int getValue(int &alpha, int &beta, bool &shouldReturn, int depth, U64 &zvalue, ofstream &log, string logtab, bool logging) {
       ZTableEntry entry = table[zvalue%tableSize];
+      if (logging) {
+        log<<logtab<<"getting value for zvalue "<<zvalue<<" which is entry # "<<zvalue%tableSize<<endl;
+        logtab += "\t";
+      }
       shouldReturn=false;
       if (entry.zvalue==zvalue) {
         //checking depth
-        if (depth<entry.depth && depth>0) {
+        if (depth>entry.depth && depth>0) {
+          if (logging) log<<logtab<<"entry depth of "<<entry.depth<<" is less than depth: "<<depth<<" not using entry"<<endl;
           shouldReturn=false;
           return 0;
         }
@@ -68,14 +77,19 @@ class ZTable {
             beta = entry.score;
           }
         }
+      } else {
+        if (logging) log<<logtab<<"did not find corresponding entry"<<endl;
       }
     };
 
     void setValue(U64 zvaluei,int depthi,int scorei,int nodetypei) {
-      ZTableEntry entry = getEntry(zvaluei);
-      if (depthi>=entry.depth || entry.zvalue == 0) {
-        table[zvaluei%tableSize].update(zvaluei, depthi, scorei, nodetypei);
-      }
+      
+      table[zvaluei%tableSize] = ZTableEntry(zvaluei, depthi, scorei, nodetypei);
+
+      // ZTableEntry entry = getEntry(zvaluei);
+      // if (depthi>=entry.depth || entry.zvalue == 0) {
+      //   table[zvaluei%tableSize].update(zvaluei, depthi, scorei, nodetypei);
+      // }
     };
 
 };

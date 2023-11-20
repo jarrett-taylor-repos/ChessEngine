@@ -10,12 +10,27 @@ class ZTableEntry {
     depth=-1;
   };
 
-  ZTableEntry(int zvaluei,int depthi,int scorei,int nodetypei) {
+  ZTableEntry(U64 zvaluei,int depthi,int scorei,int nodetypei) {
     zvalue = zvaluei;
     depth = depthi;
     score = scorei;
     nodetype = nodetypei;
   };
+
+  ZTableEntry(const ZTableEntry& other) {
+    this->zvalue = other.zvalue;
+    this->depth = other.depth;
+    this->score = other.score;
+    this->nodetype = other.nodetype;
+  }
+
+  ZTableEntry& operator=(const ZTableEntry& other) {
+    this->zvalue = other.zvalue;
+    this->depth = other.depth;
+    this->score = other.score;
+    this->nodetype = other.nodetype;
+    return *this;
+  }
 
   void update(int depthi,int scorei,int nodetypei) {
     depth = depthi;
@@ -29,4 +44,6 @@ class ZTableEntry {
     score = scorei;
     nodetype = nodetypei;
   };
+
+
 };
