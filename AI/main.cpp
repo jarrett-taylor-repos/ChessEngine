@@ -9,8 +9,8 @@
 #include "./helpers/moveList.cpp"
 using namespace std;
 
-int alphabeta(Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable){
-
+int alphabeta(Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes){
+  numnodes++;
   if (logging) {
     log<<logtab<<"starting search for depth "<<depth<<" FEN: "<<b.GetFen()<<" alpha: "<<alpha<<" beta: "<<beta<<endl;
   }
@@ -57,7 +57,7 @@ int alphabeta(Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &l
     // Bitboard bCopy = move.b;
     Bitboard bCopy = b;
     bCopy.MakeMove(move.move);
-    int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable);
+    int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable, numnodes);
     if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
     if (score >= beta ) {
       if (logging) {log<<logtab<<"score "<<score<<" is greater than beta "<<beta<<" returning beta"<<endl;}
@@ -75,7 +75,7 @@ int alphabeta(Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &l
   return alpha;
 }
 
-int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int depth=2, int alpha = -9999999, int beta = 9999999) {
+int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes, int depth=2, int alpha = -9999999, int beta = 9999999) {
   if (logging) {
     log<<logtab<<"starting root search with alpha: "<<alpha<<" and beta: "<<beta<<endl;
   }
@@ -92,7 +92,7 @@ int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, st
     // Bitboard bCopy = currentMove.b;
     Bitboard bCopy = b;
     bCopy.MakeMove(move.move);
-    int eval = -alphabeta(bCopy, -beta, -alpha, depth, log, logging, logtab+"\t\t", ztable);
+    int eval = -alphabeta(bCopy, -beta, -alpha, depth, log, logging, logtab+"\t\t", ztable, numnodes);
     if (eval > alpha) {
       alpha = eval;
       bestMove = move.move;
@@ -113,7 +113,7 @@ int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, st
   return bestMove;
 }
 
-int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int depth=2) {
+int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
   if (logging) log<<"\tsearch for depth "<<depth<<endl;
   bool isGameOver = true;
   Moves moves;
@@ -154,7 +154,7 @@ int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, i
     ogalpha = alpha;
     // int beta = eval + (250 * pow(2, betaWindow)); //TODO, adjust these
     if (logging) log<<"\t\ttesting window alpha: "<<alpha<<" beta: "<<beta<<endl;
-    bestMove = rootsearch(b, allmoves, log, logging, "\t\t\t", ztable, depth, alpha, beta);
+    bestMove = rootsearch(b, allmoves, log, logging, "\t\t\t", ztable, numnodes, depth, alpha, beta);
     if (bestMove==0) {
       cout<<"Lower cutoff"<<endl;
       if (logging) log<<"\t\tno move could raise alpha, lowering bound for aspiration window"<<endl;
@@ -171,12 +171,12 @@ int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, i
   return bestMove;
 }
 
-bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int depth=1) {
+bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
   if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
   int bestMove = 0;
   // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
   for (int i=0; i<depth+1; i++) {
-    bestMove = bestMoveAtDepth(b, log, logging, ztable, i);
+    bestMove = bestMoveAtDepth(b, log, logging, ztable, numnodes, i);
   }
 
   if (bestMove == 0) {
@@ -196,7 +196,7 @@ bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simga
   return true;
 }
 
-bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int expected_time = 2) {
+bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
   if (logging) log<<"starting set-time search for time: "<<time<<"and FEN: "<<b.GetFen()<<endl;
   int bestMove = 0;
   // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
@@ -204,15 +204,16 @@ bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgam
   long time_elapsed = 0;
   int depth = 0;
 
-  while (time_taken+3*time_elapsed < expected_time*1000) {
+  while (time_taken+3*time_elapsed < expected_time*1000) { //TODO: change equation
     long start = clock();
-    bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
+    bestMove = bestMoveAtDepth(b, log, logging, ztable, numnodes, depth);
     long end = clock();
     time_elapsed = end-start;
-    cout<<"time elapsed: "<<time_elapsed<<endl;
+    // cout<<"time elapsed: "<<time_elapsed<<endl;
     time_taken+=time_elapsed;
     depth++;
   }
+  maxdepth = depth-1;
 
   if (bestMove == 0) {
     if (logging) log<<"game is over"<<endl;
@@ -248,11 +249,14 @@ void playgame_setdepth(int depth) {
   int i = 0;
   bool isGameOngoing = true;
   while (isGameOngoing  && i < 250) {
+    int numnodes = 0;
+    long start = clock();
     log.open("logs\\log_"+to_string(i)+".md");
-    isGameOngoing = makeMoveSetDepth(b, log, logging, simgames, *ztable, depth);
+    isGameOngoing = makeMoveSetDepth(b, log, logging, simgames, *ztable, numnodes, depth);
     log.close();
+    long end = clock();
     i++;
-    cout<<i<<endl;
+    cout<<i<<"-searched "<<numnodes<<" nodes in "<<end-start<<"ms"<<endl;
   }
   cout<<endl;
 }
@@ -273,17 +277,21 @@ void playgame_settime(int time) {
   int i = 0;
   bool isGameOngoing = true;
   while (isGameOngoing  && i < 250) {
+    int numnodes = 0;
+    long start = clock();
+    int maxdepth = 0;
     log.open("logs\\log_"+to_string(i)+".md");
-    isGameOngoing = makeMoveSetTime(b, log, logging, simgames, *ztable, time);
+    isGameOngoing = makeMoveSetTime(b, log, logging, simgames, *ztable, numnodes, maxdepth, time);
     log.close();
+    long end = clock();
     i++;
-    cout<<i<<endl;
+    cout<<i<<"-searched "<<numnodes<<" nodes in "<<end-start<<"ms up to depth "<<maxdepth<<endl;
   }
   cout<<endl;
 }
 
 void playgame_against_settime(int time) {
-    InitAll();
+  InitAll();
   srand(5);
   // Bitboard b("rnb1k2r/1pqp1ppp/p3pn2/8/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R b KQkq - 0 8");
   Bitboard b("rnbq1rk1/ppp1bppp/4pn2/3p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R b KQ - 0 6");
@@ -298,8 +306,11 @@ void playgame_against_settime(int time) {
   int i = 0;
   bool isGameOngoing = true;
   while (isGameOngoing  && i < 250) {
+    int numnodes = 0;
+    long start = clock();
+    int maxdepth = 0;
     log.open("logs\\log_"+to_string(i)+".md");
-    isGameOngoing = makeMoveSetTime(b, log, logging, simgames, *ztable, time);
+    isGameOngoing = makeMoveSetTime(b, log, logging, simgames, *ztable, maxdepth, numnodes, time);
     log.close();
     i++;
     cout<<b.GetFen()<<endl;
