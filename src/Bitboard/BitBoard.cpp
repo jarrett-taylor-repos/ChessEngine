@@ -742,8 +742,143 @@ class Bitboard {
     bool PossibleMoveIsACapture(int move) { return getMoveCapture(move); }; 
     bool IsDraw() { return isMoveRepetition || (halfMoveClock >= 50); };
 
+    Moves GetMovesByIndex(int index) {
+        Moves movesList;
+        if(!TestBit(occ[BOTH], index)) return movesList; 
+
+        U64 att, moves, unableToCapture, ableToCapture;
+
+        if(TestBit(bb[P], index)) {
+            moves = wPawnPushes(precomputtedSingleBit[index]);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, P, true, false, 0, Empty);
+
+            //pawn captures 
+            moves = wPawnAllCaptures(precomputtedSingleBit[index]);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, P, true, true, enPassantTarget, occ[BLACK]);
+
+            return movesList;
+        }
+        if(TestBit(bb[N], index)) {
+            unableToCapture = occ[WHITE];
+            ableToCapture = occ[BLACK];
+
+            att = precomputtedKnights[index];
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, N, true, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[B], index)) {
+            unableToCapture = occ[WHITE];
+            ableToCapture = occ[BLACK];
+
+            att = GetBishopAttacks(index, occ[BOTH]);
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, B, true, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[R], index)) {
+            unableToCapture = occ[WHITE];
+            ableToCapture = occ[BLACK];
+
+            att = GetRookAttacks(index, occ[BOTH]);
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, R, true, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[Q], index)) {
+            unableToCapture = occ[WHITE];
+            ableToCapture = occ[BLACK];
+
+            att = GetQueenAttacks(index, occ[BOTH]);
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, Q, true, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[K], index)) {
+            unableToCapture = occ[WHITE];
+            ableToCapture = occ[BLACK];
+
+            att = wKingPsuedoMoves();
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, K, true, false, 0, ableToCapture);
+
+            return movesList;
+        }
+
+        if(TestBit(bb[p], index)) {
+            unableToCapture = occ[BLACK];
+            ableToCapture = occ[WHITE];
+            moves = bPawnPushes(precomputtedSingleBit[index]);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, p, false, false, 0, Empty);
+
+            //pawn captures 
+            moves = bPawnAllCaptures(precomputtedSingleBit[index]);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, p, false, true, enPassantTarget, occ[BLACK]);
+
+            return movesList;
+        }
+        if(TestBit(bb[n], index)) {
+            unableToCapture = occ[BLACK];
+            ableToCapture = occ[WHITE];
+
+            att = precomputtedKnights[index];
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, n, false, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[b], index)) {
+            unableToCapture = occ[BLACK];
+            ableToCapture = occ[WHITE];
+
+            att = GetBishopAttacks(index, occ[BOTH]);
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, b, false, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[r], index)) {
+            unableToCapture = occ[BLACK];
+            ableToCapture = occ[WHITE];
+
+            att = GetRookAttacks(index, occ[BOTH]);
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, r, false, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[q], index)) {
+            unableToCapture = occ[BLACK];
+            ableToCapture = occ[WHITE];
+
+            att = GetQueenAttacks(index, occ[BOTH]);
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, q, false, false, 0, ableToCapture);
+
+            return movesList;
+        }
+        if(TestBit(bb[k], index)) {
+            unableToCapture = occ[BLACK];
+            ableToCapture = occ[WHITE];
+
+            att = bKingPsuedoMoves();
+            moves = GetMovesFromPieceAttacks(att, unableToCapture);
+            if(moves != Empty) FindAndInsertMoves(movesList, index, moves, k, false, false, 0, ableToCapture);
+
+            return movesList;
+        }
+    };
+
     bool MakeMoveFromUci(string uci) {
-        Moves movesList = GenerateMoves();
+        string start = uci.substr(0, 2);
+        int index = StringtoIndex(start);
+        if(index == -1) return 0;
+
+        Moves movesList = GetMovesByIndex(index);
         int move = GetMoveByUci(movesList, uci);
         return MakeMove(move);
     }
