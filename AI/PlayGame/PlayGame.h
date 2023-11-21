@@ -1,14 +1,15 @@
 #include "../AlphaBeta/AlphaBeta.h"
 using namespace AlphaBeta;
-//change simgames to go to UCI folder
 
 namespace PlayGame {
+    string simgamefile = "../../UCI/simgames.txt";
+
     void playgame_setdepth(int depth, string fen = startFen, bool logging = false) {
         srand(5);
         Bitboard b(fen);
         ofstream log;
         ofstream simgames;
-        simgames.open("simgames.txt");
+        simgames.open(simgamefile);
 
         ZTable* ztable = new ZTable;
         
@@ -32,7 +33,7 @@ namespace PlayGame {
         Bitboard b(fen);
         ofstream log;
         ofstream simgames;
-        simgames.open("simgames.txt");
+        simgames.open(simgamefile);
 
         ZTable* ztable = new ZTable;
 
@@ -57,7 +58,7 @@ namespace PlayGame {
         Bitboard b(fen);
         ofstream log;
         ofstream simgames;
-        simgames.open("simgames.txt");
+        simgames.open(simgamefile);
 
         ZTable* ztable = new ZTable;
         
