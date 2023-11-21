@@ -3,7 +3,7 @@ using namespace AlphaBeta;
 //change simgames to go to UCI folder
 
 namespace PlayGame {
-    void playgame_setdepth(int depth, string fen = startFen) {
+    void playgame_setdepth(int depth, string fen = startFen, bool logging = false) {
         srand(5);
         Bitboard b(fen);
         ofstream log;
@@ -12,7 +12,6 @@ namespace PlayGame {
 
         ZTable* ztable = new ZTable;
         
-        bool logging = true;
         int i = 0;
         bool isGameOngoing = true;
         while (isGameOngoing  && i < 250) {
@@ -28,7 +27,7 @@ namespace PlayGame {
         cout<<endl;
     }
 
-    void playgame_settime(int time, string fen = startFen) {
+    void playgame_settime(int time, string fen = startFen, bool logging = false) {
         srand(5);
         Bitboard b(fen);
         ofstream log;
@@ -36,8 +35,7 @@ namespace PlayGame {
         simgames.open("simgames.txt");
 
         ZTable* ztable = new ZTable;
-        
-        bool logging = true;
+
         int i = 0;
         bool isGameOngoing = true;
         while (isGameOngoing  && i < 250) {
@@ -54,7 +52,7 @@ namespace PlayGame {
         cout<<endl;
     }
 
-    void playgame_against_settime(int time, string fen = startFen) {
+    void playgame_against_settime(int time, string fen = startFen, bool logging = false) {
         srand(5);
         Bitboard b(fen);
         ofstream log;
@@ -63,7 +61,6 @@ namespace PlayGame {
 
         ZTable* ztable = new ZTable;
         
-        bool logging = true;
         int i = 0;
         bool isGameOngoing = true;
         while (isGameOngoing  && i < 250) {
