@@ -28,8 +28,8 @@ class MoveList {
         int eval;
         unsigned long long zvalue = bCopy.GetZobrist();
         ZTableEntry z = ztable.getEntry(zvalue);
-        if (z.zvalue==zvalue && z.nodetype == 0) {
-          eval = z.score;
+        if (z.TestZValue(zvalue) && z.TestNodeValue(0)) {
+          eval = z.GetScore();
         } else {
           eval = bCopy.GetEvaluationWithMultiplier();
         }
