@@ -1,23 +1,19 @@
-#include <vector>
-#include <map>
+#include "ZTable.cpp"
 #include "move.cpp"
 #include <algorithm>
-#include "ZTable.cpp"
-#include <iostream>
+#include <vector>
+#include <map>
 using namespace std;
 
 bool compareMoves(MoveEval move1, MoveEval move2) {
-  return (move1.eval<move2.eval);
+  return (move1.GetEval()<move2.GetEval());
 }
 
 class MoveList {
   public:
     vector<MoveEval> movelist;
   
-  void sortmoves() {
-
-    sort(movelist.begin(), movelist.end(), compareMoves);
-  }
+  void sortmoves() { sort(movelist.begin(), movelist.end(), compareMoves); };
 
   MoveList(Moves &moves, Bitboard &b, int alpha, bool isAlphaBeta, int standPat, bool &isGameOver, ZTable &ztable, bool logging, ofstream &log, string logtab) {
     isGameOver = true;
@@ -35,7 +31,7 @@ class MoveList {
         if (z.zvalue==zvalue && z.nodetype == 0) {
           eval = z.score;
         } else {
-          eval = getEval(bCopy);
+          eval = bCopy.GetEvaluationWithMultiplier();
         }
         movelist.emplace_back(moves.GetMove(i), eval);
       } else {

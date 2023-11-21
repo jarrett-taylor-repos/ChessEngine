@@ -1,3 +1,5 @@
+typedef unsigned long long U64;
+
 class ZTableEntry {
   public:
   U64 zvalue;

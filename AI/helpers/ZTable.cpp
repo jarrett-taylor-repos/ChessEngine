@@ -1,5 +1,6 @@
 #include "ZTableEntry.cpp"
 #include <iostream>
+#include <fstream>
 
 class ZTable {
   private:

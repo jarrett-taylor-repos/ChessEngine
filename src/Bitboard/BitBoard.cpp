@@ -279,6 +279,7 @@ class Bitboard {
     };
 
     int GetEvaluation() { return evaluation; };
+    int GetEvaluationWithMultiplier() { return evaluation*GetMoveMultiplier(); };
     string GetCastlingRights() { return CastlingRightsString(castlingRights); };
 
     U64 GetwPawn() { return bb[P]; };
