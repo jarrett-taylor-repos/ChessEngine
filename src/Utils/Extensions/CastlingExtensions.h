@@ -29,7 +29,7 @@ namespace CastlingExtensions {
         if(castling & wk) temp += "K";
         if(castling & wq) temp += "Q";
         if(castling & bk) temp += "k";
-        if(castling & bq) temp += "Q";
+        if(castling & bq) temp += "q";
         return temp;
     }
 }

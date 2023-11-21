@@ -52,6 +52,13 @@ class ZTableEntry {
 	int GetScore() { return score; };
 	int GetNodeType() { return nodetype; };
 
-	bool TestZValue(U64 val) { return val==zvalue; };
-	bool TestNodeValue(int val) { return nodetype==val; };
+	bool isScoreGreaterThanOrEqual(int val) { return score>=val; };
+	bool isScoreLessThanOrEqual(int val) { return score<=val; };
+	bool isScoreGreaterThan(int val) { return score>val; };
+	bool isScoreLessThan(int val) { return score<val; };
+
+	bool isDepthLessThan(int val) { return depth<val; };
+
+	bool isEqualToZvalue(U64 val) { return zvalue == val; };
+	bool isEqualToNodeType(int val) { return nodetype == val; };
 };

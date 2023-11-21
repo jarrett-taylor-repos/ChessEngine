@@ -73,10 +73,9 @@ namespace AlphaBeta {
             ztable.setValue(b.GetZobrist(), depth, alpha, 0);
         }
         return alpha;
-    }
+        }
 
-
-    int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes, int depth=2, int alpha = -9999999, int beta = 9999999) {
+        int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes, int depth=2, int alpha = -9999999, int beta = 9999999) {
         if (logging) {
             log<<logtab<<"starting root search with alpha: "<<alpha<<" and beta: "<<beta<<endl;
         }
@@ -112,9 +111,9 @@ namespace AlphaBeta {
             if (logging) log<<logtab<<" TESTING: received entry with zvalue"<<zEntry.GetZvalue()<<endl;
             };
         return bestMove;
-    }
+        }
 
-    int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
+        int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
         if (logging) log<<"\tsearch for depth "<<depth<<endl;
         bool isGameOver = true;
         Moves moves;
@@ -128,18 +127,18 @@ namespace AlphaBeta {
         if (logging) log<<"\t\ttrying to retrieve table entry with zvalue "<<zValue<<endl;
         ZTableEntry zEntry = ztable.getEntry(zValue);
         if (logging) log<<"\t\treceived entry with zvalue"<<zEntry.GetZvalue()<<endl;
-        if (zEntry.TestZValue(zValue)) {
-            if (zEntry.TestNodeValue(0)) {
+        if (zEntry.isEqualToZvalue(zValue)) {
+            if (zEntry.isEqualToNodeType(0)) {
                 eval = zEntry.GetScore();
                 // cout<<"eval exact"<<endl;
             }
-            if (zEntry.TestNodeValue(-1) && zEntry.isScoreGreaterThan(eval)) {//lower bound
+            if (zEntry.isEqualToNodeType(-1) && zEntry.isScoreGreaterThan(eval)) {//lower bound
                 // cout<<"eval lower"<<endl;
-                eval=zEntry.GetScore();
+                eval=zEntry.GetScore();;
             }
-            if (zEntry.TestNodeValue(1) && zEntry.isScoreLessThan(eval)) {//upper bound
+            if (zEntry.isEqualToNodeType(1) && zEntry.isScoreLessThan(eval)) {//upper bound
                 // cout<<"eval upper"<<endl;
-                eval=zEntry.GetScore();
+                eval=zEntry.GetScore();;
             }
         }
 
@@ -170,9 +169,9 @@ namespace AlphaBeta {
         if (logging) log<<"\tfound bestmove: "<<GetMoveUci(bestMove)<<endl;
         ztable.setValue(b.GetZobrist(), depth, ogalpha, 0);
         return bestMove;
-    }
+        }
 
-    bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
+        bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
         if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
         int bestMove = 0;
         // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
@@ -195,9 +194,9 @@ namespace AlphaBeta {
             simgames<<GetMoveUci(bestMove)<<endl;
         }
         return true;
-    }
+        }
 
-    bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
+        bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
         if (logging) log<<"starting set-time search for time: "<<time<<"and FEN: "<<b.GetFen()<<endl;
         int bestMove = 0;
         // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
@@ -232,5 +231,5 @@ namespace AlphaBeta {
             simgames<<GetMoveUci(bestMove)<<endl;
         }
         return true;
-    }
+        }
 }

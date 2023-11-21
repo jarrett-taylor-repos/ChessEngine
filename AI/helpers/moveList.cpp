@@ -5,15 +5,16 @@
 #include <map>
 using namespace std;
 
-bool compareMoves(MoveEval move1, MoveEval move2) {
-  return (move1.GetEval()<move2.GetEval());
-}
+bool compareMoves(MoveEval move1, MoveEval move2) { return (move1.GetEval()<move2.GetEval()); }
 
 class MoveList {
   public:
     vector<MoveEval> movelist;
   
-  void sortmoves() { sort(movelist.begin(), movelist.end(), compareMoves); };
+  void sortmoves() {
+
+    sort(movelist.begin(), movelist.end(), compareMoves);
+  }
 
   MoveList(Moves &moves, Bitboard &b, int alpha, bool isAlphaBeta, int standPat, bool &isGameOver, ZTable &ztable, bool logging, ofstream &log, string logtab) {
     isGameOver = true;
@@ -28,7 +29,7 @@ class MoveList {
         int eval;
         unsigned long long zvalue = bCopy.GetZobrist();
         ZTableEntry z = ztable.getEntry(zvalue);
-        if (z.TestZValue(zvalue) && z.TestNodeValue(0)) {
+        if (z.isEqualToZvalue(zvalue) && z.isEqualToNodeType(0)) {
           eval = z.GetScore();
         } else {
           eval = bCopy.GetEvaluationWithMultiplier();

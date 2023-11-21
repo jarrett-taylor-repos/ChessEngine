@@ -4,7 +4,7 @@ using namespace AlphaBeta;
 namespace PlayGame {
     string simgamefile = "../../UCI/simgames.txt";
 
-    void playgame_setdepth(int depth, string fen = startFen, bool logging = false) {
+    void playgame_setdepth(int depth, string fen, bool logging) {
         srand(5);
         Bitboard b(fen);
         ofstream log;
@@ -28,7 +28,7 @@ namespace PlayGame {
         cout<<endl;
     }
 
-    void playgame_settime(int time, string fen = startFen, bool logging = false) {
+    void playgame_settime(int time, string fen, bool logging) {
         srand(5);
         Bitboard b(fen);
         ofstream log;
@@ -53,7 +53,7 @@ namespace PlayGame {
         cout<<endl;
     }
 
-    void playgame_against_settime(int time, string fen = startFen, bool logging = false) {
+    void playgame_against_settime(int time, string fen, bool logging) {
         srand(5);
         Bitboard b(fen);
         ofstream log;

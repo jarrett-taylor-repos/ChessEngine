@@ -2,6 +2,7 @@
 using namespace PlayGame;
 
 void main() {
-    string fen = "r3k2r/pbppq1bp/1pn1ppp1/8/2PPP1n1/1P3NP1/PB1N1P1P/R2QKB1R w KQkq - 1 11";
-    playgame_setdepth(5, fen);
+    InitAll();
+    string fen = "2kr3r/pbpp2bp/1p2p1p1/2q1Pp2/2P3n1/PP3NP1/1B1NKP1P/R2Q1B1R w - - 1 15";
+    playgame_setdepth(5, fen, false);
 }
