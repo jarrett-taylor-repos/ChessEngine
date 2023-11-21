@@ -172,7 +172,7 @@ namespace AlphaBeta {
         return bestMove;
     }
 
-        bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
+    bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
         if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
         int bestMove = 0;
         // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
@@ -197,7 +197,7 @@ namespace AlphaBeta {
         return true;
         }
 
-        bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
+    bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
         if (logging) log<<"starting set-time search for time: "<<time<<"and FEN: "<<b.GetFen()<<endl;
         int bestMove = 0;
         // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
