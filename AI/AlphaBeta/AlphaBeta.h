@@ -30,11 +30,11 @@ namespace AlphaBeta {
 
             if (logging) {log<<logtab<<"retrieved standPat score of "<<standPat<<endl;}
             if (!b.isInCheck()) {
-            if (standPat>=beta) {
-                if (logging) {log<<logtab<<"standPat of "<<standPat<<" is greater than beta "<<beta<<" returning beta"<<endl;}
-                return beta;
-            }
-            if (standPat>alpha) alpha = standPat;
+                if (standPat>=beta) {
+                    if (logging) {log<<logtab<<"standPat of "<<standPat<<" is greater than beta "<<beta<<" returning beta"<<endl;}
+                    return beta;
+                }
+                if (standPat>alpha) alpha = standPat;
             }
         }
 
@@ -43,8 +43,8 @@ namespace AlphaBeta {
         if (isGameOver || b.IsDraw()) {
             if (logging) log<<logtab<<"game is over, returning score of ";
             if (b.isInCheck()) { //checkmate
-            if (logging) log<<"-999999"<<endl;
-            return -999999;
+                if (logging) log<<"-999999"<<endl;
+                return -999999;
             }
             //game is draw
             if (logging) log<<"-1"<<endl;
@@ -52,7 +52,7 @@ namespace AlphaBeta {
         }
         for(auto & move : allmoves.movelist){
             if (logging) {
-            log<<logtab<<"testing move "<<GetMoveUci(move.GetMove())<<endl;
+                log<<logtab<<"testing move "<<GetMoveUci(move.GetMove())<<endl;
             }
             // Bitboard bCopy = move.b;
             Bitboard bCopy = b;
@@ -60,9 +60,10 @@ namespace AlphaBeta {
             int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable, numnodes);
             if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
             if (score >= beta ) {
-            if (logging) {log<<logtab<<"score "<<score<<" is greater than beta "<<beta<<" returning beta"<<endl;}
-            ztable.setValue(b.GetZobrist(), depth, beta, -1);
-            return beta;
+            if (logging) {
+                log<<logtab<<"score "<<score<<" is greater than beta "<<beta<<" returning beta"<<endl;}
+                ztable.setValue(b.GetZobrist(), depth, beta, -1);
+                return beta;
             }
             if (score > alpha ) alpha = score;
         }
@@ -73,9 +74,9 @@ namespace AlphaBeta {
             ztable.setValue(b.GetZobrist(), depth, alpha, 0);
         }
         return alpha;
-        }
+    }
 
-        int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes, int depth=2, int alpha = -9999999, int beta = 9999999) {
+    int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes, int depth=2, int alpha = -9999999, int beta = 9999999) {
         if (logging) {
             log<<logtab<<"starting root search with alpha: "<<alpha<<" and beta: "<<beta<<endl;
         }
@@ -87,20 +88,20 @@ namespace AlphaBeta {
 
         for(auto & move : allmoves.movelist){
             if (logging) {
-            log<<logtab<<"rootsearch move "<<GetMoveUci(move.GetMove())<<alpha<<"|"<<beta<<endl;
+                log<<logtab<<"rootsearch move "<<GetMoveUci(move.GetMove())<<alpha<<"|"<<beta<<endl;
             }
             // Bitboard bCopy = currentMove.b;
             Bitboard bCopy = b;
             bCopy.MakeMove(move.GetMove());
             int eval = -alphabeta(bCopy, -beta, -alpha, depth, log, logging, logtab+"\t\t", ztable, numnodes);
             if (eval > alpha) {
-            alpha = eval;
-            bestMove = move.GetMove();
+                alpha = eval;
+                bestMove = move.GetMove();
             }
             if (eval >= beta) {
-            //beta cutoff, need to change aspiration window
-            log<<logtab<<"found eval of "<<eval<<", which is greater than beta: "<<beta<<"returning beta"<<endl;
-            return -1;
+                //beta cutoff, need to change aspiration window
+                log<<logtab<<"found eval of "<<eval<<", which is greater than beta: "<<beta<<"returning beta"<<endl;
+                return -1;
             }
         }
         if (logging) log<<logtab<<"found bestMove: "<<GetMoveUci(bestMove)<<" with eval "<<alpha<<" TEMP NUM "<<bestMove<<endl;
@@ -109,11 +110,11 @@ namespace AlphaBeta {
             if (logging) log<<logtab<<"setting zvalue "<<b.GetZobrist()<<" with score "<<alpha<<" and depth "<<depth<<endl;
             ZTableEntry zEntry = ztable.getEntry(b.GetZobrist());
             if (logging) log<<logtab<<" TESTING: received entry with zvalue"<<zEntry.GetZvalue()<<endl;
-            };
+        };
         return bestMove;
-        }
+    }
 
-        int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
+    int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
         if (logging) log<<"\tsearch for depth "<<depth<<endl;
         bool isGameOver = true;
         Moves moves;
@@ -169,7 +170,7 @@ namespace AlphaBeta {
         if (logging) log<<"\tfound bestmove: "<<GetMoveUci(bestMove)<<endl;
         ztable.setValue(b.GetZobrist(), depth, ogalpha, 0);
         return bestMove;
-        }
+    }
 
         bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
         if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
@@ -231,5 +232,5 @@ namespace AlphaBeta {
             simgames<<GetMoveUci(bestMove)<<endl;
         }
         return true;
-        }
+    }
 }
