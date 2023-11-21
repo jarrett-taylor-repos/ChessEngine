@@ -109,7 +109,7 @@ namespace AlphaBeta {
             ztable.setValue(b.GetZobrist(), depth, alpha, 0);
             if (logging) log<<logtab<<"setting zvalue "<<b.GetZobrist()<<" with score "<<alpha<<" and depth "<<depth<<endl;
             ZTableEntry zEntry = ztable.getEntry(b.GetZobrist());
-            if (logging) log<<logtab<<" TESTING: received entry with zvalue"<<zEntry.zvalue<<endl;
+            if (logging) log<<logtab<<" TESTING: received entry with zvalue"<<zEntry.GetZvalue()<<endl;
             };
         return bestMove;
     }
@@ -127,19 +127,19 @@ namespace AlphaBeta {
         int eval = b.GetEvaluationWithMultiplier();
         if (logging) log<<"\t\ttrying to retrieve table entry with zvalue "<<zValue<<endl;
         ZTableEntry zEntry = ztable.getEntry(zValue);
-        if (logging) log<<"\t\treceived entry with zvalue"<<zEntry.zvalue<<endl;
-        if (zEntry.zvalue==zValue) {
-            if (zEntry.nodetype==0) {
-            eval = zEntry.score;
-            // cout<<"eval exact"<<endl;
+        if (logging) log<<"\t\treceived entry with zvalue"<<zEntry.GetZvalue()<<endl;
+        if (zEntry.TestZValue(zValue)) {
+            if (zEntry.TestNodeValue(0)) {
+                eval = zEntry.GetScore();
+                // cout<<"eval exact"<<endl;
             }
-            if (zEntry.nodetype==-1 && zEntry.score>eval) {//lower bound
-            // cout<<"eval lower"<<endl;
-            eval=zEntry.score;
+            if (zEntry.TestNodeValue(-1) && zEntry.isScoreGreaterThan(eval)) {//lower bound
+                // cout<<"eval lower"<<endl;
+                eval=zEntry.GetScore();
             }
-            if (zEntry.nodetype==1 && zEntry.score<eval) {//upper bound
-            // cout<<"eval upper"<<endl;
-            eval=zEntry.score;
+            if (zEntry.TestNodeValue(1) && zEntry.isScoreLessThan(eval)) {//upper bound
+                // cout<<"eval upper"<<endl;
+                eval=zEntry.GetScore();
             }
         }
 
