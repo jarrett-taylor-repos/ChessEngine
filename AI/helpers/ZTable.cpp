@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 
+enum { ExactValue = 0, UpperBound = 1, LowerBound = -1 };
+
 class ZTable {
   private:
     int tableSize;
@@ -24,32 +26,37 @@ class ZTable {
             logtab += "\t";
         }
         shouldReturn=false;
-        if (entry.isEqualToZvalue(zvalue)) {
-            //checking depth
-            if (entry.isDepthLessThan(depth) && depth>0) {
+
+        if(!entry.isEqualToZvalue(zvalue)) {
+            if (logging) log<<logtab<<"did not find corresponding entry"<<endl;
+            return 0;
+        }
+
+        //checking depth
+        if (entry.isDepthLessThan(depth) && depth>0) {
             if (logging) log<<logtab<<"entry depth of "<<entry.GetDepth()<<" is less than depth: "<<depth<<" not using entry"<<endl;
             shouldReturn=false;
             return 0;
-            }
+        }
 
-            //exact value
-            if (entry.isEqualToNodeType(0)) {
+        //exact value
+        if (entry.isEqualToNodeType(0)) {
             shouldReturn=true;
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type 0 and depth: "<<entry.GetDepth();
             if (entry.isScoreGreaterThanOrEqual(beta)) { 
                 if (logging) log<<". score is greater than beta, returning beta of "<<beta<<endl;
                 return beta;
-                };
+            }
             if (entry.isScoreLessThanOrEqual(alpha)) { 
                 if (logging) log<<". score is less than alpha, returning alpha of "<<alpha<<endl;
                 return alpha;
             }
             if (logging) log<<". returning score"<<endl;
             return entry.GetScore();
-            }
+        }
 
-            //lower bound
-            if (entry.isEqualToNodeType(-1)) {
+        //lower bound
+        if (entry.isEqualToNodeType(-1)) {
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type -1 (lower bound) and depth: "<<entry.GetDepth();
             if (entry.isScoreGreaterThanOrEqual(beta)) {
                 if (logging) log<<". score is greater than beta, returning beta of "<<beta<<endl;
@@ -60,10 +67,10 @@ class ZTable {
                 if (logging) log<<". score is greater than alpha ("<<alpha<<"), changing alpha to score"<<endl;
                 alpha = entry.GetScore();
             }
-            }
+        }
 
-            //upper bound
-            if (entry.isEqualToNodeType(1)) {
+        //upper bound
+        if (entry.isEqualToNodeType(1)) {
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type -1 (lower bound) and depth: "<<entry.GetDepth();
             if (entry.isScoreLessThanOrEqual(alpha)) {
                 if (logging) log<<". score is less than alpha, returning alpha of "<<alpha<<endl;
@@ -75,20 +82,9 @@ class ZTable {
                 if (logging) log<<". score is greater than beta ("<<beta<<"), changing beta to score"<<endl;
                 beta = entry.GetScore();
             }
-            }
-        } else {
-            if (logging) log<<logtab<<"did not find corresponding entry"<<endl;
         }
     };
 
-    void setValue(U64 zvaluei,int depthi,int scorei,int nodetypei) {
-      
-      table[zvaluei%tableSize] = ZTableEntry(zvaluei, depthi, scorei, nodetypei);
-
-      // ZTableEntry entry = getEntry(zvaluei);
-      // if (depthi>=entry.depth || entry.zvalue == 0) {
-      //   table[zvaluei%tableSize].update(zvaluei, depthi, scorei, nodetypei);
-      // }
-    };
+    void setValue(U64 zvaluei,int depthi,int scorei,int nodetypei) { table[zvaluei%tableSize] = ZTableEntry(zvaluei, depthi, scorei, nodetypei); };
 
 };

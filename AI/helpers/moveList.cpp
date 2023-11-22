@@ -33,8 +33,8 @@ class MoveList {
             }
             movelist.emplace_back(moves.GetMove(i), eval);
         } else {
-                isGameOver=false;
-                if (logging) {log<<logtab+'\t'<<"removing move "<<GetMoveUci(moves.GetMove(i))<<" for pruning"<<endl;}
+            isGameOver=false;
+            if (logging) {log<<logtab+'\t'<<"removing move "<<GetMoveUci(moves.GetMove(i))<<" for pruning"<<endl;}
         }
     }
 
