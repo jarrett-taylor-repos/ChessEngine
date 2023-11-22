@@ -186,6 +186,7 @@ namespace AlphaBeta {
         }
 
         if (logging) {log<<"making move "<<GetMoveUci(bestMove)<<endl;}
+        cout<<GetMoveUci(bestMove)<<endl;
         bool movemade = b.MakeMove(bestMove);
         if (!movemade==1) {
             cout<<"ERROR FOR FEN: "<<b.GetFen();

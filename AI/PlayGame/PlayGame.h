@@ -53,6 +53,40 @@ namespace PlayGame {
         cout<<endl;
     }
 
+    void playgame_against_setdepth(int depth, string fen, bool logging) {
+        srand(5);
+        Bitboard b(fen);
+        ofstream log;
+        ofstream simgames;
+        simgames.open(simgamefile);
+
+        ZTable* ztable = new ZTable;
+        
+        int i = 0;
+        bool isGameOngoing = true;
+        while (isGameOngoing  && i < 250) {
+            int numnodes = 0;
+            long start = clock();
+            int maxdepth = 0;
+            log.open("logs\\log_"+to_string(i)+".md");
+            isGameOngoing = makeMoveSetDepth(b, log, logging, simgames, *ztable, numnodes, depth);
+            log.close();
+            i++;
+            cout<<b.GetFen()<<endl;
+            string humanMove;
+            bool moveMade = false;
+            while (!moveMade) {
+                cin>>humanMove;
+                moveMade = b.MakeMoveFromUci(humanMove);
+                if (!moveMade) {
+                    cout<<"bad move"<<endl;
+                }
+            }
+            simgames<<humanMove<<endl;
+        }
+        cout<<endl;
+    }
+
     void playgame_against_settime(int time, string fen, bool logging) {
         srand(5);
         Bitboard b(fen);
@@ -76,11 +110,11 @@ namespace PlayGame {
             string humanMove;
             bool moveMade = false;
             while (!moveMade) {
-            cin>>humanMove;
-            moveMade = b.MakeMoveFromUci(humanMove);
-            if (!moveMade) {
-                cout<<"bad move"<<endl;
-            }
+                cin>>humanMove;
+                moveMade = b.MakeMoveFromUci(humanMove);
+                if (!moveMade) {
+                    cout<<"bad move"<<endl;
+                }
             }
             simgames<<humanMove<<endl;
         }
