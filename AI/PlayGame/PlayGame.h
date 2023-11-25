@@ -1,15 +1,15 @@
-#include "../AlphaBeta/AlphaBeta.h"
-using namespace AlphaBeta;
+#include "../Search/AlphaBeta.h"
+using namespace Search;
 
 namespace PlayGame {
     string simgamefile = "../../UCI/simgames.txt";
 
-    bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
+    bool MakeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
         if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
         int bestMove = 0;
         // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
         for (int i=0; i<depth+1; i++) {
-            bestMove = bestMoveAtDepth(b, log, logging, ztable, numnodes, i);
+            bestMove = BestMoveAtDepth(b, log, logging, ztable, numnodes, i);
         }
 
         if (bestMove == 0) {
@@ -30,7 +30,7 @@ namespace PlayGame {
         return true;
     }
 
-    bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
+    bool MakeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
         if (logging) log<<"starting set-time search for time: "<<time<<"and FEN: "<<b.GetFen()<<endl;
         int bestMove = 0;
         // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
@@ -40,7 +40,7 @@ namespace PlayGame {
 
         while (time_taken+3*time_elapsed < expected_time*1000) { //TODO: change equation
             long start = clock();
-            bestMove = bestMoveAtDepth(b, log, logging, ztable, numnodes, depth);
+            bestMove = BestMoveAtDepth(b, log, logging, ztable, numnodes, depth);
             long end = clock();
             time_elapsed = end-start;
             // cout<<"time elapsed: "<<time_elapsed<<endl;
@@ -82,7 +82,7 @@ namespace PlayGame {
             int numnodes = 0;
             long start = clock();
             log.open("logs\\log_"+to_string(i)+".md");
-            isGameOngoing = makeMoveSetDepth(b, log, logging, simgames, *ztable, numnodes, depth);
+            isGameOngoing = MakeMoveSetDepth(b, log, logging, simgames, *ztable, numnodes, depth);
             log.close();
             long end = clock();
             i++;
@@ -107,7 +107,7 @@ namespace PlayGame {
             long start = clock();
             int maxdepth = 0;
             log.open("logs\\log_"+to_string(i)+".md");
-            isGameOngoing = makeMoveSetTime(b, log, logging, simgames, *ztable, numnodes, maxdepth, time);
+            isGameOngoing = MakeMoveSetTime(b, log, logging, simgames, *ztable, numnodes, maxdepth, time);
             log.close();
             long end = clock();
             i++;
@@ -132,7 +132,7 @@ namespace PlayGame {
             long start = clock();
             int maxdepth = 0;
             log.open("logs\\log_"+to_string(i)+".md");
-            isGameOngoing = makeMoveSetDepth(b, log, logging, simgames, *ztable, numnodes, depth);
+            isGameOngoing = MakeMoveSetDepth(b, log, logging, simgames, *ztable, numnodes, depth);
             log.close();
             i++;
             cout<<b.GetFen()<<endl;
@@ -166,7 +166,7 @@ namespace PlayGame {
             long start = clock();
             int maxdepth = 0;
             log.open("logs\\log_"+to_string(i)+".md");
-            isGameOngoing = makeMoveSetTime(b, log, logging, simgames, *ztable, maxdepth, numnodes, time);
+            isGameOngoing = MakeMoveSetTime(b, log, logging, simgames, *ztable, maxdepth, numnodes, time);
             log.close();
             i++;
             cout<<b.GetFen()<<endl;

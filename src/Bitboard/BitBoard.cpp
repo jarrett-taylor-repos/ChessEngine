@@ -1,3 +1,4 @@
+#pragma once
 #include "..\Utils\Extensions\Extensions.h"
 using namespace Extensions;     
 

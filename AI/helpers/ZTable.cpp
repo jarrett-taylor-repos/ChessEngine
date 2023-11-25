@@ -12,14 +12,14 @@ class ZTable {
   public:
     ZTable() {
         tableSize = 1000000;
-        for (int i; i<tableSize; i++) table[i] = ZTableEntry();
+        for (int i = 0; i<tableSize; i++) table[i] = ZTableEntry();
     }
 
-    ZTableEntry getEntry(U64 zvalue) { //TODO: change to return pointer to stuff?
+    ZTableEntry GetEntry(U64 zvalue) { //TODO: change to return pointer to stuff?
         return table[zvalue%tableSize];
     };
 
-    int getValue(int &alpha, int &beta, bool &shouldReturn, int depth, U64 &zvalue, ofstream &log, string logtab, bool logging) {
+    int GetValue(int &alpha, int &beta, bool &shouldReturn, int depth, U64 &zvalue, ofstream &log, string logtab, bool logging) {
         ZTableEntry entry = table[zvalue%tableSize];
         if (logging) {
             log<<logtab<<"getting value for zvalue "<<zvalue<<" which is entry # "<<zvalue%tableSize<<endl;
@@ -85,6 +85,6 @@ class ZTable {
         }
     };
 
-    void setValue(U64 zvaluei,int depthi,int scorei,int nodetypei) { table[zvaluei%tableSize] = ZTableEntry(zvaluei, depthi, scorei, nodetypei); };
+    void SetValue(U64 zvaluei,int depthi,int scorei,int nodetypei) { table[zvaluei%tableSize] = ZTableEntry(zvaluei, depthi, scorei, nodetypei); };
 
 };

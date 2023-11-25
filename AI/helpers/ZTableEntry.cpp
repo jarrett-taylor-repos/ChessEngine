@@ -34,13 +34,13 @@ class ZTableEntry {
 		return *this;
 	};
 
-	void update(int depthi,int scorei,int nodetypei) {
+	void Update(int depthi,int scorei,int nodetypei) {
 		depth = depthi;
 		score = scorei;
 		nodetype = nodetypei;
 	};
 
-	void update(int zvaluei,int depthi,int scorei,int nodetypei) {
+	void Update(int zvaluei,int depthi,int scorei,int nodetypei) {
 		zvalue = zvaluei;
 		depth = depthi;
 		score = scorei;

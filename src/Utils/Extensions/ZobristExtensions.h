@@ -1,3 +1,4 @@
+#pragma once
 #include "..\Constants\Constants.h"
 using namespace Constants;
 

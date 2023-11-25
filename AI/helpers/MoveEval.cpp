@@ -1,3 +1,5 @@
+#include "../../src/BitBoard/BitBoard.cpp"
+
 class MoveEval {
     private:
     int move;
@@ -23,7 +25,7 @@ class MoveEval {
         eval=inputeval;
     }
 
-    void assignBoard(Bitboard &inputb) {
+    void AssignBoard(Bitboard &inputb) {
         b = inputb;
         hasBoard=true;
     };

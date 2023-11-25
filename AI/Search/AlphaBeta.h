@@ -1,5 +1,5 @@
 #include "../../src/Bitboard/Bitboard.cpp"
-#include "../helpers/moveList.cpp"
+#include "../Helpers/MoveList.cpp"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -8,8 +8,8 @@
 #include <cmath>
 #include <chrono>
 
-namespace AlphaBeta {
-    int alphabeta(Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes){
+namespace Search {
+    int AlphaBeta(Bitboard b, int alpha, int beta, int depth, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes){
         numnodes++;
         if (logging) {
             log<<logtab<<"starting search for depth "<<depth<<" FEN: "<<b.GetFen()<<" alpha: "<<alpha<<" beta: "<<beta<<endl;
@@ -18,7 +18,7 @@ namespace AlphaBeta {
         int ogalpha = alpha;
         U64 zvalue = b.GetZobrist();
         bool shouldReturn = false;
-        int returnValue = ztable.getValue(alpha, beta, shouldReturn, depth, zvalue, log, logtab, logging);
+        int returnValue = ztable.GetValue(alpha, beta, shouldReturn, depth, zvalue, log, logtab, logging);
         if (shouldReturn) return returnValue;
 
         Moves moves;
@@ -56,27 +56,31 @@ namespace AlphaBeta {
             }
             // Bitboard bCopy = move.b;
             Bitboard bCopy = b;
-            bCopy.MakeMove(move.GetMove());
-            int score = -alphabeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable, numnodes);
+            if(move.HasBoard()) {
+                bCopy = move.GetBoard();
+            } else {
+                bCopy.MakeMove(move.GetMove());
+            }
+            int score = -AlphaBeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable, numnodes);
             if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
             if (score >= beta ) {
             if (logging) {
                 log<<logtab<<"score "<<score<<" is greater than beta "<<beta<<" returning beta"<<endl;}
-                ztable.setValue(b.GetZobrist(), depth, beta, -1);
+                ztable.SetValue(b.GetZobrist(), depth, beta, -1);
                 return beta;
             }
             if (score > alpha ) alpha = score;
         }
         if (logging) {log<<logtab<<"sending back score of "<<alpha<<endl;}
         if (ogalpha==alpha){
-            ztable.setValue(b.GetZobrist(), depth, alpha, 1);
+            ztable.SetValue(b.GetZobrist(), depth, alpha, 1);
         } else {
-            ztable.setValue(b.GetZobrist(), depth, alpha, 0);
+            ztable.SetValue(b.GetZobrist(), depth, alpha, 0);
         }
         return alpha;
     }
 
-    int rootsearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes, int depth=2, int alpha = -9999999, int beta = 9999999) {
+    int RootSearch(Bitboard &b, MoveList &allmoves, ofstream &log, bool &logging, string logtab, ZTable &ztable, int &numnodes, int depth=2, int alpha = -9999999, int beta = 9999999) {
         if (logging) {
             log<<logtab<<"starting root search with alpha: "<<alpha<<" and beta: "<<beta<<endl;
         }
@@ -92,8 +96,13 @@ namespace AlphaBeta {
             }
             // Bitboard bCopy = currentMove.b;
             Bitboard bCopy = b;
-            bCopy.MakeMove(move.GetMove());
-            int eval = -alphabeta(bCopy, -beta, -alpha, depth, log, logging, logtab+"\t\t", ztable, numnodes);
+            if(move.HasBoard()) {
+                bCopy = move.GetBoard();
+            } else {
+                bCopy.MakeMove(move.GetMove());
+            }
+
+            int eval = -AlphaBeta(bCopy, -beta, -alpha, depth, log, logging, logtab+"\t\t", ztable, numnodes);
             if (eval > alpha) {
                 alpha = eval;
                 bestMove = move.GetMove();
@@ -106,15 +115,15 @@ namespace AlphaBeta {
         }
         if (logging) log<<logtab<<"found bestMove: "<<GetMoveUci(bestMove)<<" with eval "<<alpha<<" TEMP NUM "<<bestMove<<endl;
         if (bestMove != 0) {
-            ztable.setValue(b.GetZobrist(), depth, alpha, 0);
+            ztable.SetValue(b.GetZobrist(), depth, alpha, 0);
             if (logging) log<<logtab<<"setting zvalue "<<b.GetZobrist()<<" with score "<<alpha<<" and depth "<<depth<<endl;
-            ZTableEntry zEntry = ztable.getEntry(b.GetZobrist());
+            ZTableEntry zEntry = ztable.GetEntry(b.GetZobrist());
             if (logging) log<<logtab<<" TESTING: received entry with zvalue"<<zEntry.GetZvalue()<<endl;
         };
         return bestMove;
     }
 
-    int bestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
+    int BestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
         if (logging) log<<"\tsearch for depth "<<depth<<endl;
         bool isGameOver = true;
         Moves moves;
@@ -126,7 +135,7 @@ namespace AlphaBeta {
         U64 zValue = b.GetZobrist();
         int eval = b.GetEvaluationWithMultiplier();
         if (logging) log<<"\t\ttrying to retrieve table entry with zvalue "<<zValue<<endl;
-        ZTableEntry zEntry = ztable.getEntry(zValue);
+        ZTableEntry zEntry = ztable.GetEntry(zValue);
         if (logging) log<<"\t\treceived entry with zvalue"<<zEntry.GetZvalue()<<endl;
         if (zEntry.isEqualToZvalue(zValue)) {
             if (zEntry.isEqualToNodeType(0)) {
@@ -155,83 +164,20 @@ namespace AlphaBeta {
             ogalpha = alpha;
             // int beta = eval + (250 * pow(2, betaWindow)); //TODO, adjust these
             if (logging) log<<"\t\ttesting window alpha: "<<alpha<<" beta: "<<beta<<endl;
-            bestMove = rootsearch(b, allmoves, log, logging, "\t\t\t", ztable, numnodes, depth, alpha, beta);
+            bestMove = RootSearch(b, allmoves, log, logging, "\t\t\t", ztable, numnodes, depth, alpha, beta);
             if (bestMove==0) {
-            cout<<"Lower cutoff"<<endl;
-            if (logging) log<<"\t\tno move could raise alpha, lowering bound for aspiration window"<<endl;
-            alphaWindow++;
+                cout<<"Lower cutoff"<<endl;
+                if (logging) log<<"\t\tno move could raise alpha, lowering bound for aspiration window"<<endl;
+                alphaWindow++;
             }
             if (bestMove==-1) {
-            cout<<"upper cutoff"<<endl;
-            if (logging) log<<"\t\tmove caused beta cutoff, raising bound for aspiration window"<<endl;
-            betaWindow++;
+                cout<<"upper cutoff"<<endl;
+                if (logging) log<<"\t\tmove caused beta cutoff, raising bound for aspiration window"<<endl;
+                betaWindow++;
             }
         }
         if (logging) log<<"\tfound bestmove: "<<GetMoveUci(bestMove)<<endl;
-        ztable.setValue(b.GetZobrist(), depth, ogalpha, 0);
+        ztable.SetValue(b.GetZobrist(), depth, ogalpha, 0);
         return bestMove;
-    }
-
-    bool makeMoveSetDepth(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int depth=1) {
-        if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
-        int bestMove = 0;
-        // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
-        for (int i=0; i<depth+1; i++) {
-            bestMove = bestMoveAtDepth(b, log, logging, ztable, numnodes, i);
-        }
-
-        if (bestMove == 0) {
-            if (logging) log<<"game is over"<<endl;
-            return false;
-        }
-
-        if (logging) {log<<"making move "<<GetMoveUci(bestMove)<<endl;}
-        cout<<GetMoveUci(bestMove)<<endl;
-        bool movemade = b.MakeMove(bestMove);
-        if (!movemade==1) {
-            cout<<"ERROR FOR FEN: "<<b.GetFen();
-            cout<<" with num: "<<bestMove;
-            cout<<"or uci move: "<<GetMoveUci(bestMove)<<endl<<endl;
-        } else {
-            simgames<<GetMoveUci(bestMove)<<endl;
-        }
-        return true;
-        }
-
-    bool makeMoveSetTime(Bitboard &b, ofstream &log, bool &logging, ofstream &simgames, ZTable &ztable, int &numnodes, int &maxdepth, int expected_time = 2) {
-        if (logging) log<<"starting set-time search for time: "<<time<<"and FEN: "<<b.GetFen()<<endl;
-        int bestMove = 0;
-        // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
-        long time_taken = 0;
-        long time_elapsed = 0;
-        int depth = 0;
-
-        while (time_taken+3*time_elapsed < expected_time*1000) { //TODO: change equation
-            long start = clock();
-            bestMove = bestMoveAtDepth(b, log, logging, ztable, numnodes, depth);
-            long end = clock();
-            time_elapsed = end-start;
-            // cout<<"time elapsed: "<<time_elapsed<<endl;
-            time_taken+=time_elapsed;
-            depth++;
-        }
-        maxdepth = depth-1;
-
-        if (bestMove == 0) {
-            if (logging) log<<"game is over"<<endl;
-            return false;
-        }
-
-        if (logging) {log<<"making move "<<GetMoveUci(bestMove)<<endl;}
-        cout<<GetMoveUci(bestMove)<<endl;
-        bool movemade = b.MakeMove(bestMove);
-        if (!movemade==1) {
-            cout<<"ERROR FOR FEN: "<<b.GetFen();
-            cout<<" with num: "<<bestMove;
-            cout<<"or uci move: "<<GetMoveUci(bestMove)<<endl<<endl;
-        } else {
-            simgames<<GetMoveUci(bestMove)<<endl;
-        }
-        return true;
     }
 }

@@ -6,6 +6,11 @@ int main () {
     
     auto start = high_resolution_clock::now();
     Bitboard copytemp = b;
+    copytemp = b;
+    copytemp = b;
+    copytemp = b;
+    copytemp = b;
+    copytemp = b;
     auto stop = high_resolution_clock::now();
     auto duration_nano = duration_cast<nanoseconds>(stop - start);
     auto duration_micro = duration_cast<microseconds>(stop - start);
@@ -13,10 +18,12 @@ int main () {
     cout << "Copy board: " + to_string(duration_micro.count()) << endl;
 
     start = high_resolution_clock::now();
-    b.MakeMoveFromUci("e2e4");
-    b.MakeMoveFromUci("e7e5");
-    b.MakeMoveFromUci("h2h4");
-    b.MakeMoveFromUci("h7h5");
+    Bitboard emptyload;
+    Bitboard emptyload2;
+    Bitboard emptyload3;
+    Bitboard emptyload4;
+    Bitboard emptyload5;
+    Bitboard emptyload6;
     stop = high_resolution_clock::now();
     duration_nano = duration_cast<nanoseconds>(stop - start);
     duration_micro = duration_cast<microseconds>(stop - start);
