@@ -33,7 +33,6 @@ class MoveList {
                 MoveEval currEval(moves.GetMove(i), bCopy, eval);
                 movelist.push_back(currEval);
                 //movelist.emplace_back(moves.GetMove(i), eval);
-                //need to includemove val with bcopy here 
             } else {
                 isGameOver=false;
                 if (logging) {log<<logtab+'\t'<<"removing move "<<GetMoveUci(moves.GetMove(i))<<" for pruning"<<endl;}
