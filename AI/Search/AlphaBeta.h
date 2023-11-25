@@ -56,11 +56,8 @@ namespace Search {
             }
             // Bitboard bCopy = move.b;
             Bitboard bCopy = b;
-            if(move.HasBoard()) {
-                bCopy = move.GetBoard();
-            } else {
-                bCopy.MakeMove(move.GetMove());
-            }
+            bCopy.MakeMove(move.GetMove());
+            
             int score = -AlphaBeta(bCopy, -beta, -alpha, depth-1, log, logging, logtab+"\t", ztable, numnodes);
             if (logging) log<<logtab<<"retrieved score of "<<score<<endl;
             if (score >= beta ) {
@@ -96,11 +93,7 @@ namespace Search {
             }
             // Bitboard bCopy = currentMove.b;
             Bitboard bCopy = b;
-            if(move.HasBoard()) {
-                bCopy = move.GetBoard();
-            } else {
-                bCopy.MakeMove(move.GetMove());
-            }
+            bCopy.MakeMove(move.GetMove());
 
             int eval = -AlphaBeta(bCopy, -beta, -alpha, depth, log, logging, logtab+"\t\t", ztable, numnodes);
             if (eval > alpha) {

@@ -8,9 +8,7 @@ namespace PlayGame {
         if (logging) log<<"starting set-depth search for depth: "<<depth<<"and FEN: "<<b.GetFen()<<endl;
         int bestMove = 0;
         // bestMove = bestMoveAtDepth(b, log, logging, ztable, depth);
-        for (int i=0; i<depth+1; i++) {
-            bestMove = BestMoveAtDepth(b, log, logging, ztable, numnodes, i);
-        }
+        for (int i=0; i<depth+1; i++) bestMove = BestMoveAtDepth(b, log, logging, ztable, numnodes, i);
 
         if (bestMove == 0) {
             if (logging) log<<"game is over"<<endl;
@@ -20,7 +18,8 @@ namespace PlayGame {
         if (logging) {log<<"making move "<<GetMoveUci(bestMove)<<endl;}
         cout<<GetMoveUci(bestMove)<<endl;
         bool movemade = b.MakeMove(bestMove);
-        if (!movemade==1) {
+
+        if (!movemade) {
             cout<<"ERROR FOR FEN: "<<b.GetFen();
             cout<<" with num: "<<bestMove;
             cout<<"or uci move: "<<GetMoveUci(bestMove)<<endl<<endl;
@@ -57,7 +56,7 @@ namespace PlayGame {
         if (logging) {log<<"making move "<<GetMoveUci(bestMove)<<endl;}
         cout<<GetMoveUci(bestMove)<<endl;
         bool movemade = b.MakeMove(bestMove);
-        if (!movemade==1) {
+        if (!movemade) {
             cout<<"ERROR FOR FEN: "<<b.GetFen();
             cout<<" with num: "<<bestMove;
             cout<<"or uci move: "<<GetMoveUci(bestMove)<<endl<<endl;
