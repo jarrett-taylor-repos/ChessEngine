@@ -73,6 +73,7 @@ namespace PlayGame {
         ofstream log;
         ofstream simgames;
         simgames.open(simgamefile);
+        simgames<<fen<<endl;
 
         ZTable* ztable = new ZTable;
         
@@ -97,6 +98,7 @@ namespace PlayGame {
         ofstream log;
         ofstream simgames;
         simgames.open(simgamefile);
+        simgames<<fen<<endl;
 
         ZTable* ztable = new ZTable;
 
@@ -122,6 +124,7 @@ namespace PlayGame {
         ofstream log;
         ofstream simgames;
         simgames.open(simgamefile);
+        simgames<<fen<<endl;
 
         ZTable* ztable = new ZTable;
         
@@ -135,7 +138,9 @@ namespace PlayGame {
             isGameOngoing = makeMoveSetDepth(b, log, logging, simgames, *ztable, numnodes, depth);
             log.close();
             i++;
-            cout<<b.GetFen()<<endl;
+            long end = clock();
+            cout<<i<<"-searched "<<numnodes<<" nodes in "<<end-start<<"ms up to depth "<<maxdepth<<endl;
+
             string humanMove;
             bool moveMade = false;
             while (!moveMade) {
@@ -156,6 +161,7 @@ namespace PlayGame {
         ofstream log;
         ofstream simgames;
         simgames.open(simgamefile);
+        simgames<<fen<<endl;
 
         ZTable* ztable = new ZTable;
         
@@ -169,7 +175,8 @@ namespace PlayGame {
             isGameOngoing = makeMoveSetTime(b, log, logging, simgames, *ztable, maxdepth, numnodes, time);
             log.close();
             i++;
-            cout<<b.GetFen()<<endl;
+            long end = clock();
+            cout<<i<<"-searched "<<numnodes<<" nodes in "<<end-start<<"ms up to depth "<<maxdepth<<endl;
             string humanMove;
             bool moveMade = false;
             while (!moveMade) {

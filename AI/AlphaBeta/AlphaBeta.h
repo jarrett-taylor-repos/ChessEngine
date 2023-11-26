@@ -111,6 +111,7 @@ namespace AlphaBeta {
             ZTableEntry zEntry = ztable.getEntry(b.GetZobrist());
             if (logging) log<<logtab<<" TESTING: received entry with zvalue"<<zEntry.GetZvalue()<<endl;
         };
+        cout<<"eval for bestMove of "<<GetMoveUci(bestMove)<<" is "<<alpha<<endl;  //TODO: remove
         return bestMove;
     }
 
