@@ -2,8 +2,6 @@
 #include <iostream>
 #include <fstream>
 
-enum { ExactValue = 0, UpperBound = 1, LowerBound = -1 };
-
 class ZTable {
   private:
     int tableSize;
@@ -15,11 +13,11 @@ class ZTable {
         for (int i = 0; i<tableSize; i++) table[i] = ZTableEntry();
     }
 
-    ZTableEntry GetEntry(U64 zvalue) { //TODO: change to return pointer to stuff?
+    ZTableEntry GetEntry(U64 zvalue) { 
         return table[zvalue%tableSize];
     };
 
-    int GetValue(int &alpha, int &beta, bool &shouldReturn, int depth, U64 &zvalue, ofstream &log, string logtab, bool logging) {
+    int GetValue(int alpha, int beta, bool &shouldReturn, int depth, U64 zvalue, ofstream &log, string logtab, bool logging) {
         ZTableEntry entry = table[zvalue%tableSize];
         if (logging) {
             log<<logtab<<"getting value for zvalue "<<zvalue<<" which is entry # "<<zvalue%tableSize<<endl;
@@ -40,7 +38,7 @@ class ZTable {
         }
 
         //exact value
-        if (entry.isEqualToNodeType(0)) {
+        if (entry.isNodeTypeExactValue()) {
             shouldReturn=true;
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type 0 and depth: "<<entry.GetDepth();
             if (entry.isScoreGreaterThanOrEqual(beta)) { 
@@ -56,7 +54,7 @@ class ZTable {
         }
 
         //lower bound
-        if (entry.isEqualToNodeType(-1)) {
+        if (entry.isEqualToNodeTypeLowerBound()) {
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type -1 (lower bound) and depth: "<<entry.GetDepth();
             if (entry.isScoreGreaterThanOrEqual(beta)) {
                 if (logging) log<<". score is greater than beta, returning beta of "<<beta<<endl;
@@ -70,7 +68,7 @@ class ZTable {
         }
 
         //upper bound
-        if (entry.isEqualToNodeType(1)) {
+        if (entry.isEqualToNodeTypeUpperBound()) {
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type -1 (lower bound) and depth: "<<entry.GetDepth();
             if (entry.isScoreLessThanOrEqual(alpha)) {
                 if (logging) log<<". score is less than alpha, returning alpha of "<<alpha<<endl;
@@ -85,6 +83,6 @@ class ZTable {
         }
     };
 
-    void SetValue(U64 zvaluei,int depthi,int scorei,int nodetypei) { table[zvaluei%tableSize] = ZTableEntry(zvaluei, depthi, scorei, nodetypei); };
+    void SetValue(U64 zvaluei, int depthi, int scorei, int nodetypei) { table[zvaluei%tableSize] = ZTableEntry(zvaluei, depthi, scorei, nodetypei); };
 
 };

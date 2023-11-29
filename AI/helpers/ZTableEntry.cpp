@@ -1,4 +1,5 @@
 typedef unsigned long long U64;
+enum { ExactValue = 0, UpperBound = 1, LowerBound = -1 };
 
 class ZTableEntry {
 	U64 zvalue;
@@ -60,5 +61,9 @@ class ZTableEntry {
 	bool isDepthLessThan(int val) { return depth<val; };
 
 	bool isEqualToZvalue(U64 val) { return zvalue == val; };
-	bool isEqualToNodeType(int val) { return nodetype == val; };
+	bool isEqualToNodeType(int val) { return nodetype == val; };	
+
+	bool isNodeTypeExactValue() { return nodetype == ExactValue; };
+	bool isNodeTypeLowerBound() { return nodetype == LowerBound; };
+	bool isNodeTypeUpperBound() { return nodetype == UpperBound; };
 };
