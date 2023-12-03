@@ -1,5 +1,9 @@
 # ChessEngine
 
+This Ches Engine makes use of bitboards to denote where piece are.
+
+A bit board is a 64 bit data type that allows to populating of single bits to denote location of a piece.
+Below is the index of each bit in an U64 (unsigned long long).
 /*
     0   1  2  3  4  5  6  7
     8   9 10 11 12 13 14 15
@@ -11,22 +15,223 @@
     56 57 58 59 60 61 62 63 
 */
 
-/*
-0            000
-^ Color Bit  ^^^ piece bits
+In Fen Notation the starting string of a chess game is:
+    rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
-0 001 - black pawn
-0 010 - black knight
-0 011 - black bishop
-0 100 - black rook
-0 101 - black queen
-0 110 - black king
+The string at the start denotes the piece where lowercase is a Black piece and uppercase is White piece.
+    Ex. r - Black rook, N - White knight, etc.
+    
+This is then followed by the side to move (w for white, b for black) 
+    the castling rights (K represents white kingside, q represents Black queen side)
+    the half move number (number of moves since a capture or pawn move)
+    and then the full turn number (number of moves from both sides).
+    
 
-1 001 - white pawn
-1 010 - white knight
-1 011 - white bishop
-1 100 - white rook
-1 101 - white queen
-1 110 - white king
+And if we were to print a board from the start fen 
++---+---+---+---+---+---+---+---+ 
+| r | n | b | q | k | b | n | r | 8 
++---+---+---+---+---+---+---+---+   
+| p | p | p | p | p | p | p | p | 7 
++---+---+---+---+---+---+---+---+   
+| . | . | . | . | . | . | . | . | 6 
++---+---+---+---+---+---+---+---+   
+| . | . | . | . | . | . | . | . | 5 
++---+---+---+---+---+---+---+---+   
+| . | . | . | . | . | . | . | . | 4 
++---+---+---+---+---+---+---+---+   
+| . | . | . | . | . | . | . | . | 3 
++---+---+---+---+---+---+---+---+   
+| P | P | P | P | P | P | P | P | 2 
++---+---+---+---+---+---+---+---+   
+| R | N | B | Q | K | B | N | R | 1 
++---+---+---+---+---+---+---+---+   
+  A   B   C   D   E   F   G   H    
 
-*/
+
+We can then represent this in bit boards as =>
+wPawn (U64 number is 00000000 00000000 00000000 00000000 00000000 00000000 11111111 00000000)
+. . . . . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+1 1 1 1 1 1 1 1    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+bPawn
+. . . . . . . .    8
+1 1 1 1 1 1 1 1    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+wKnight
+. . . . . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. 1 . . . . 1 .    1
+A B C D E F G H
+
+
+bKnight
+. 1 . . . . 1 .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+wBishop
+. . . . . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . 1 . . 1 . .    1
+A B C D E F G H
+
+
+bBishop
+. . 1 . . 1 . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+wRook
+. . . . . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+1 . . . . . . 1    1
+A B C D E F G H
+
+
+bRook
+1 . . . . . . 1    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+wQueen
+. . . . . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . 1 . . . .    1
+A B C D E F G H
+
+
+bQueen
+. . . 1 . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+wKing
+. . . . . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . 1 . . .    1
+A B C D E F G H
+
+
+bKing
+. . . . 1 . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+We can also have occupancy boards for each side and all together as so.
+bBoard
+1 1 1 1 1 1 1 1    8
+1 1 1 1 1 1 1 1    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+. . . . . . . .    2
+. . . . . . . .    1
+A B C D E F G H
+
+
+wBoard
+. . . . . . . .    8
+. . . . . . . .    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+1 1 1 1 1 1 1 1    2
+1 1 1 1 1 1 1 1    1
+A B C D E F G H
+
+
+BothBoard
+1 1 1 1 1 1 1 1    8
+1 1 1 1 1 1 1 1    7
+. . . . . . . .    6
+. . . . . . . .    5
+. . . . . . . .    4
+. . . . . . . .    3
+1 1 1 1 1 1 1 1    2
+1 1 1 1 1 1 1 1    1
+A B C D E F G H
+
+
+All of this bitboard allow the computer to perform bit shifting operations to calulte moves in an efficient manner.
+This is super easy for all non sliding pieces (pawn, knights, kings), but is a bit trickier for sliding pieces(bishop, rook, queen)
+
+For the generation of sliding pieces, a technique known as Magic Bitboards is used. 
+    This is just a method of perfect hashing to be able to input an occupancy board and get back the possible moves from precomputted data points:
