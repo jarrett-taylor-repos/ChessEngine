@@ -1,5 +1,4 @@
 # ChessEngine
-
 This Ches Engine makes use of bitboards to denote where piece are.
 
 A bit board is a 64 bit data type that allows to populating of single bits to denote location of a piece.
