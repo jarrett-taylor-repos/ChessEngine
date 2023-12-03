@@ -1,4 +1,4 @@
-#include "../Search/AlphaBeta.h"
+#include "../Search/Search.h"
 using namespace Search;
 
 namespace PlayGame {

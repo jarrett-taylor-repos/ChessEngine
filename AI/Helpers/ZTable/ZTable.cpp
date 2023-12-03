@@ -1,6 +1,7 @@
 #include "ZTableEntry.cpp"
 #include <iostream>
 #include <fstream>
+using namespace std;
 
 class ZTable {
   private:
@@ -54,7 +55,7 @@ class ZTable {
         }
 
         //lower bound
-        if (entry.isEqualToNodeTypeLowerBound()) {
+        if (entry.isNodeTypeLowerBound()) {
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type -1 (lower bound) and depth: "<<entry.GetDepth();
             if (entry.isScoreGreaterThanOrEqual(beta)) {
                 if (logging) log<<". score is greater than beta, returning beta of "<<beta<<endl;
@@ -68,7 +69,7 @@ class ZTable {
         }
 
         //upper bound
-        if (entry.isEqualToNodeTypeUpperBound()) {
+        if (entry.isNodeTypeUpperBound()) {
             if (logging) log<<logtab<<"found score of "<<entry.GetScore()<<" with node type -1 (lower bound) and depth: "<<entry.GetDepth();
             if (entry.isScoreLessThanOrEqual(alpha)) {
                 if (logging) log<<". score is less than alpha, returning alpha of "<<alpha<<endl;

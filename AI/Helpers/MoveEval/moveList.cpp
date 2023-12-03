@@ -1,4 +1,4 @@
-#include "ZTable.cpp"
+#include "../ZTable/ZTable.cpp"
 #include "MoveEval.cpp"
 #include <algorithm>
 #include <vector>
