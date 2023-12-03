@@ -113,10 +113,11 @@ namespace Search {
             ZTableEntry zEntry = ztable.GetEntry(b.GetZobrist());
             if (logging) log<<logtab<<" TESTING: received entry with zvalue"<<zEntry.GetZvalue()<<endl;
         };
+        //cout<<"eval for bestMove of "<<GetMoveUci(bestMove)<<" is "<<alpha<<endl; //TODO: remove
         return bestMove;
     }
 
-    int BestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth=2) {
+    int BestMoveAtDepth(Bitboard &b, ofstream &log, bool &logging, ZTable &ztable, int &numnodes, int depth) {
         if (logging) log<<"\tsearch for depth "<<depth<<endl;
         bool isGameOver = true;
         Moves moves;
