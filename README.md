@@ -233,4 +233,67 @@ All of this bitboard allow the computer to perform bit shifting operations to ca
 This is super easy for all non sliding pieces (pawn, knights, kings), but is a bit trickier for sliding pieces(bishop, rook, queen)
 
 For the generation of sliding pieces, a technique known as Magic Bitboards is used. 
-    This is just a method of perfect hashing to be able to input an occupancy board and get back the possible moves from precomputted data points:
+    This is just a method of perfect hashing to be able to input an occupancy board and get back the possible moves from precomputted data points.
+    This starts by creating a list of possible moves at each sqaure on the chess board with bishop and rooks.
+
+For example, a rook and a bishop a d4 has the possible moves:
+Rook: 
+. . . 1 . . . . 
+. . . 1 . . . . 
+. . . 1 . . . . 
+. . . 1 . . . . 
+1 1 1 . 1 1 1 1 
+. . . 1 . . . . 
+. . . 1 . . . . 
+. . . 1 . . . . 
+
+Bishop: 
+. . . . . . . 1
+1 . . . . . 1 .
+. 1 . . . 1 . .
+. . 1 . 1 . . .
+. . . . . . . .
+. . 1 . 1 . . .
+. 1 . . . 1 . .
+1 . . . . . 1 .
+
+But these pieces cant just travel over pieces.
+    If a piece of the same color is at a square, they can only move up to a square where the pieces touch
+    Else if the piece is the opposite color, they can capture that piece but move no further past it.
+
+    These are know as blockers
+
+Thus imagine the following blockers are on a board:
+. . . . . . . .
+. . . 1 . . . .
+. . . . . 1 . .
+. . . . . . . .
+. . . . . . 1 .
+. . . 1 . . . .
+. 1 . . . . . .
+. . . . . . . .
+
+Then the legal rook and bishop ATTACKS represented as a bit board become:
+Rook: 
+. . . . . . . . 
+. . . 1 . . . . 
+. . . 1 . . . . 
+. . . 1 . . . . 
+1 1 1 . 1 1 1 . 
+. . . 1 . . . . 
+. . . . . . . . 
+. . . . . . . . 
+
+Bishop: 
+. . . . . . . .
+1 . . . . . . .
+. 1 . . . 1 . .
+. . 1 . 1 . . .
+. . . . . . . .
+. . 1 . 1 . . .
+. 1 . . . 1 . .
+. . . . . . 1 .
+
+But with 2^64 possibilities of blcokers on a ches board, we have to creative when figuring out a way to calculate moves.
+
+But if we think about how many squares a bishop or a rook can see at a certain time based on the current square they are located at, we get the following. 
