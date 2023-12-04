@@ -132,15 +132,15 @@ namespace Search {
         ZTableEntry zEntry = ztable.GetEntry(zValue);
         if (logging) log<<"\t\treceived entry with zvalue"<<zEntry.GetZvalue()<<endl;
         if (zEntry.isEqualToZvalue(zValue)) {
-            if (zEntry.isEqualToNodeType(0)) {
+            if (zEntry.isEqualToNodeType(ExactValue)) {
                 eval = zEntry.GetScore();
                 // cout<<"eval exact"<<endl;
             }
-            if (zEntry.isEqualToNodeType(-1) && zEntry.isScoreGreaterThan(eval)) {//lower bound
+            if (zEntry.isEqualToNodeType(LowerBound) && zEntry.isScoreGreaterThan(eval)) {//lower bound
                 // cout<<"eval lower"<<endl;
                 eval=zEntry.GetScore();;
             }
-            if (zEntry.isEqualToNodeType(1) && zEntry.isScoreLessThan(eval)) {//upper bound
+            if (zEntry.isEqualToNodeType(UpperBound) && zEntry.isScoreLessThan(eval)) {//upper bound
                 // cout<<"eval upper"<<endl;
                 eval=zEntry.GetScore();;
             }
