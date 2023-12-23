@@ -1,4 +1,4 @@
-#include "../../src/Bitboard/Bitboard.cpp"
+#include "../../src/Engine/Bitboard/Bitboard.cpp"
 #include "../Helpers/MoveEval/MoveList.cpp"
 #include <iostream>
 #include <string>

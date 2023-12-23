@@ -3,6 +3,7 @@
 int main () {
     InitAll();
     Bitboard b(startFen);
-    b.PrintPretty();
-    b.PrintAllBoards();
+    //b.PrintPretty();
+    //b.PrintAllBoards();
+    Print(precomputtedKnights[d4]);
 }
