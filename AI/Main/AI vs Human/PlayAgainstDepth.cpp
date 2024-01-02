@@ -3,6 +3,6 @@ using namespace PlayGame;
 
 void main() {
     InitAll();
-    string fen = "r3k2r/pbppq1bp/1pn1ppp1/8/2PPP1n1/1P3NP1/PB1N1P1P/R2QKB1R w KQkq - 1 11";
+    string fen = "rnb1k2r/1pq2ppp/p3pn2/3p4/1b1NP3/2N1BP2/PPPQ2PP/R3KB1R w KQkq d6 0 9";
     playgame_against_setdepth(3, fen, false);
 }
