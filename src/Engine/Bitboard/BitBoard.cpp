@@ -64,8 +64,7 @@ class Bitboard {
     void LoadFenHelper(vector<string> arguments) {
         ClearBoard();
         boardData.SetDataFromFen(arguments);
-
-        U64 zob = boardData.GetZobrist();
+    
         boardData.SetCastlingZobrist();
         boardData.SetZobristHashEnpassant();
         boardData.SetZobristHashForMove();

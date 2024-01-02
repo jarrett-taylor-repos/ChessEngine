@@ -66,7 +66,7 @@ class BoardData {
     };
 
     bool operator==(const BoardData& other) {
-         bool zobIndexMatch = this->zobristTableIndex == other.zobristTableIndex;
+        bool zobIndexMatch = this->zobristTableIndex == other.zobristTableIndex;
         if(!zobIndexMatch) return false;
 
         for(int i = 0; i <= this->zobristTableIndex; i++) {
@@ -97,6 +97,7 @@ class BoardData {
         Reset(zobrist);
 
         ClearZobristTable();
+
         wKingSq = -1; bKingSq = -1;
         evaluation = 0;    
     };
@@ -198,7 +199,7 @@ class BoardData {
     };
 
     //zobrist 
-    void SetZobristHashForSquareAndPiece(int boardSq, int piece) { zobrist ^= zobristPieceSquareNumber[boardSq][piece]; }
+    void SetZobristHashForSquareAndPiece(int boardSq, int piece) { zobrist ^= zobristPieceSquareNumber[boardSq][piece]; };
 
     int EnpassantZobristIndex() {
         if(enPassantTarget < 16 || enPassantTarget > 47) return -1;
