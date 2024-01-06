@@ -73,4 +73,65 @@ namespace ZobristExtensions {
     U64 castlingNumbers[4] = {574908210110908693,16778786500593516397,17143820992915342748,1681814315895656554};
     U64 enpassantNumbers[16] = {13864844706499754279,286558256491094964,6645179555560583830,17767614113684490210,711347898406262727,6873109488502572951,1127528347165358862,211214089023616093,1898298546004917405,11565305169118951054,14233461215754827776,14460498900765405368,7404917762585082070,132324765516570747,7905583060860740121,16901493222452758416};
     U64 moveNumbers[2] = {15319599126646508154, 11383326910736569834};
+
+    //zobrist 
+    void SetZobristHash(U64 &zobrist, int boardSq, int piece) { zobrist ^= zobristPieceSquareNumber[boardSq][piece]; }
+
+    int EnpassantZobristIndex(int enPassantTarget) {
+        if(enPassantTarget < 16 || enPassantTarget > 47) return -1;
+        if(enPassantTarget < 24) return enPassantTarget - 16;
+        return enPassantTarget - 32;
+    }
+
+    void SetZobristHash(U64 &zobrist, int enpassantTarget) {
+        int index = EnpassantZobristIndex(enpassantTarget);
+        if(index == -1) return;
+        zobrist ^= enpassantNumbers[index];
+    }
+
+    void SetZobristHashOnMakeMove(U64 &zobrist, bool isWhiteMove) {
+        if(isWhiteMove) {
+            zobrist ^= moveNumbers[BLACK];
+            zobrist ^= moveNumbers[WHITE];
+        } else {
+            zobrist ^= moveNumbers[WHITE];
+            zobrist ^= moveNumbers[BLACK];
+        }
+    }
+
+    void SetZobristHash(U64 &zobrist, bool isWhiteMove, bool onMakeMove = false) {
+        if(onMakeMove) {
+            SetZobristHashOnMakeMove(zobrist, isWhiteMove);
+            return;
+        }
+
+        if(isWhiteMove) {
+            zobrist ^= moveNumbers[WHITE];
+        } else {
+            zobrist ^= moveNumbers[BLACK];
+        }
+    }
+
+    int CastlingRightsToZobristIndex(int piece) {
+        if(piece == K) return 0;
+        if(piece == Q) return 1;
+        if(piece == k) return 2;
+        if(piece == q) return 3;
+        return -1;
+    }
+
+    void SetCastlingZobrist(int piece, U64 &zobrist) {
+        int index = CastlingRightsToZobristIndex(piece);
+        if(index == -1) return;
+        zobrist ^= castlingNumbers[index];
+    }
+
+    void SetCastlingZobrist(U64 &zobrist, int castlingRights) {
+        if(!castlingRights) return;
+
+        if(castlingRights & wk) zobrist ^= castlingNumbers[0];
+        if(castlingRights & wq) zobrist ^= castlingNumbers[1];
+        if(castlingRights & bk) zobrist ^= castlingNumbers[2];
+        if(castlingRights & bq) zobrist ^= castlingNumbers[3];
+    }
 }
